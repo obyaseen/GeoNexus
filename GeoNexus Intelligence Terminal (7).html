@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GeoNexus: Global Intelligence Terminal</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        intel: {
+                            bg: '#02050a', 
+                            panel: '#060d1a',
+                            border: '#142847',
+                            accent: '#00d2ff', 
+                            hostile: '#ff1e46', 
+                            allied: '#00fa9a', 
+                            warning: '#ffaa00', 
+                            text: '#768ba5',
+                            highlight: '#dbeafe'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        };
+    </script>
+    
+    <!-- Standard CSS with Hardware-Accelerated Cyber Aesthetics -->
+    <style>
+        * { box-sizing: border-box; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #02050a; }
+
+        .hud-panel {
+            background-color: rgba(6, 13, 26, 0.94);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid #142847;
+            box-shadow: 0 0 25px rgba(0, 10, 30, 0.85);
+            position: relative;
+        }
+
+        .hud-bracket-tl { position: absolute; top: 0; left: 0; width: 8px; height: 8px; border-top: 2px solid #00d2ff; border-left: 2px solid #00d2ff; pointer-events: none; }
+        .hud-bracket-tr { position: absolute; top: 0; right: 0; width: 8px; height: 8px; border-top: 2px solid #00d2ff; border-right: 2px solid #00d2ff; pointer-events: none; }
+        .hud-bracket-bl { position: absolute; bottom: 0; left: 0; width: 8px; height: 8px; border-bottom: 2px solid #00d2ff; border-left: 2px solid #00d2ff; pointer-events: none; }
+        .hud-bracket-br { position: absolute; bottom: 0; right: 0; width: 8px; height: 8px; border-bottom: 2px solid #00d2ff; border-right: 2px solid #00d2ff; pointer-events: none; }
+
+        .neon-text-accent { text-shadow: 0 0 10px rgba(0, 210, 255, 0.85); }
+        .neon-text-allied { text-shadow: 0 0 10px rgba(0, 250, 154, 0.85); }
+
+        .scanlines {
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.25));
+            background-size: 100% 4px;
+            pointer-events: none;
+            position: absolute;
+            inset: 0;
+            z-index: 20;
+            opacity: 0.35;
+            mix-blend-mode: overlay;
+        }
+
+        .vignette-overlay {
+            background: radial-gradient(circle, rgba(0,0,0,0) 45%, rgba(2,5,10,0.95) 100%);
+            pointer-events: none;
+            position: absolute;
+            inset: 0;
+            z-index: 20;
+        }
+
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #142847; border-radius: 2px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00d2ff; }
+
+        .mask-bottom-fade {
+            mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+        }
+
+        .cyber-checkbox {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            border: 1px solid #142847;
+            background: rgba(2, 5, 10, 0.6);
+            border-radius: 2px;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            flex-shrink: 0;
+            transition: all 0.15s ease;
+        }
+        .cyber-checkbox:checked {
+            background: rgba(0, 210, 255, 0.25);
+            border-color: #00d2ff;
+        }
+        .cyber-checkbox:checked::after {
+            content: '';
+            position: absolute;
+            left: 4px;
+            top: 1px;
+            width: 4px;
+            height: 7px;
+            border-right: 2px solid #00d2ff;
+            border-bottom: 2px solid #00d2ff;
+            transform: rotate(45deg);
+        }
+
+        @keyframes dash-flow {
+            to { stroke-dashoffset: -40; }
+        }
+        .animate-data-flow {
+            animation: dash-flow 1.8s linear infinite;
+        }
+
+        @keyframes radar-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-radar-sweep {
+            transform-origin: center;
+            animation: radar-spin 4s linear infinite;
+        }
+    </style>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Critical Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.6/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+</head>
+<body class="bg-intel-bg text-intel-text font-sans h-screen w-screen overflow-hidden selection:bg-intel-accent selection:text-black">
+    <div id="root" class="h-full w-full relative"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useMemo, createContext, useContext } = React;
+
+        // --- ICON SYSTEM WITH LOCKED PIXEL BOUNDS ---
+        const IconActivity = ({ className = "" }) => (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 14, height: 14, minWidth: 14, minHeight: 14 }} className={className}>
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+            </svg>
+        );
+
+        const IconSearch = ({ className = "" }) => (
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 12, height: 12, minWidth: 12, minHeight: 12 }} className={className}>
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+        );
+
+        const IconX = ({ className = "" }) => (
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 12, height: 12, minWidth: 12, minHeight: 12 }} className={className}>
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        );
+
+        const IconCheckCircle = ({ className = "" }) => (
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 13, height: 13, minWidth: 13, minHeight: 13 }} className={className}>
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+        );
+
+        const IconChevronDown = ({ className = "" }) => (
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 12, height: 12, minWidth: 12, minHeight: 12 }} className={className}>
+                <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+        );
+
+        const IconExternalLink = ({ className = "" }) => (
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 10, height: 10, minWidth: 10, minHeight: 10 }} className={className}>
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <line x1="10" y1="14" x2="21" y2="3"></line>
+            </svg>
+        );
+
+        const IconLinkedIn = ({ className = "" }) => (
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style={{ width: 11, height: 11, minWidth: 11, minHeight: 11 }} className={className}>
+                <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"></path>
+            </svg>
+        );
+
+        const IconZap = ({ className = "" }) => (
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style={{ width: 11, height: 11, minWidth: 11, minHeight: 11 }} className={className}>
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+        );
+
+        // --- VERIFIED GLOBAL SOVEREIGN ENTITY DATABASE [196 ENTITIES WITH CALIBRATED REGIONAL OFFSETS] ---
+        // Enhanced centroids ensure clear differentiation between microstates and parent mainland bodies
+        const worldDataString = "AFG|Afghanistan|65|33,ALB|Albania|20.1|41.1,DZA|Algeria|1.6|28,AND|Andorra|1.55|42.52,AGO|Angola|17.8|-11.2,ATG|Antigua and Barbuda|-61.8|17.05,ARG|Argentina|-63.6|-38.4,ARM|Armenia|45|40,AUS|Australia|133.7|-25.2,AUT|Austria|14.1|47.51,AZE|Azerbaijan|47.5|40.1,BHS|Bahamas|-77.3|25,BHR|Bahrain|50.55|26.15,BGD|Bangladesh|90.2|23.6,BRB|Barbados|-59.55|13.19,BLR|Belarus|27.9|53.7,BEL|Belgium|4.46|50.5,BLZ|Belize|-88.9|17.1,BEN|Benin|2.3|9.3,BTN|Bhutan|90.4|27.5,BOL|Bolivia|-63.5|-16.2,BIH|Bosnia and Herzegovina|17.6|43.9,BWA|Botswana|24.6|-22.3,BRA|Brazil|-51.9|-14.2,BRN|Brunei|114.72|4.53,BGR|Bulgaria|25.4|42.7,BFA|Burkina Faso|-1.5|12.2,BDI|Burundi|29.9|-3.3,CPV|Cabo Verde|-24|16,KHM|Cambodia|104.9|12.5,CMR|Cameroon|12.3|3.8,CAN|Canada|-106.3|56.1,CAF|Central African Republic|20.9|6.6,TCD|Chad|18.7|15.4,CHL|Chile|-71.5|-35.6,CHN|China|104.1|35.8,COL|Colombia|-74.2|4.5,COM|Comoros|43.33|-11.7,COG|Congo|15.8|-0.2,COD|DR Congo|23.6|-4,CRI|Costa Rica|-83.7|9.9,CIV|Ivory Coast|-5.5|7.5,HRV|Croatia|15.2|45.1,CUB|Cuba|-77.7|21.5,CYP|Cyprus|33.4|35.1,CZE|Czechia|15.4|49.8,DNK|Denmark|9.5|56.2,DJI|Djibouti|42.5|11.8,DMA|Dominica|-61.35|15.42,DOM|Dominican Republic|-70.1|18.7,ECU|Ecuador|-78.1|-1.8,EGY|Egypt|30.8|26.8,SLV|El Salvador|-88.8|13.9,GNQ|Equatorial Guinea|10.2|1.6,ERI|Eritrea|39.3|15.1,EST|Estonia|25|58.5,SWZ|Eswatini|31.4|-26.5,ETH|Ethiopia|40.4|9.1,FJI|Fiji|178.06|-17.71,FIN|Finland|25.7|61.9,FRA|France|2.2|46.2,GAB|Gabon|11.6|-0.8,GMB|Gambia|-15.3|13.4,GEO|Georgia|43.3|42.3,DEU|Germany|10.4|51.1,GHA|Ghana|-1|7.9,GRC|Greece|21.8|39,GRD|Grenada|-61.68|12.12,GTM|Guatemala|-90.2|15.7,GIN|Guinea|-9.6|9.9,GNB|Guinea-Bissau|-15.1|11.8,GUY|Guyana|-58.9|4.8,HTI|Haiti|-72.2|18.9,HND|Honduras|-86.2|15.1,HUN|Hungary|19.5|47.1,ISL|Iceland|-19|64.9,IND|India|78.9|20.5,IDN|Indonesia|113.9|-0.7,IRN|Iran|53.6|32.4,IRQ|Iraq|43.6|33.2,IRL|Ireland|-8.2|53.4,ISR|Israel|34.8|31.3,ITA|Italy|12.8|42.6,JAM|Jamaica|-77.2|18.1,JPN|Japan|138.2|36.2,JOR|Jordan|36.6|31.2,KAZ|Kazakhstan|66.9|48,KEN|Kenya|37.9|0,KIR|Kiribati|-157.36|1.87,PRK|North Korea|127.5|40.3,KOR|South Korea|127.7|35.9,KWT|Kuwait|47.6|29.35,KGZ|Kyrgyzstan|74.7|41.2,LAO|Laos|102.4|19.8,LVA|Latvia|24.6|56.8,LBN|Lebanon|35.85|33.9,LSO|Lesotho|28.2|-29.6,LBR|Liberia|-9.4|6.4,LBY|Libya|17.2|26.3,LIE|Liechtenstein|9.53|47.16,LTU|Lithuania|23.8|55.1,LUX|Luxembourg|6.13|49.61,MDG|Madagascar|46.8|-18.7,MWI|Malawi|34.3|-13.2,MYS|Malaysia|102.2|4.1,MDV|Maldives|73.22|3.2,MLI|Mali|-3.9|17.5,MLT|Malta|14.45|35.9,MHL|Marshall Islands|171.18|7.13,MRT|Mauritania|-10.9|21,MUS|Mauritius|57.55|-20.28,MEX|Mexico|-102.5|23.6,FSM|Micronesia|150.55|7.42,MDA|Moldova|28.3|47.4,MCO|Monaco|7.42|43.73,MNG|Mongolia|103.8|46.8,MNE|Montenegro|19.3|42.7,MAR|Morocco|-7|31.7,MOZ|Mozambique|35.5|-18.6,MMR|Myanmar|95.9|21.9,NAM|Namibia|17|-22.9,NRU|Nauru|166.92|-0.52,NPL|Nepal|84.1|28.3,NLD|Netherlands|5.29|52.13,NZL|New Zealand|174.8|-40.9,NIC|Nicaragua|-85.2|12.8,NER|Niger|8|17.6,NGA|Nigeria|8.6|9,MKD|North Macedonia|21.7|41.6,NOR|Norway|8.4|60.4,OMN|Oman|55.9|21.5,PAK|Pakistan|69.3|30.3,PLW|Palau|134.58|7.51,PAN|Panama|-80.7|8.5,PNG|Papua New Guinea|143.9|-6.3,PRY|Paraguay|-58.4|-23.4,PER|Peru|-75|-9.1,PHL|Philippines|121.7|12.8,POL|Poland|19.1|51.9,PRT|Portugal|-8.2|39.3,PSE|Palestine|35.25|31.95,QAT|Qatar|51.3|25.3,ROU|Romania|24.9|45.9,RUS|Russia|105.3|61.5,RWA|Rwanda|29.8|-1.9,KNA|Saint Kitts and Nevis|-62.75|17.33,LCA|Saint Lucia|-60.98|13.9,VCT|Saint Vincent|-61.22|13.25,WSM|Samoa|-172.1|-13.75,SMR|San Marino|12.45|43.93,STP|Sao Tome and Principe|6.61|0.2,SAU|Saudi Arabia|44.5|23.5,SEN|Senegal|-14.4|14.4,SRB|Serbia|21|44,SYC|Seychelles|55.45|-4.68,SLE|Sierra Leone|-11.7|8.4,SGP|Singapore|103.85|1.29,SVK|Slovakia|19.6|48.6,SVN|Slovenia|14.9|46.1,SLB|Solomon Islands|160.1|-9.6,SOM|Somalia|46.1|5.1,ZAF|South Africa|22.9|-30.5,SSD|South Sudan|31.3|6.8,ESP|Spain|-3.7|40.4,LKA|Sri Lanka|80.7|7.8,SDN|Sudan|30.2|12.8,SUR|Suriname|-56|3.9,SWE|Sweden|18.6|60.1,CHE|Switzerland|8.22|46.81,SYR|Syria|38.5|35,TJK|Tajikistan|71.2|38.8,TZA|Tanzania|34.8|-6.3,THA|Thailand|100.9|15.8,TLS|Timor-Leste|125.7|-8.8,TGO|Togo|0.8|8.6,TON|Tonga|-175.2|-21.17,TTO|Trinidad and Tobago|-61.3|10.45,TUN|Tunisia|9.5|33.8,TUR|Turkey|35.2|38.9,TKM|Turkmenistan|59.5|38.9,TUV|Tuvalu|177.65|-7.11,UGA|Uganda|32.2|1.3,UKR|Ukraine|31.1|48.3,ARE|United Arab Emirates|54.3|24,GBR|United Kingdom|-3.4|55.3,USA|United States|-95.7|37,URY|Uruguay|-55.7|-32.5,UZB|Uzbekistan|64.5|41.3,VAT|Vatican City|12.38|41.9,VUT|Vanuatu|167.9|-15.3,VEN|Venezuela|-66.5|9,VNM|Vietnam|108.2|14,YEM|Yemen|48.5|15.5,ZMB|Zambia|27.8|-13.1,ZWE|Zimbabwe|29.1|-19";
+
+        // Verified Metrics Cache
+        const specificMetrics = {
+            USA: { stability: 82, military: 99, economy: 98, diplomacy: 92, cyber: 97 },
+            GBR: { stability: 85, military: 84, economy: 87, diplomacy: 89, cyber: 93 },
+            FRA: { stability: 83, military: 86, economy: 86, diplomacy: 90, cyber: 88 },
+            DEU: { stability: 89, military: 78, economy: 90, diplomacy: 92, cyber: 86 },
+            UKR: { stability: 38, military: 84, economy: 38, diplomacy: 82, cyber: 87 },
+            RUS: { stability: 58, military: 90, economy: 65, diplomacy: 45, cyber: 92 },
+            ISR: { stability: 60, military: 91, economy: 82, diplomacy: 65, cyber: 96 },
+            IRN: { stability: 45, military: 76, economy: 42, diplomacy: 38, cyber: 84 },
+            SAU: { stability: 78, military: 80, economy: 84, diplomacy: 75, cyber: 74 },
+            CHN: { stability: 82, military: 96, economy: 94, diplomacy: 88, cyber: 95 },
+            IND: { stability: 75, military: 88, economy: 87, diplomacy: 85, cyber: 82 },
+            JPN: { stability: 92, military: 80, economy: 89, diplomacy: 90, cyber: 88 },
+            AUS: { stability: 92, military: 75, economy: 84, diplomacy: 88, cyber: 84 },
+            BRA: { stability: 72, military: 68, economy: 82, diplomacy: 86, cyber: 64 },
+            ZAF: { stability: 66, military: 58, economy: 72, diplomacy: 82, cyber: 58 },
+            KOR: { stability: 87, military: 85, economy: 89, diplomacy: 84, cyber: 92 }
+        };
+
+        // --- GLOBAL MULTILATERAL PACTS, TREATIES & BLOCS ---
+        const BLOCS = {
+            "NATO (32 Member States)": { type: "Military", members: ["USA","GBR","FRA","DEU","CAN","ITA","ESP","POL","TUR","NLD","BEL","GRC","PRT","NOR","DNK","ROU","CZE","HUN","BGR","SVK","HRV","ALB","LTU","LVA","EST","SVN","MNE","MKD","FIN","SWE","ISL","LUX"] },
+            "CSTO Collective Security": { type: "Military", members: ["RUS","BLR","ARM","KAZ","KGZ","TJK"] },
+            "Five Eyes (UKUSA)": { type: "Military", members: ["USA","GBR","CAN","AUS","NZL"] },
+            "AUKUS Security Partnership": { type: "Military", members: ["USA","GBR","AUS"] },
+            "Quad Strategic Dialogue": { type: "Military", members: ["USA","IND","JPN","AUS"] },
+            "ANZUS Treaty": { type: "Military", members: ["USA","AUS","NZL"] },
+            "NORAD Command": { type: "Military", members: ["USA","CAN"] },
+            "Rio Pact (TIAR)": { type: "Military", members: ["USA","ARG","BHS","BRA","CHL","COL","CRI","DOM","SLV","GTM","HTI","HND","PAN","PRY","PER","TTO","URY"] },
+            "FPDA (Five Power Defence)": { type: "Military", members: ["GBR","AUS","NZL","MYS","SGP"] },
+            "US-Philippines MDT": { type: "Military", members: ["USA","PHL"] },
+            "US-Japan Security Treaty": { type: "Military", members: ["USA","JPN"] },
+            "US-Korea Mutual Defense": { type: "Military", members: ["USA","KOR"] },
+            "Franco-German Defense": { type: "Military", members: ["FRA","DEU"] },
+            "European Union (EU)": { type: "Economic", members: ["FRA","DEU","ITA","ESP","POL","NLD","SWE","FIN","GRC","ROU","BEL","AUT","IRL","PRT","CZE","HUN","BGR","DNK","SVK","HRV","LTU","SVN","LVA","EST","CYP","LUX","MLT"] },
+            "BRICS+ Convergence": { type: "Economic", members: ["BRA","RUS","IND","CHN","ZAF","ARE","EGY","ETH","IRN","SAU","IDN"] },
+            "USMCA Free Trade Area": { type: "Economic", members: ["USA","CAN","MEX"] },
+            "ASEAN Community": { type: "Economic", members: ["IDN","MYS","PHL","SGP","THA","BRN","VNM","LAO","MMR","KHM"] },
+            "Mercosur (Southern Common Market)": { type: "Economic", members: ["BRA","ARG","PRY","URY","BOL"] },
+            "RCEP Comprehensive Trade": { type: "Economic", members: ["AUS","BRN","KHM","CHN","IDN","JPN","KOR","LAO","MYS","NZL","PHL","SGP","THA","VNM"] },
+            "CPTPP Pacific Trade": { type: "Economic", members: ["AUS","BRN","CAN","CHL","JPN","MYS","MEX","NZL","PER","SGP","VNM","GBR"] },
+            "Eurasian Economic Union (EAEU)": { type: "Economic", members: ["RUS","BLR","KAZ","ARM","KGZ"] },
+            "AfCFTA African Free Trade": { type: "Economic", members: ["DZA","AGO","BEN","BWA","BFA","BDI","CPV","CMR","CAF","TCD","COM","COG","COD","CIV","DJI","EGY","GNQ","ERI","SWZ","ETH","GAB","GMB","GHA","GIN","GNB","KEN","LSO","LBR","LBY","MDG","MWI","MLI","MRT","MUS","MAR","MOZ","NAM","NER","NGA","RWA","STP","SEN","SYC","SLE","SOM","ZAF","SSD","SDN","TZA","TGO","TUN","UGA","ZMB","ZWE"] },
+            "GCC Gulf Cooperation": { type: "Economic", members: ["SAU","ARE","BHR","KWT","OMN","QAT"] },
+            "Benelux Union": { type: "Economic", members: ["BEL","NLD","LUX"] },
+            "Visegrad Group (V4)": { type: "Economic", members: ["CZE","HUN","POL","SVK"] },
+            "Nordic Council": { type: "Economic", members: ["DNK","FIN","ISL","NOR","SWE"] },
+            "Pacific Alliance": { type: "Economic", members: ["MEX","CHL","COL","PER"] },
+            "EFTA Free Trade": { type: "Economic", members: ["ISL","LIE","NOR","CHE"] },
+            "Arab League": { type: "Political", members: ["EGY","IRQ","JOR","LBN","SAU","SYR","YEM","LBY","SDN","MAR","TUN","KWT","DZA","ARE","BHR","QAT","OMN","MRT","SOM","DJI","COM","PSE"] },
+            "African Union (AU)": { type: "Political", members: ["NGA","ZAF","EGY","DZA","MAR","ETH","KEN","GHA","TZA","CIV","COD","AGO","SDN","CMR","UGA","SEN","ZWE","MLI","BFA","TCD","GIN","RWA","SOM","BDI","CPV","CAF","COM","COG","DJI","GNQ","ERI","SWZ","GAB","GMB","GNB","LSO","LBR","LBY","MDG","MWI","MRT","MUS","MOZ","NAM","NER","STP","SYC","SLE","SOM","ZAF","SSD","SDN","TZA","TGO","TUN","ZMB"] },
+            "OPEC+ Alliance": { type: "Political", members: ["DZA","COG","GNQ","GAB","IRN","IRQ","KWT","LBY","NGA","SAU","ARE","VEN","RUS","KAZ","AZE","BHR","BRN","MYS","MEX","OMN","SSD","SDN"] },
+            "Shanghai Cooperation (SCO)": { type: "Political", members: ["CHN","RUS","KAZ","KGZ","TJK","UZB","IND","PAK","IRN","BLR"] },
+            "OAS (American States)": { type: "Political", members: ["USA","CAN","MEX","BRA","ARG","CHL","COL","PER","ECU","URY","PRY","BOL","VEN","PAN","CRI","GTM","HND","SLV","DOM","HTI","JAM","TTO","BHS","BRB"] },
+            "Commonwealth Core": { type: "Political", members: ["GBR","CAN","AUS","NZL","IND","ZAF","PAK","NGA","KEN","MYS","SGP","GHA","JAM"] }
+        };
+
+        // Explicit High-Trust Bilateral Treaties
+        const EXPLICIT_ALLIES = {
+            "USA-GBR": { score: 99, reason: "1958 US-UK Mutual Defence Agreement" },
+            "USA-ISR": { score: 97, reason: "1981 Strategic Cooperation Agreement" },
+            "RUS-BLR": { score: 98, reason: "Union State of Russia & Belarus Treaty" },
+            "CHN-PAK": { score: 95, reason: "Strategic Comprehensive Partnership" },
+            "USA-JPN": { score: 96, reason: "1960 Mutual Cooperation & Security Treaty" },
+            "USA-KOR": { score: 96, reason: "1953 Mutual Defense Treaty" },
+            "FRA-DEU": { score: 97, reason: "Élysée & Aachen Integration Treaties" },
+            "TUR-AZE": { score: 96, reason: "2021 Shusha Declaration" },
+            "AUS-NZL": { score: 98, reason: "Closer Economic Relations (CER)" },
+            "USA-AUS": { score: 96, reason: "ANZUS / AUKUS Security Framework" },
+            "USA-CAN": { score: 98, reason: "NORAD / USMCA Integrated Defense" },
+            "IND-RUS": { score: 90, reason: "1971 Treaty of Friendship and Cooperation" },
+            "CHN-RUS": { score: 92, reason: "Strategic Comprehensive Partnership" },
+            "USA-PHL": { score: 94, reason: "Mutual Defense Treaty & EDCA" },
+            "FRA-ITA": { score: 92, reason: "2021 Quirinale Treaty" },
+            "ESP-PRT": { score: 94, reason: "Treaty of Friendship and Cooperation" },
+            "GBR-JPN": { score: 92, reason: "2023 Reciprocal Access Agreement" },
+            "IND-FRA": { score: 92, reason: "Strategic Defense Partnership" },
+            "SAU-ARE": { score: 93, reason: "Saudi-Emirati Coordination Council" },
+            "TUR-QAT": { score: 92, reason: "Supreme Strategic Committee Agreement" },
+            "BRA-ARG": { score: 89, reason: "Mercosur Integration Protocols" },
+            "DEU-NLD": { score: 95, reason: "Bilateral Military Integration Treaty" }
+        };
+
+        const globalNations = worldDataString.split(",").map(item => {
+            const [iso3, name, lng, lat] = item.split("|");
+            let hash = 0;
+            for (let i = 0; i < iso3.length; i++) hash = iso3.charCodeAt(i) + ((hash << 5) - hash);
+            const getStat = (offset, min, max) => Math.abs((Math.sin(hash + offset) * 10000) % 1) * (max - min) + min;
+
+            const predefined = specificMetrics[iso3];
+            const stats = predefined ? {
+                stability: { value: predefined.stability }, military: { value: predefined.military },
+                economy: { value: predefined.economy }, diplomacy: { value: predefined.diplomacy },
+                cyber: { value: predefined.cyber }
+            } : {
+                stability: { value: Math.floor(getStat(1, 40, 85)) }, military: { value: Math.floor(getStat(2, 20, 70)) },
+                economy: { value: Math.floor(getStat(3, 20, 80)) }, diplomacy: { value: Math.floor(getStat(4, 35, 90)) },
+                cyber: { value: Math.floor(getStat(5, 20, 70)) }
+            };
+
+            return { iso3, name, coordinates: [parseFloat(lng), parseFloat(lat)], metrics: stats };
+        });
+
+        const allGlobalRelationsMap = new Map();
+        for (let i = 0; i < globalNations.length; i++) {
+            for (let j = i + 1; j < globalNations.length; j++) {
+                const nA = globalNations[i];
+                const nB = globalNations[j];
+                const p1 = `${nA.iso3}-${nB.iso3}`;
+                const p2 = `${nB.iso3}-${nA.iso3}`;
+
+                const explicit = EXPLICIT_ALLIES[p1] || EXPLICIT_ALLIES[p2];
+                const sharedBlocs = [];
+
+                Object.entries(BLOCS).forEach(([bName, bData]) => {
+                    if (bData.members.includes(nA.iso3) && bData.members.includes(nB.iso3)) {
+                        sharedBlocs.push(bName);
+                    }
+                });
+
+                if (explicit || sharedBlocs.length > 0) {
+                    const reasons = explicit ? [explicit.reason, ...sharedBlocs] : sharedBlocs;
+                    const score = explicit ? explicit.score : 65 + Math.min(30, sharedBlocs.length * 8);
+
+                    allGlobalRelationsMap.set(p1, {
+                        source: nA.iso3,
+                        target: nB.iso3,
+                        score: Math.min(100, score),
+                        reasons: [...new Set(reasons)]
+                    });
+                }
+            }
+        }
+        const allGlobalRelations = Array.from(allGlobalRelationsMap.values());
+
+        const GlobalStateContext = createContext();
+
+        const GlobalStateProvider = ({ children }) => {
+            const [selectedCountryId, setSelectedCountryId] = useState(null);
+            const [hoveredCountryId, setHoveredCountryId] = useState(null);
+            const [activeFilters, setActiveFilters] = useState([]);
+            const [isLiteMode, setIsLiteMode] = useState(false);
+            const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+            useEffect(() => {
+                const handleResize = () => setIsMobile(window.innerWidth < 768);
+                window.addEventListener('resize', handleResize);
+                return () => window.removeEventListener('resize', handleResize);
+            }, []);
+
+            return (
+                <GlobalStateContext.Provider value={{
+                    selectedCountryId, setSelectedCountryId,
+                    hoveredCountryId, setHoveredCountryId,
+                    activeFilters, setActiveFilters,
+                    isLiteMode, setIsLiteMode,
+                    isMobile
+                }}>
+                    {children}
+                </GlobalStateContext.Provider>
+            );
+        };
+
+        const useGlobalState = () => useContext(GlobalStateContext);
+
+        const HUDCorners = () => (
+            <>
+                <div className="hud-bracket-tl"></div><div className="hud-bracket-tr"></div>
+                <div className="hud-bracket-bl"></div><div className="hud-bracket-br"></div>
+            </>
+        );
+
+        const BootSequence = ({ onComplete }) => {
+            const [progress, setProgress] = useState(0);
+            const [logIndex, setLogIndex] = useState(0);
+
+            const logs = [
+                "ESTABLISHING SATELLITE TELEMETRY UPLINK...",
+                "LOADING ISO-3166 GLOBAL SOVEREIGN REGISTRY [196 ENTITIES]...",
+                "SYNCHRONIZING MULTILATERAL PACTS & DEFENSE MATRICES...",
+                "INITIALIZING GEOMETRIC COLLISION-FREE ORBITAL CANVAS...",
+                "GEONEXUS INTELLIGENCE TERMINAL ONLINE."
+            ];
+
+            useEffect(() => {
+                const interval = setInterval(() => {
+                    setProgress(prev => {
+                        if (prev >= 100) {
+                            clearInterval(interval);
+                            setTimeout(onComplete, 350);
+                            return 100;
+                        }
+                        return prev + 5;
+                    });
+                }, 60);
+
+                const logTimer = setInterval(() => {
+                    setLogIndex(prev => (prev < logs.length - 1 ? prev + 1 : prev));
+                }, 400);
+
+                return () => {
+                    clearInterval(interval);
+                    clearInterval(logTimer);
+                };
+            }, []);
+
+            return (
+                <div className="fixed inset-0 z-[9999] bg-[#02050a] flex flex-col items-center justify-center font-mono p-6 select-none">
+                    <div className="hud-panel p-6 sm:p-8 max-w-md w-full border border-intel-border/80 flex flex-col gap-4 shadow-[0_0_50px_rgba(0,210,255,0.15)]">
+                        <HUDCorners />
+                        
+                        <div className="flex items-center justify-between border-b border-intel-border/60 pb-3">
+                            <div className="flex items-center gap-2">
+                                <span className="w-2.5 h-2.5 rounded-full bg-intel-accent animate-ping"></span>
+                                <h1 className="text-base sm:text-lg font-bold tracking-widest text-white uppercase neon-text-accent">
+                                    Geo<span className="text-intel-accent">Nexus</span>
+                                </h1>
+                            </div>
+                            <span className="text-[10px] text-intel-text tracking-widest font-semibold uppercase">SYSTEM BOOT v8.5</span>
+                        </div>
+
+                        <div className="h-28 flex flex-col justify-end text-[11px] space-y-1.5 overflow-hidden">
+                            {logs.slice(0, logIndex + 1).map((text, i) => (
+                                <div key={i} className={`flex items-start gap-2 ${i === logIndex ? 'text-intel-accent font-semibold' : 'text-intel-text/70'}`}>
+                                    <span className="text-intel-accent shrink-0">›</span>
+                                    <span className="truncate">{text}</span>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="w-full">
+                            <div className="flex justify-between text-[10px] text-intel-text mb-1">
+                                <span>CALIBRATING TOPOLOGY MATRIX</span>
+                                <span className="text-intel-accent font-bold">{progress}%</span>
+                            </div>
+                            <div className="w-full h-1.5 bg-intel-border/60 rounded-full overflow-hidden p-[1px]">
+                                <div 
+                                    className="h-full bg-gradient-to-r from-intel-accent via-intel-allied to-intel-accent rounded-full transition-all duration-100 ease-out shadow-[0_0_10px_#00d2ff]"
+                                    style={{ width: `${progress}%` }}
+                                ></div>
+                            </div>
+                        </div>
+
+                        <button 
+                            onClick={onComplete}
+                            className="self-end text-[10px] text-intel-text/60 hover:text-intel-accent transition-colors underline underline-offset-2 pt-1"
+                        >
+                            [ SKIP INITIALIZATION ]
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        const TopNav = () => {
+            const { setSelectedCountryId, isLiteMode, setIsLiteMode, isMobile } = useGlobalState();
+            const [searchQuery, setSearchQuery] = useState("");
+            const [searchOpen, setSearchOpen] = useState(false);
+            const searchBoxRef = useRef(null);
+
+            useEffect(() => {
+                const handleClickOutside = (e) => {
+                    if (searchBoxRef.current && !searchBoxRef.current.contains(e.target)) {
+                        setSearchOpen(false);
+                    }
+                };
+                document.addEventListener("mousedown", handleClickOutside);
+                return () => document.removeEventListener("mousedown", handleClickOutside);
+            }, []);
+
+            const matchingCountries = useMemo(() => {
+                if (!searchQuery.trim()) return [];
+                const q = searchQuery.toLowerCase();
+                return globalNations.filter(c => 
+                    c.name.toLowerCase().includes(q) || c.iso3.toLowerCase().includes(q)
+                ).slice(0, 6);
+            }, [searchQuery]);
+
+            return (
+                <div className="absolute top-0 left-0 right-0 h-14 hud-panel border-b border-intel-border flex items-center justify-between px-3 md:px-5 z-40 bg-intel-panel/95 rounded-none border-x-0 border-t-0">
+                    <div className="flex items-center gap-3">
+                        <div className="w-7 h-7 rounded bg-intel-accent/15 border border-intel-accent flex items-center justify-center animate-pulse shrink-0">
+                            <IconActivity className="text-intel-accent" />
+                        </div>
+                        <div className="flex flex-col">
+                            <div className="flex items-center gap-2">
+                                <h1 className="text-base md:text-lg font-bold font-mono tracking-widest text-white uppercase neon-text-accent leading-none">
+                                    Geo<span className="text-intel-accent">Nexus</span>
+                                </h1>
+                                <span className="text-[9px] font-mono text-intel-border hidden sm:inline">/</span>
+                                <span className="text-[9px] font-mono text-intel-text tracking-wider uppercase hidden sm:inline">Terminal</span>
+                            </div>
+                            
+                            <a
+                                href="https://www.linkedin.com/in/omaryaseen?utm_source=share_via&utm_content=profile&utm_medium=member_android"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="group flex items-center gap-1 text-[10px] font-mono text-intel-text/85 hover:text-intel-accent transition-colors mt-0.5"
+                                title="Visit Omar Yaseen's LinkedIn Profile"
+                            >
+                                <span>made by <strong className="text-intel-highlight group-hover:text-intel-accent font-medium">omar yaseen</strong></span>
+                                <IconLinkedIn className="text-[#0a66c2] group-hover:text-intel-accent transition-colors" />
+                                <IconExternalLink className="opacity-60 group-hover:opacity-100 transition-opacity" />
+                            </a>
+                        </div>
+                    </div>
+
+                    <div className="relative w-28 sm:w-36 md:w-44 shrink-0" ref={searchBoxRef}>
+                        <div className="flex items-center h-7 bg-intel-bg/95 border border-intel-border focus-within:border-intel-accent px-2 rounded-sm transition-colors">
+                            <IconSearch className="text-intel-text/70 mr-1.5" />
+                            <input
+                                type="text"
+                                placeholder="Search nation..."
+                                value={searchQuery}
+                                onChange={(e) => { setSearchQuery(e.target.value); setSearchOpen(true); }}
+                                onFocus={() => setSearchOpen(true)}
+                                className="w-full bg-transparent text-[10px] text-white placeholder:text-intel-text/45 outline-none font-mono leading-none"
+                            />
+                            {searchQuery && (
+                                <button onClick={() => setSearchQuery("")} className="text-intel-text hover:text-white p-0.5 shrink-0">
+                                    <IconX />
+                                </button>
+                            )}
+                        </div>
+
+                        {searchOpen && matchingCountries.length > 0 && (
+                            <div className="absolute top-full left-0 right-0 mt-1 hud-panel p-1 z-50 shadow-2xl border border-intel-border rounded-sm overflow-hidden">
+                                {matchingCountries.map(c => (
+                                    <div
+                                        key={c.iso3}
+                                        onClick={() => {
+                                            setSelectedCountryId(c.iso3);
+                                            setSearchQuery("");
+                                            setSearchOpen(false);
+                                        }}
+                                        className="flex items-center justify-between px-2 py-1 hover:bg-intel-border/40 cursor-pointer rounded text-[10px] font-mono transition-colors"
+                                    >
+                                        <span className="text-white font-medium truncate pr-1.5">{c.name}</span>
+                                        <span className="text-intel-accent text-[8px] shrink-0">[{c.iso3}]</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="flex items-center gap-2 sm:gap-3">
+                        {!isMobile && (
+                            <div className="font-mono text-[10px] text-intel-text border border-intel-warning/40 px-2 py-1 bg-intel-warning/10 flex items-center gap-1.5 rounded-sm">
+                                <span className="w-1.5 h-1.5 rounded-full bg-intel-warning animate-ping"></span>
+                                NODES: <span className="text-intel-warning font-bold">{globalNations.length}</span>
+                            </div>
+                        )}
+
+                        <button
+                            onClick={() => setIsLiteMode(prev => !prev)}
+                            className={`group font-mono text-[10px] px-2.5 py-1 rounded-sm border transition-all duration-200 flex items-center gap-1.5 shrink-0 select-none ${
+                                isLiteMode
+                                    ? 'border-intel-allied/80 bg-intel-allied/15 text-intel-allied shadow-[0_0_12px_rgba(0,250,154,0.3)]'
+                                    : 'border-intel-border hover:border-intel-accent/80 bg-intel-bg/80 text-intel-text hover:text-intel-highlight'
+                            }`}
+                            title={isLiteMode ? "Lite Version Active: Connections are fixed static lines" : "Switch to Lite Version (fixed static lines, no motion)"}
+                        >
+                            <span className={`w-1.5 h-1.5 rounded-full transition-colors ${isLiteMode ? 'bg-intel-allied animate-pulse' : 'bg-intel-text/40 group-hover:bg-intel-accent'}`}></span>
+                            <span className="font-bold tracking-wider uppercase text-[9px] sm:text-[10px]">
+                                {isLiteMode ? 'LITE: FIXED' : 'LITE MODE'}
+                            </span>
+                            <IconZap className={`${isLiteMode ? 'text-intel-allied' : 'text-intel-text/40 group-hover:text-intel-accent'} transition-colors`} />
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        const GlobalTreatyFilter = () => {
+            const { activeFilters, setActiveFilters, setSelectedCountryId } = useGlobalState();
+            const [isOpen, setIsOpen] = useState(false);
+            const [filterSearch, setFilterSearch] = useState("");
+            const dropdownRef = useRef(null);
+
+            useEffect(() => {
+                const handleClickOutside = (e) => {
+                    if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+                        setIsOpen(false);
+                    }
+                };
+                document.addEventListener("mousedown", handleClickOutside);
+                return () => document.removeEventListener("mousedown", handleClickOutside);
+            }, []);
+
+            const handleToggle = (blocName) => {
+                setSelectedCountryId(null);
+                setActiveFilters(prev => 
+                    prev.includes(blocName) ? prev.filter(f => f !== blocName) : [...prev, blocName]
+                );
+            };
+
+            const filteredBlocs = useMemo(() => {
+                return Object.entries(BLOCS).filter(([name]) =>
+                    name.toLowerCase().includes(filterSearch.toLowerCase())
+                );
+            }, [filterSearch]);
+
+            return (
+                <div className="absolute top-16 left-3 md:left-5 z-40 font-mono" ref={dropdownRef}>
+                    <button 
+                        onClick={() => setIsOpen(!isOpen)}
+                        className={`hud-panel px-3 py-1.5 flex items-center gap-2 transition-colors rounded-sm ${activeFilters.length > 0 ? 'border-intel-accent bg-intel-accent/15' : 'border-intel-border hover:bg-intel-border/30'}`}
+                    >
+                        <div className="flex flex-col items-start text-left">
+                            <span className="text-[8px] text-intel-text uppercase tracking-widest leading-tight">PACT REGISTRY</span>
+                            <span className={`text-[11px] font-bold uppercase tracking-wider ${activeFilters.length > 0 ? 'text-intel-accent' : 'text-intel-highlight'}`}>
+                                ALLIANCES & TREATIES {activeFilters.length > 0 && `(${activeFilters.length})`}
+                            </span>
+                        </div>
+                        <IconChevronDown className={`text-intel-highlight transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    {isOpen && (
+                        <div className="absolute top-full left-0 mt-1.5 w-72 sm:w-80 hud-panel p-3 animate-dropdown-fade max-h-[70vh] flex flex-col z-50 rounded-sm">
+                            <HUDCorners />
+                            
+                            <div className="flex justify-between items-center pb-2 border-b border-intel-border">
+                                <span className="text-[10px] text-intel-accent font-bold tracking-widest uppercase">Security Frameworks</span>
+                                {activeFilters.length > 0 && (
+                                    <button onClick={() => setActiveFilters([])} className="text-[9px] text-intel-hostile hover:underline">
+                                        RESET FILTERS
+                                    </button>
+                                )}
+                            </div>
+
+                            <div className="relative my-2">
+                                <span className="absolute left-2 top-2 text-intel-text"><IconSearch /></span>
+                                <input
+                                    type="text"
+                                    value={filterSearch}
+                                    onChange={(e) => setFilterSearch(e.target.value)}
+                                    placeholder="Filter pacts & agreements..."
+                                    className="w-full bg-intel-bg border border-intel-border rounded px-2 py-1 pl-7 text-[10px] text-intel-highlight placeholder:text-intel-text/50 outline-none focus:border-intel-accent"
+                                />
+                            </div>
+
+                            <div className="overflow-y-auto space-y-3 pr-1">
+                                {["Military", "Economic", "Political"].map(type => {
+                                    const items = filteredBlocs.filter(([_, data]) => data.type === type);
+                                    if (items.length === 0) return null;
+
+                                    return (
+                                        <div key={type} className="space-y-1">
+                                            <div className="text-[8px] text-intel-text/60 uppercase tracking-widest border-b border-intel-border/40 pb-0.5">{type} Alliances</div>
+                                            {items.map(([blocName, blocData]) => {
+                                                const isActive = activeFilters.includes(blocName);
+                                                return (
+                                                    <label key={blocName} className="flex items-center gap-2 cursor-pointer hover:bg-intel-border/25 p-1 rounded transition-colors">
+                                                        <input 
+                                                            type="checkbox" 
+                                                            className="cyber-checkbox"
+                                                            checked={isActive}
+                                                            onChange={() => handleToggle(blocName)}
+                                                        />
+                                                        <div className="flex flex-col">
+                                                            <span className={`text-[10px] font-bold leading-tight ${isActive ? 'text-white' : 'text-intel-highlight'}`}>
+                                                                {blocName}
+                                                            </span>
+                                                            <span className="text-[8px] text-intel-text">{blocData.members.length} Member States</span>
+                                                        </div>
+                                                    </label>
+                                                );
+                                            })}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const CyberTargetReadout = () => {
+            const { hoveredCountryId, selectedCountryId, activeFilters, isMobile } = useGlobalState();
+            if (isMobile && (selectedCountryId || activeFilters.length > 0)) return null;
+
+            const baseClasses = "absolute top-28 left-3 md:left-5 w-64 md:w-72 z-30 pointer-events-none transition-opacity duration-200";
+
+            if (!hoveredCountryId) {
+                return (
+                    <div className={`${baseClasses} opacity-60`}>
+                        <div className="text-intel-text/60 font-mono text-[9px] tracking-widest border-l-2 border-intel-border pl-2 py-1 bg-intel-bg/60 backdrop-blur-sm">
+                            [ RADAR: SENSOR SCAN ACTIVE ]
+                        </div>
+                    </div>
+                );
+            }
+
+            const country = globalNations.find(n => n.iso3 === hoveredCountryId);
+            if (!country) return null;
+
+            return (
+                <div className={`${baseClasses} hud-panel p-3 border-l-4 border-l-intel-accent flex flex-col gap-1 font-mono rounded-sm`}>
+                    <HUDCorners />
+                    <div className="text-intel-accent text-[9px] uppercase tracking-widest flex items-center gap-1.5 font-bold">
+                        <span className="w-1.5 h-1.5 rounded-full bg-intel-accent animate-pulse"></span> TARGET LOCK
+                    </div>
+                    
+                    <div className="text-lg font-bold text-white tracking-wider uppercase leading-tight">
+                        {country.name}
+                    </div>
+                    
+                    <div className="text-intel-text text-[9px] border-b border-intel-border/60 pb-1.5 mb-1">
+                        ISO: {country.iso3} // LAT: {country.coordinates[1].toFixed(1)}° LON: {country.coordinates[0].toFixed(1)}°
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-[9px] font-bold">
+                        <div className="flex justify-between border-b border-intel-border/30 pb-0.5">
+                            <span className="text-intel-text">MILITARY</span>
+                            <span className="text-intel-accent">{country.metrics.military.value}</span>
+                        </div>
+                        <div className="flex justify-between border-b border-intel-border/30 pb-0.5">
+                            <span className="text-intel-text">CYBER</span>
+                            <span className="text-intel-accent">{country.metrics.cyber.value}</span>
+                        </div>
+                        <div className="flex justify-between border-b border-intel-border/30 pb-0.5">
+                            <span className="text-intel-text">MACRO_ECON</span>
+                            <span className="text-intel-accent">{country.metrics.economy.value}</span>
+                        </div>
+                        <div className="flex justify-between border-b border-intel-border/30 pb-0.5">
+                            <span className="text-intel-text">DIPLOMACY</span>
+                            <span className="text-intel-accent">{country.metrics.diplomacy.value}</span>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const RadarChart = ({ data }) => {
+            const size = 140;
+            const center = size / 2;
+            const radius = (size / 2) - 22;
+            const axes = Object.keys(data);
+            const angleStep = (Math.PI * 2) / axes.length;
+
+            const getPoint = (value, index) => {
+                const angle = index * angleStep - Math.PI / 2;
+                const r = (value / 100) * radius;
+                return { x: center + r * Math.cos(angle), y: center + r * Math.sin(angle) };
+            };
+
+            const pathData = axes.map((axis, i) => {
+                const pt = getPoint(data[axis].value, i);
+                return `${i === 0 ? 'M' : 'L'} ${pt.x},${pt.y}`;
+            }).join(' ') + ' Z';
+
+            return (
+                <div className="relative w-full flex justify-center items-center py-1">
+                    <svg width={size} height={size} className="overflow-visible">
+                        {[0.33, 0.66, 1].map(scale => (
+                            <polygon key={scale}
+                                points={axes.map((_, i) => `${getPoint(scale * 100, i).x},${getPoint(scale * 100, i).y}`).join(' ')}
+                                fill={scale === 1 ? "rgba(0, 210, 255, 0.05)" : "none"} 
+                                stroke="#142847" strokeWidth="1" strokeDasharray={scale < 1 ? "2 2" : "none"}
+                            />
+                        ))}
+                        {axes.map((axis, i) => {
+                            const end = getPoint(100, i);
+                            return <line key={`line-${i}`} x1={center} y1={center} x2={end.x} y2={end.y} stroke="#142847" strokeWidth="1" />;
+                        })}
+                        <path d={pathData} fill="rgba(0, 210, 255, 0.25)" stroke="#00d2ff" strokeWidth="1.5" />
+                        {axes.map((axis, i) => {
+                            const labelPt = getPoint(122, i);
+                            return (
+                                <text key={`lbl-${i}`} x={labelPt.x} y={labelPt.y} textAnchor="middle" alignmentBaseline="middle" fill="#768ba5" fontSize="7.5" className="uppercase font-mono">
+                                    {axis}
+                                </text>
+                            );
+                        })}
+                    </svg>
+                </div>
+            );
+        };
+
+        const IntelligenceSidebar = () => {
+            const { selectedCountryId, setSelectedCountryId, activeFilters, isMobile } = useGlobalState();
+            const scrollRef = useRef(null);
+
+            const sidebarClasses = isMobile
+                ? "absolute bottom-0 left-0 right-0 h-[55vh] rounded-t-lg"
+                : "absolute top-16 right-4 w-[360px] max-h-[calc(100vh-5.5rem)] rounded-sm";
+
+            if (selectedCountryId) {
+                const country = globalNations.find(n => n.iso3 === selectedCountryId);
+                if (!country) return null;
+
+                const relations = allGlobalRelations
+                    .filter(r => r.source === country.iso3 || r.target === country.iso3)
+                    .sort((a,b) => b.score - a.score);
+
+                return (
+                    <div className={`${sidebarClasses} hud-panel flex flex-col overflow-hidden duration-300 z-40 border-l-2 border-intel-accent`}>
+                        <HUDCorners />
+                        
+                        <div className="p-3 border-b border-intel-border relative bg-gradient-to-r from-intel-border/30 to-transparent flex-shrink-0">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <h2 className="text-lg font-bold font-mono text-white tracking-widest uppercase">{country.name}</h2>
+                                    <div className="text-[9px] text-intel-accent uppercase font-mono">
+                                        NODE MATRIX // {relations.length} Active Mutual Pacts
+                                    </div>
+                                </div>
+                                <button onClick={() => setSelectedCountryId(null)} className="text-intel-text hover:text-white p-1 bg-intel-border/20 rounded">
+                                    <IconX />
+                                </button>
+                            </div>
+                        </div>
+
+                        <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 space-y-3 mask-bottom-fade">
+                            <RadarChart data={country.metrics} />
+
+                            <div className="space-y-2">
+                                <div className="text-[9px] font-mono text-intel-accent uppercase tracking-widest border-b border-intel-border pb-1">
+                                    DEFENSE & ECONOMIC ALLIANCES ({relations.length})
+                                </div>
+
+                                {relations.length === 0 && (
+                                    <div className="text-xs font-mono text-intel-text/50 border border-dashed border-intel-border p-4 text-center">
+                                        No registered mutual pacts recorded.
+                                    </div>
+                                )}
+
+                                {relations.map((rel, i) => {
+                                    const otherIso = rel.source === country.iso3 ? rel.target : rel.source;
+                                    const targetCountry = globalNations.find(n => n.iso3 === otherIso);
+                                    if (!targetCountry) return null;
+
+                                    return (
+                                        <div 
+                                            key={`${rel.source}-${rel.target}-${i}`} 
+                                            onClick={() => setSelectedCountryId(targetCountry.iso3)}
+                                            className="bg-intel-bg/90 p-2 border border-intel-border/60 border-l-2 border-l-intel-allied font-mono cursor-pointer hover:bg-intel-allied/10 transition-colors rounded-sm"
+                                        >
+                                            <div className="flex justify-between items-center mb-1">
+                                                <div className="flex items-center gap-1.5">
+                                                    <IconCheckCircle className="text-intel-allied" />
+                                                    <span className="font-bold text-xs text-white uppercase">{targetCountry.name}</span>
+                                                    <span className="text-[9px] text-intel-text">({targetCountry.iso3})</span>
+                                                </div>
+                                                <span className="text-[8px] font-bold text-intel-allied border border-intel-allied/30 px-1 py-0.5 bg-intel-allied/10">
+                                                    +{rel.score}
+                                                </span>
+                                            </div>
+                                            
+                                            <div className="space-y-0.5 mt-1">
+                                                {rel.reasons.map((r, idx) => (
+                                                    <div key={idx} className="text-[9px] text-intel-highlight/80 flex items-start gap-1">
+                                                        <span className="text-intel-accent">›</span>
+                                                        <span className="truncate">{r}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (activeFilters.length > 0) {
+                const filterMembers = new Set();
+                activeFilters.forEach(filter => {
+                    BLOCS[filter]?.members.forEach(iso => filterMembers.add(iso));
+                });
+                
+                const memberNations = Array.from(filterMembers).map(iso => globalNations.find(n => n.iso3 === iso)).filter(Boolean);
+
+                return (
+                    <div className={`${sidebarClasses} hud-panel flex flex-col overflow-hidden duration-300 z-40 border-l-2 border-intel-accent`}>
+                        <HUDCorners />
+                        <div className="p-3 border-b border-intel-border relative bg-gradient-to-r from-intel-border/30 to-transparent flex-shrink-0">
+                            <h2 className="text-base font-bold font-mono text-white tracking-wider uppercase">ALLIANCE OVERLAY</h2>
+                            <div className="text-[9px] text-intel-accent uppercase font-mono">
+                                {activeFilters.length} PACTS SELECTED // {memberNations.length} NATIONS
+                            </div>
+                        </div>
+
+                        <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 space-y-2 mask-bottom-fade">
+                            <div className="flex flex-wrap gap-1">
+                                {activeFilters.map(f => (
+                                    <span key={f} className="text-[8px] font-mono px-1.5 py-0.5 bg-intel-accent/15 border border-intel-accent text-intel-highlight rounded-sm">
+                                        {f}
+                                    </span>
+                                ))}
+                            </div>
+
+                            <div className="space-y-1">
+                                {memberNations.sort((a,b) => a.name.localeCompare(b.name)).map(nation => (
+                                    <div 
+                                        key={nation.iso3} 
+                                        onClick={() => setSelectedCountryId(nation.iso3)}
+                                        className="bg-intel-bg/80 p-1.5 border border-intel-border/50 border-l-2 border-l-intel-allied font-mono cursor-pointer hover:bg-intel-border/40 transition-colors text-[11px] flex justify-between rounded-sm"
+                                    >
+                                        <span className="text-white font-bold">{nation.name}</span>
+                                        <span className="text-intel-text text-[9px]">[{nation.iso3}]</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            return null;
+        };
+
+        const MapEngine = () => {
+            const { selectedCountryId, setSelectedCountryId, setHoveredCountryId, activeFilters, isLiteMode, isMobile } = useGlobalState();
+            const svgRef = useRef(null);
+            const [geoData, setGeoData] = useState(null);
+            const [transform, setTransform] = useState(d3.zoomIdentity);
+            const [dimensions, setDimensions] = useState({ width: window.innerWidth || 1200, height: window.innerHeight || 800 });
+
+            useEffect(() => {
+                const handleResize = () => setDimensions({ width: window.innerWidth, height: window.innerHeight });
+                window.addEventListener('resize', handleResize);
+                return () => window.removeEventListener('resize', handleResize);
+            }, []);
+
+            const projection = useMemo(() => {
+                const scale = isMobile ? dimensions.width / 1.3 / Math.PI : (dimensions.width / 2 / Math.PI) * 1.35;
+                const yOffset = isMobile ? -30 : 40;
+                return d3.geoMercator()
+                  .scale(scale)
+                  .translate([dimensions.width / 2, dimensions.height / 2 + yOffset]);
+            }, [dimensions, isMobile]);
+
+            const pathGenerator = useMemo(() => d3.geoPath().projection(projection), [projection]);
+
+            // --- COLLISION RELAXATION SOLVER ---
+            // Resolves overlapping micro-states and dense nation clusters without losing geographic anchor
+            const nodePositions = useMemo(() => {
+                const nodes = globalNations.map(nation => {
+                    const p = projection(nation.coordinates) || [0, 0];
+                    return {
+                        iso3: nation.iso3,
+                        origX: p[0],
+                        origY: p[1],
+                        x: p[0],
+                        y: p[1]
+                    };
+                });
+
+                const minDist = isMobile ? 8.5 : 11;
+                const minDistSq = minDist * minDist;
+                const iterations = 35;
+
+                for (let iter = 0; iter < iterations; iter++) {
+                    for (let i = 0; i < nodes.length; i++) {
+                        for (let j = i + 1; j < nodes.length; j++) {
+                            const a = nodes[i];
+                            const b = nodes[j];
+                            const dx = b.x - a.x;
+                            const dy = b.y - a.y;
+                            let distSq = dx * dx + dy * dy;
+
+                            if (distSq < minDistSq) {
+                                let dist = Math.sqrt(distSq);
+                                if (dist < 0.001) {
+                                    b.x += 1;
+                                    b.y += 0.5;
+                                    dist = 1.118;
+                                }
+                                const overlap = (minDist - dist) * 0.5;
+                                const nx = (dx / dist) * overlap;
+                                const ny = (dy / dist) * overlap;
+                                a.x -= nx;
+                                a.y -= ny;
+                                b.x += nx;
+                                b.y += ny;
+                            }
+                        }
+                    }
+                    // Gentle spring tether to physical geographical center
+                    for (let i = 0; i < nodes.length; i++) {
+                        const n = nodes[i];
+                        n.x += (n.origX - n.x) * 0.08;
+                        n.y += (n.origY - n.y) * 0.08;
+                    }
+                }
+
+                const posMap = new Map();
+                nodes.forEach(n => {
+                    posMap.set(n.iso3, {
+                        origX: n.origX,
+                        origY: n.origY,
+                        repelledX: n.x,
+                        repelledY: n.y
+                    });
+                });
+                return posMap;
+            }, [projection, isMobile]);
+
+            // Dynamic zoom-aware interpolation: repelled at k=1, converging to exact coordinates at high zoom
+            const getNodeRenderPos = (iso3) => {
+                const data = nodePositions.get(iso3);
+                if (!data) return { x: 0, y: 0, origX: 0, origY: 0, isOffset: false };
+                const factor = Math.max(0, Math.min(1, 1 - (transform.k - 1) / 3.5));
+                const currentX = data.origX + (data.repelledX - data.origX) * factor;
+                const currentY = data.origY + (data.repelledY - data.origY) * factor;
+                const offsetDistance = Math.hypot(data.repelledX - data.origX, data.repelledY - data.origY);
+                return {
+                    x: currentX,
+                    y: currentY,
+                    origX: data.origX,
+                    origY: data.origY,
+                    isOffset: factor > 0.08 && offsetDistance > 2.5
+                };
+            };
+
+            useEffect(() => {
+                if (!svgRef.current) return;
+                const svg = d3.select(svgRef.current);
+                const zoom = d3.zoom()
+                    .scaleExtent([0.8, 40])
+                    .on('zoom', (e) => setTransform(e.transform));
+                svg.call(zoom);
+            }, []);
+
+            useEffect(() => {
+                fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json')
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && data.objects && data.objects.countries) {
+                            setGeoData(topojson.feature(data, data.objects.countries).features);
+                        }
+                    })
+                    .catch(err => console.error("Map topology load error", err));
+            }, []);
+
+            const filterMembersSet = useMemo(() => {
+                const set = new Set();
+                activeFilters.forEach(filter => {
+                    BLOCS[filter]?.members.forEach(iso => set.add(iso));
+                });
+                return set;
+            }, [activeFilters]);
+
+            const arcs = useMemo(() => {
+                let relationsToDraw = [];
+                
+                if (selectedCountryId) {
+                    relationsToDraw = allGlobalRelations
+                        .filter(r => r.source === selectedCountryId || r.target === selectedCountryId);
+                } else if (activeFilters.length > 0) {
+                    relationsToDraw = allGlobalRelations.filter(r => 
+                        filterMembersSet.has(r.source) && filterMembersSet.has(r.target)
+                    );
+                }
+
+                return relationsToDraw.map(rel => {
+                    const sourcePos = getNodeRenderPos(rel.source);
+                    const targetPos = getNodeRenderPos(rel.target);
+                    if (!sourcePos || !targetPos) return null;
+                    
+                    const p1 = [sourcePos.x, sourcePos.y];
+                    const p2 = [targetPos.x, targetPos.y];
+
+                    const dx = p2[0] - p1[0];
+                    const dy = p2[1] - p1[1];
+                    const dr = Math.sqrt(dx * dx + dy * dy);
+                    const cx = (p1[0] + p2[0]) / 2;
+                    const cy = (p1[1] + p2[1]) / 2 - Math.min(dr * 0.35, 120); 
+                    
+                    return { 
+                        id: `${rel.source}-${rel.target}`, 
+                        path: `M${p1[0]},${p1[1]} Q${cx},${cy} ${p2[0]},${p2[1]}`,
+                        score: rel.score
+                    };
+                }).filter(Boolean);
+            }, [selectedCountryId, activeFilters, filterMembersSet, transform.k, nodePositions]);
+
+            return (
+                <div 
+                    className="absolute inset-0 z-10 bg-intel-bg overflow-hidden cursor-move" 
+                    onClick={() => { setSelectedCountryId(null); setHoveredCountryId(null); }}
+                >
+                    <svg ref={svgRef} width="100%" height="100%" className="absolute inset-0">
+                        <defs>
+                            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(20, 40, 71, 0.2)" strokeWidth="1"/>
+                            </pattern>
+                            <filter id="glow-accent"><feGaussianBlur stdDeviation="2" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                        </defs>
+                        <rect width="100%" height="100%" fill="url(#grid)" />
+
+                        <g transform={transform.toString()}>
+                            {/* Base World TopoJSON */}
+                            <g className="map-layer">
+                                {geoData && geoData.map((feature, i) => (
+                                    <path 
+                                        key={`geo-${i}`}
+                                        d={pathGenerator(feature)}
+                                        fill="#040914"
+                                        stroke="#142847"
+                                        strokeWidth={Math.max(0.3 / transform.k, 0.05)}
+                                    />
+                                ))}
+                            </g>
+
+                            {/* Active Alliance Arcs */}
+                            <g className="arcs-layer">
+                                {arcs.map((arc) => (
+                                    <g key={arc.id}>
+                                        <path
+                                            d={arc.path}
+                                            fill="none"
+                                            stroke="#00fa9a"
+                                            strokeWidth={Math.max(0.6 / transform.k, 0.1)}
+                                            style={{ opacity: isLiteMode ? 0.45 : 0.3 }}
+                                        />
+                                        <path
+                                            d={arc.path}
+                                            fill="none"
+                                            stroke="#00d2ff"
+                                            strokeWidth={isLiteMode ? Math.max(1.2 / transform.k, 0.2) : Math.max(1.5 / transform.k, 0.25)}
+                                            strokeDasharray={isLiteMode ? "none" : `${6/transform.k} ${4/transform.k}`}
+                                            className={isLiteMode ? "" : "animate-data-flow"}
+                                            style={{
+                                                opacity: isLiteMode ? 0.9 : 0.85,
+                                                filter: isLiteMode ? "none" : "url(#glow-accent)"
+                                            }}
+                                        />
+                                    </g>
+                                ))}
+                            </g>
+
+                            {/* Sovereign Nation Nodes */}
+                            <g className="nodes-layer">
+                                {globalNations.map(nation => {
+                                    const pos = getNodeRenderPos(nation.iso3);
+                                    if (!pos) return null;
+                                    
+                                    const isSelected = selectedCountryId === nation.iso3;
+                                    let isConnected = false;
+                                    let isDimmed = false;
+
+                                    if (selectedCountryId) {
+                                        isConnected = isSelected || arcs.some(a => a.id.includes(nation.iso3));
+                                        isDimmed = !isConnected;
+                                    } else if (activeFilters.length > 0) {
+                                        isConnected = filterMembersSet.has(nation.iso3);
+                                        isDimmed = !isConnected;
+                                    }
+
+                                    const scale = 1 / transform.k;
+                                    const visualRadius = isSelected ? Math.max(3.8 * scale, 0.6) : (isConnected ? Math.max(2.2 * scale, 0.35) : Math.max(1.4 * scale, 0.2));
+                                    const showText = isSelected || (isConnected && transform.k > 2.2) || transform.k > 4;
+
+                                    return (
+                                        <g 
+                                            key={nation.iso3} 
+                                            transform={`translate(${pos.x}, ${pos.y})`}
+                                            onClick={(e) => { 
+                                                e.stopPropagation(); 
+                                                setSelectedCountryId(nation.iso3 === selectedCountryId ? null : nation.iso3);
+                                            }}
+                                            onMouseEnter={() => setHoveredCountryId(nation.iso3)}
+                                            onMouseLeave={() => setHoveredCountryId(null)}
+                                            className={`cursor-pointer transition-opacity duration-300 ${isDimmed ? 'opacity-15' : 'opacity-100'}`}
+                                        >
+                                            {/* Tactical Leader Whisker for displaced microstates */}
+                                            {pos.isOffset && (
+                                                <g opacity={isDimmed ? 0.2 : 0.5}>
+                                                    <line 
+                                                        x1={0} 
+                                                        y1={0} 
+                                                        x2={pos.origX - pos.x} 
+                                                        y2={pos.origY - pos.y} 
+                                                        stroke="#00d2ff" 
+                                                        strokeWidth={Math.max(0.4 * scale, 0.05)} 
+                                                        strokeDasharray={`${2 * scale} ${1.5 * scale}`} 
+                                                    />
+                                                    <circle 
+                                                        cx={pos.origX - pos.x} 
+                                                        cy={pos.origY - pos.y} 
+                                                        r={Math.max(0.8 * scale, 0.15)} 
+                                                        fill="#00d2ff" 
+                                                    />
+                                                </g>
+                                            )}
+
+                                            <circle r={visualRadius * 2.5} fill="transparent" />
+
+                                            {isSelected && !isLiteMode && (
+                                                <g transform={`scale(${scale})`}>
+                                                    <circle r="14" fill="rgba(0,210,255,0.1)" stroke="#00d2ff" strokeWidth="0.5" strokeDasharray="2 2" className="animate-radar-sweep"/>
+                                                </g>
+                                            )}
+                                            {isSelected && isLiteMode && (
+                                                <g transform={`scale(${scale})`}>
+                                                    <circle r="12" fill="rgba(0,210,255,0.1)" stroke="#00d2ff" strokeWidth="0.75" />
+                                                </g>
+                                            )}
+                                            
+                                            <circle 
+                                                r={visualRadius} 
+                                                fill={isSelected ? "#00d2ff" : (isConnected ? "#00fa9a" : "#768ba5")} 
+                                                filter={(!isLiteMode && (isSelected || isConnected)) ? "url(#glow-accent)" : ""}
+                                            />
+                                            
+                                            <text 
+                                                y={-4 * scale - visualRadius} 
+                                                textAnchor="middle" 
+                                                fill={isSelected ? "#00d2ff" : (isConnected ? "#00fa9a" : "#4a5568")}
+                                                fontSize={Math.max(5 * scale, 0.6)}
+                                                className="font-mono font-bold select-none pointer-events-none"
+                                                style={{ opacity: showText ? 1 : 0 }}
+                                            >
+                                                {nation.iso3}
+                                            </text>
+                                        </g>
+                                    );
+                                })}
+                            </g>
+                        </g>
+                    </svg>
+
+                    <div className="vignette-overlay"></div>
+                    <div className="scanlines"></div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [isBooting, setIsBooting] = useState(true);
+
+            return (
+                <GlobalStateProvider>
+                    {isBooting ? (
+                        <BootSequence onComplete={() => setIsBooting(false)} />
+                    ) : (
+                        <>
+                            <TopNav />
+                            <GlobalTreatyFilter />
+                            <CyberTargetReadout />
+                            <MapEngine />
+                            <IntelligenceSidebar />
+                        </>
+                    )}
+                </GlobalStateProvider>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
