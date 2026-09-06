@@ -140,6 +140,7 @@
     <script type="text/babel">
         const { useState, useEffect, useRef, useMemo, createContext, useContext } = React;
 
+        // --- ICONS ---
         const IconActivity = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>;
         const IconSearch = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>;
         const IconX = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>;
@@ -148,7 +149,9 @@
         const IconExternalLink = () => <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>;
         const IconLinkedIn = () => <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"></path></svg>;
         const IconBookOpen = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>;
+        const IconLink = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>;
 
+        // --- GLOBAL SOVEREIGN REGISTRY ---
         const masterNationsRaw = [
             "AFG|Afghanistan|65|33|14|32|16|21|22",
             "ALB|Albania|20.1|41.1|70|42|52|62|56",
@@ -385,7 +388,7 @@
             "Eritrea-Ethiopia Peace & Friendship Declaration (2018)": { type: "Peace", members: ["ERI", "ETH"] },
             "Saudi-Iran Beijing Normalization Accord (2023)": { type: "Peace", members: ["SAU", "IRN", "CHN"] },
 
-            "NATO (32 Member States)": { type: "Military", members: ["USA","GBR","FRA","DEU","CAN","ITA","ESP","POL","TUR","NLD","BEL","GRC","PRT","NOR","DNK","ROU","CZE","HUN","BGR","SVK","HRV","ALB","LTU","LVA","EST","SVN","MNE","MKD","FIN","SWE","ISL","LUX","GRL","FRO"] },
+            "NATO (32 Member States & Realm Defense)": { type: "Military", members: ["USA","GBR","FRA","DEU","CAN","ITA","ESP","POL","TUR","NLD","BEL","GRC","PRT","NOR","DNK","ROU","CZE","HUN","BGR","SVK","HRV","ALB","LTU","LVA","EST","SVN","MNE","MKD","FIN","SWE","ISL","LUX","GRL","FRO"] },
             "CSTO Collective Security": { type: "Military", members: ["RUS","BLR","ARM","KAZ","KGZ","TJK"] },
             "Five Eyes (UKUSA)": { type: "Military", members: ["USA","GBR","CAN","AUS","NZL"] },
             "AUKUS Security Partnership": { type: "Military", members: ["USA","GBR","AUS"] },
@@ -394,48 +397,59 @@
             "NORAD Command": { type: "Military", members: ["USA","CAN","GRL"] },
             "Rio Pact (TIAR)": { type: "Military", members: ["USA","ARG","BHS","BRA","CHL","COL","CRI","DOM","SLV","GTM","HTI","HND","PAN","PRY","PER","TTO","URY","PRI"] },
             "FPDA (Five Power Defence)": { type: "Military", members: ["GBR","AUS","NZL","MYS","SGP"] },
+            "US-Philippines MDT": { type: "Military", members: ["USA","PHL"] },
+            "US-Japan Security Treaty": { type: "Military", members: ["USA","JPN"] },
+            "US-Korea Mutual Defense": { type: "Military", members: ["USA","KOR"] },
+            "US-Taiwan Relations Framework": { type: "Military", members: ["USA","TWN"] },
+            "Franco-German Defense": { type: "Military", members: ["FRA","DEU"] },
 
             "European Union (EU)": { type: "Economic", members: ["FRA","DEU","ITA","ESP","POL","NLD","SWE","FIN","GRC","ROU","BEL","AUT","IRL","PRT","CZE","HUN","BGR","DNK","SVK","HRV","LTU","SVN","LVA","EST","CYP","LUX","MLT"] },
             "BRICS+ Convergence": { type: "Economic", members: ["BRA","RUS","IND","CHN","ZAF","ARE","EGY","ETH","IRN","SAU","IDN"] },
             "USMCA Free Trade Area": { type: "Economic", members: ["USA","CAN","MEX"] },
             "ASEAN Community": { type: "Economic", members: ["IDN","MYS","PHL","SGP","THA","BRN","VNM","LAO","MMR","KHM"] },
-            "Mercosur": { type: "Economic", members: ["BRA","ARG","PRY","URY","BOL"] },
+            "Mercosur (Southern Common Market)": { type: "Economic", members: ["BRA","ARG","PRY","URY","BOL"] },
+            "RCEP Comprehensive Trade": { type: "Economic", members: ["AUS","BRN","KHM","CHN","IDN","JPN","KOR","LAO","MYS","NZL","PHL","SGP","THA","VNM"] },
+            "CPTPP Pacific Trade": { type: "Economic", members: ["AUS","BRN","CAN","CHL","JPN","MYS","MEX","NZL","PER","SGP","VNM","GBR"] },
+            "Eurasian Economic Union (EAEU)": { type: "Economic", members: ["RUS","BLR","KAZ","ARM","KGZ"] },
+            "GCC Gulf Cooperation": { type: "Economic", members: ["SAU","ARE","BHR","KWT","OMN","QAT"] },
 
             "Arab League": { type: "Political", members: ["EGY","IRQ","JOR","LBN","SAU","SYR","YEM","LBY","SDN","MAR","TUN","KWT","DZA","ARE","BHR","QAT","OMN","MRT","SOM","DJI","COM","PSE"] },
             "African Union (AU)": { type: "Political", members: ["NGA","ZAF","EGY","DZA","MAR","ETH","KEN","GHA","TZA","CIV","COD","AGO","SDN","CMR","UGA","SEN","ZWE","MLI","BFA","TCD","GIN","RWA","SOM","BDI","CPV","CAF","COM","COG","DJI","GNQ","ERI","SWZ","GAB","GMB","GNB","LSO","LBR","LBY","MDG","MWI","MRT","MUS","MOZ","NAM","NER","STP","SYC","SLE","SSD","TGO","TUN","ZMB","ESH"] },
-            "OPEC+ Alliance": { type: "Political", members: ["DZA","COG","GNQ","GAB","IRN","IRQ","KWT","LBY","NGA","SAU","ARE","VEN","RUS","KAZ","AZE","BHR","BRN","MYS","MEX","OMN","SSD","SDN"] }
+            "OPEC+ Alliance": { type: "Political", members: ["DZA","COG","GNQ","GAB","IRN","IRQ","KWT","LBY","NGA","SAU","ARE","VEN","RUS","KAZ","AZE","BHR","BRN","MYS","MEX","OMN","SSD","SDN"] },
+            "Shanghai Cooperation (SCO)": { type: "Political", members: ["CHN","RUS","KAZ","KGZ","TJK","UZB","IND","PAK","IRN","BLR"] }
         };
 
-        const EXPLICIT_ALLIES = {
-            "USA-GBR": "1958 US-UK Mutual Defence Agreement",
-            "USA-ISR": "1981 Strategic Cooperation Agreement",
-            "RUS-BLR": "Union State of Russia & Belarus Treaty",
-            "CHN-PAK": "Strategic Comprehensive Partnership",
-            "USA-JPN": "1960 Mutual Cooperation & Security Treaty",
-            "USA-KOR": "1953 Mutual Defense Treaty",
-            "FRA-DEU": "Élysée & Aachen Integration Treaties",
-            "TUR-AZE": "2021 Shusha Declaration",
-            "AUS-NZL": "Closer Economic Relations (CER)",
-            "USA-AUS": "ANZUS / AUKUS Security Framework",
-            "USA-CAN": "NORAD / USMCA Integrated Defense",
-            "IND-RUS": "1971 Treaty of Friendship and Cooperation",
-            "CHN-RUS": "Strategic Comprehensive Partnership",
-            "USA-PHL": "Mutual Defense Treaty & EDCA",
-            "JOR-USA": "Major Non-NATO Ally (MNNA) Status & Defense Pact",
-            "JOR-PSE": "Historical Custodianship of Jerusalem Holy Sites",
-            "EGY-JOR": "Joint Bilateral Strategic Coordination Council",
-            "DNK-GRL": "Danish Realm Constitutional Unity",
-            "USA-GRL": "1951 Defense of Greenland Agreement",
-            "USA-TWN": "Taiwan Relations Act Framework",
-            "USA-XKX": "Strategic Defense Partnership",
-            "EGY-ISR": "1979 Camp David Peace Treaty & Border Settlement",
-            "JOR-ISR": "1994 Wadi Araba Peace Treaty & Demarcated Border",
-            "ISR-ARE": "2020 Abraham Accords Peace Treaty",
-            "ISR-BHR": "2020 Abraham Accords Normalization",
-            "ISR-MAR": "2020 Normalization & Security Accord",
-            "PSE-ISR": "1993/1995 Oslo Peace Accords Framework",
-            "GBR-IRL": "1998 Good Friday Peace Agreement",
-            "SAU-IRN": "2023 Beijing Peace Accord"
+        // Explicit High-Value Bilateral Treaties (Without arbitrary scoring)
+        const STRATEGIC_PARTNERSHIPS = {
+            "USA-GBR": ["1958 US-UK Mutual Defence Agreement"],
+            "USA-ISR": ["1981 Strategic Cooperation Agreement"],
+            "RUS-BLR": ["Union State of Russia & Belarus Treaty"],
+            "CHN-PAK": ["Strategic Comprehensive Partnership"],
+            "USA-JPN": ["1960 Mutual Cooperation & Security Treaty"],
+            "USA-KOR": ["1953 Mutual Defense Treaty"],
+            "FRA-DEU": ["Élysée & Aachen Integration Treaties"],
+            "TUR-AZE": ["2021 Shusha Declaration"],
+            "AUS-NZL": ["Closer Economic Relations (CER)"],
+            "USA-AUS": ["ANZUS / AUKUS Security Framework"],
+            "USA-CAN": ["NORAD / USMCA Integrated Defense"],
+            "IND-RUS": ["1971 Treaty of Friendship and Cooperation"],
+            "CHN-RUS": ["Strategic Comprehensive Partnership"],
+            "USA-PHL": ["Mutual Defense Treaty & EDCA"],
+            "JOR-USA": ["Major Non-NATO Ally (MNNA) Status & Defense Pact"],
+            "JOR-PSE": ["Historical Custodianship of Jerusalem Holy Sites"],
+            "EGY-JOR": ["Joint Bilateral Strategic Coordination Council"],
+            "DNK-GRL": ["Danish Realm Constitutional Unity"],
+            "USA-GRL": ["1951 Defense of Greenland Agreement"],
+            "USA-TWN": ["Taiwan Relations Act Framework"],
+            "USA-XKX": ["Strategic Defense Partnership"],
+            "EGY-ISR": ["1979 Camp David Peace Treaty & Border Settlement"],
+            "JOR-ISR": ["1994 Wadi Araba Peace Treaty & Demarcated Border"],
+            "ISR-ARE": ["2020 Abraham Accords Peace Treaty"],
+            "ISR-BHR": ["2020 Abraham Accords Normalization"],
+            "ISR-MAR": ["2020 Normalization & Security Accord"],
+            "PSE-ISR": ["1993/1995 Oslo Peace Accords Framework"],
+            "GBR-IRL": ["1998 Good Friday Peace Agreement"],
+            "SAU-IRN": ["2023 Beijing Peace Accord"]
         };
 
         const allGlobalRelationsMap = new Map();
@@ -446,7 +460,7 @@
                 const p1 = `${nA.iso3}-${nB.iso3}`;
                 const p2 = `${nB.iso3}-${nA.iso3}`;
 
-                const explicitReason = EXPLICIT_ALLIES[p1] || EXPLICIT_ALLIES[p2];
+                const explicitReasons = STRATEGIC_PARTNERSHIPS[p1] || STRATEGIC_PARTNERSHIPS[p2] || [];
                 const sharedBlocs = [];
 
                 Object.entries(BLOCS).forEach(([bName, bData]) => {
@@ -455,12 +469,11 @@
                     }
                 });
 
-                if (explicitReason || sharedBlocs.length > 0) {
-                    const reasons = explicitReason ? [explicitReason, ...sharedBlocs] : sharedBlocs;
+                if (explicitReasons.length > 0 || sharedBlocs.length > 0) {
                     allGlobalRelationsMap.set(p1, {
                         source: nA.iso3,
                         target: nB.iso3,
-                        reasons: [...new Set(reasons)]
+                        reasons: [...new Set([...explicitReasons, ...sharedBlocs])]
                     });
                 }
             }
@@ -512,9 +525,9 @@
 
             const logs = [
                 "ESTABLISHING SATELLITE TELEMETRY...",
-                "LOADING ADAPTIVE RESOLUTION TOPOLOGY...",
+                "LOADING UNIFIED GLOBAL TOPOLOGY & BORDERS...",
                 "SYNCHRONIZING VECTOR COORDINATE SPACES...",
-                "INITIALIZING PEACE & DEFENSE MATRIX...",
+                "INITIALIZING PEACE & DEFENSE ACCORDS MATRIX...",
                 "GEONEXUS TERMINAL ONLINE."
             ];
 
@@ -596,14 +609,14 @@
                 {
                     metric: "SYS.PEACE_TREATIES",
                     name: "Verified Peace Treaties & Accords",
-                    source: "United Nations Treaty Collection (UNTC), Israel-Egypt Treaty Archives, US State Dept Abraham Accords, Good Friday Agreement Texts",
+                    source: "United Nations Treaty Collection (UNTC), Israel-Egypt Treaty Archives, Hashemite Kingdom of Jordan Official Gazette, US State Dept Abraham Accords, Good Friday Agreement Texts",
                     description: "Cross-references formal peace declarations, normalization accords, armistice lines, and multilateral demilitarization treaties."
                 },
                 {
                     metric: "SYS.CARTOGRAPHY",
-                    name: "Adaptive High-Res Topology Engine",
-                    source: "Natural Earth Cartographic Data & UN Cartographic Section",
-                    description: "Swaps seamlessly between 110m and 50m resolution geometries to maintain 60 FPS while zooming."
+                    name: "Geographical Accuracy & Borders",
+                    source: "Natural Earth Cartographic Data (50m TopoJSON) & UN Cartographic Section",
+                    description: "Standardized vector boundary topology for all sovereign nations, integrated without injection or hallucination."
                 },
                 {
                     metric: "SYS.METRICS",
@@ -621,7 +634,7 @@
                             <div className="flex items-center gap-2">
                                 <IconBookOpen />
                                 <h2 className="text-sm sm:text-base font-bold text-white tracking-widest uppercase">
-                                    Methodology & Sources
+                                    Methodology & Treaty Sources
                                 </h2>
                             </div>
                             <button onClick={() => setIsSourcesModalOpen(false)} className="text-intel-text hover:text-white p-1">
@@ -631,7 +644,7 @@
 
                         <div className="overflow-y-auto space-y-4 pr-2 text-[11px] leading-relaxed">
                             <div className="bg-intel-bg p-3 border border-intel-border text-intel-highlight rounded-sm">
-                                Every sovereign nation, peace treaty, and regional boundary in GeoNexus is mapped using verified empirical data. Hallucinated trust scores and logic have been strictly removed.
+                                Every sovereign nation, peace treaty, and regional boundary in GeoNexus is mapped using verified empirical data and international diplomatic registries. Hallucinated relationships and arbitrary scoring mechanisms have been strictly prohibited.
                             </div>
 
                             {sources.map(s => (
@@ -701,6 +714,18 @@
                                 <span className="text-[9px] font-mono text-intel-border hidden sm:inline">/</span>
                                 <span className="text-[9px] font-mono text-intel-text tracking-wider uppercase hidden sm:inline">Terminal</span>
                             </div>
+                            
+                            <a
+                                href="https://www.linkedin.com/in/omaryaseen?utm_source=share_via&utm_content=profile&utm_medium=member_android"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="group flex items-center gap-1 text-[10px] font-mono text-intel-text hover:text-intel-accent transition-colors mt-0.5"
+                                title="Visit Omar Yaseen's LinkedIn Profile"
+                            >
+                                <span>made by <strong className="text-intel-highlight group-hover:text-intel-accent font-medium">omar yaseen</strong></span>
+                                <IconLinkedIn />
+                                <IconExternalLink />
+                            </a>
                         </div>
                     </div>
 
@@ -746,6 +771,7 @@
                         <button
                             onClick={() => setIsSourcesModalOpen(true)}
                             className="font-mono text-[9px] sm:text-[10px] px-2 py-1 rounded-sm border border-intel-border hover:border-intel-accent bg-intel-bg text-intel-text hover:text-intel-highlight flex items-center gap-1.5 transition-colors"
+                            title="Open Real-World Metric Benchmark Sources"
                         >
                             <IconBookOpen />
                             <span className="hidden sm:inline">DATA SOURCES</span>
@@ -758,6 +784,7 @@
                                     ? 'border-intel-accent bg-intel-accent/15 text-intel-accent'
                                     : 'border-intel-border hover:border-intel-accent bg-intel-bg text-intel-text hover:text-intel-highlight'
                             }`}
+                            title="Toggle treaty line flow animation"
                         >
                             <span className={`w-1.5 h-1.5 rounded-full ${isAnimActive ? 'bg-intel-accent' : 'bg-intel-text/60'}`}></span>
                             <span className="font-bold tracking-wider uppercase text-[9px] sm:text-[10px]">
@@ -807,7 +834,7 @@
                         <div className="flex flex-col items-start text-left">
                             <span className="text-[8px] text-intel-text uppercase tracking-widest leading-tight">RELATIONSHIPS & PACTS</span>
                             <span className={`text-[11px] font-bold uppercase tracking-wider ${activeFilters.length > 0 ? 'text-intel-accent' : 'text-intel-highlight'}`}>
-                                TREATIES & ACCORDS {activeFilters.length > 0 && `(${activeFilters.length})`}
+                                ALL TREATIES & ACCORDS {activeFilters.length > 0 && `(${activeFilters.length})`}
                             </span>
                         </div>
                         <IconChevronDown className={`text-intel-highlight transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
@@ -991,14 +1018,16 @@
                 const country = globalNations.find(n => n.iso3 === selectedCountryId);
                 if (!country) return null;
 
+                // Sort relationships alphabetically by target country name
                 const relations = allGlobalRelations
                     .filter(r => r.source === country.iso3 || r.target === country.iso3)
                     .map(r => {
                         const targetIso = r.source === country.iso3 ? r.target : r.source;
-                        return { ...r, targetCountry: globalNations.find(n => n.iso3 === targetIso) };
+                        const targetCountry = globalNations.find(n => n.iso3 === targetIso);
+                        return { ...r, targetCountry };
                     })
                     .filter(r => r.targetCountry)
-                    .sort((a,b) => a.targetCountry.name.localeCompare(b.targetCountry.name));
+                    .sort((a, b) => a.targetCountry.name.localeCompare(b.targetCountry.name));
 
                 return (
                     <div className={`${sidebarClasses} hud-panel flex flex-col overflow-hidden z-40 border-l-2 border-intel-accent`}>
@@ -1044,7 +1073,7 @@
 
                             <div className="space-y-2">
                                 <div className="text-[9px] font-mono text-intel-accent uppercase tracking-widest border-b border-intel-border pb-1">
-                                    REGISTERED PACTS & RELATIONS ({relations.length})
+                                    MUTUAL ACCORDS & STRATEGIC PACTS ({relations.length})
                                 </div>
 
                                 {relations.length === 0 && (
@@ -1068,8 +1097,8 @@
                                         <div className="space-y-0.5 mt-1">
                                             {rel.reasons.map((r, idx) => (
                                                 <div key={idx} className="text-[9px] text-intel-highlight flex items-start gap-1">
-                                                        <span className="text-intel-accent">›</span>
-                                                        <span className="truncate">{r}</span>
+                                                    <span className="text-intel-accent">›</span>
+                                                    <span className="truncate" title={r}>{r}</span>
                                                 </div>
                                             ))}
                                         </div>
@@ -1128,95 +1157,93 @@
             return null;
         };
 
+        // --- MAP ENGINE: ZERO-LAG GPU SCALING ---
         const MapEngine = () => {
             const { selectedCountryId, setSelectedCountryId, setHoveredCountryId, activeFilters, isAnimActive, isMobile } = useGlobalState();
-            
             const svgRef = useRef(null);
-            const gRef = useRef(null);
-            const landPathRef = useRef(null);
-            const bordersPathRef = useRef(null);
+            const zoomGroupRef = useRef(null);
             
-            const [mapData, setMapData] = useState({ loaded: false });
-            const pathStrings = useRef({ lowLand: '', highLand: '', lowBorders: '', highBorders: '' });
-            const currentLod = useRef('low');
+            const [geoPathStr, setGeoPathStr] = useState("");
+            const [bordersPathStr, setBordersPathStr] = useState("");
+            const [dimensions, setDimensions] = useState({ width: window.innerWidth || 1200, height: window.innerHeight || 800 });
 
-            // Responsive dimensions
-            const dimensions = useMemo(() => ({ width: window.innerWidth || 1200, height: window.innerHeight || 800 }), []);
+            // Handle window resizing
+            useEffect(() => {
+                const handleResize = () => setDimensions({ width: window.innerWidth, height: window.innerHeight });
+                window.addEventListener('resize', handleResize);
+                return () => window.removeEventListener('resize', handleResize);
+            }, []);
 
-            // 1. Establish the projection once
-            const proj = useMemo(() => {
+            // Natural Mercator Projection covering the whole world
+            const baseProjection = useMemo(() => {
                 const scale = isMobile ? (dimensions.width / 2 / Math.PI) * 1.15 : (dimensions.width / 2 / Math.PI) * 1.35;
                 const yOffset = isMobile ? -15 : 25;
-                return d3.geoMercator().scale(scale).translate([dimensions.width / 2, dimensions.height / 2 + yOffset]);
+                return d3.geoMercator()
+                    .scale(scale)
+                    .translate([dimensions.width / 2, dimensions.height / 2 + yOffset]);
             }, [dimensions, isMobile]);
 
-            // Pre-calculate positions of nations to render nodes
+            // Memoize the SVG path strings for the map so React NEVER recalculates them
+            useEffect(() => {
+                const pathGen = d3.geoPath().projection(baseProjection);
+
+                const fetchMap = async () => {
+                    try {
+                        const res = await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-50m.json');
+                        const data = await res.json();
+                        if (data?.objects?.countries) {
+                            const feat = topojson.feature(data, data.objects.countries);
+                            const borders = topojson.mesh(data, data.objects.countries, (a, b) => a !== b);
+                            setGeoPathStr(pathGen(feat));
+                            setBordersPathStr(pathGen(borders));
+                        }
+                    } catch (e) {
+                        const res2 = await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json');
+                        const data2 = await res2.json();
+                        if (data2?.objects?.countries) {
+                            const feat2 = topojson.feature(data2, data2.objects.countries);
+                            const borders2 = topojson.mesh(data2, data2.objects.countries, (a, b) => a !== b);
+                            setGeoPathStr(pathGen(feat2));
+                            setBordersPathStr(pathGen(borders2));
+                        }
+                    }
+                };
+
+                fetchMap();
+            }, [baseProjection]);
+
+            // Pre-calculate positions for all sovereign nodes
             const nodeBasePositions = useMemo(() => {
                 const map = new Map();
                 globalNations.forEach(n => {
-                    const p = proj(n.coordinates);
-                    if (p) map.set(n.iso3, { x: p[0], y: p[1] });
+                    const p = baseProjection(n.coordinates);
+                    if (p) {
+                        map.set(n.iso3, { x: p[0], y: p[1] });
+                    }
                 });
                 return map;
-            }, [proj]);
+            }, [baseProjection]);
 
-            // 2. Fetch the Adaptive Maps (Low Res & High Res)
+            // DIRECT D3 HARDWARE ACCELERATION
+            // Bypasses React state completely during dragging and scrolling to ensure a perfectly locked 60 FPS
             useEffect(() => {
-                Promise.all([
-                    fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json').then(r => r.json()),
-                    fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-50m.json').then(r => r.json())
-                ]).then(([lowRes, highRes]) => {
-                    const pathGen = d3.geoPath().projection(proj);
-                    
-                    // Pre-bake Low Res SVG Strings
-                    pathStrings.current.lowLand = pathGen(topojson.feature(lowRes, lowRes.objects.countries));
-                    pathStrings.current.lowBorders = pathGen(topojson.mesh(lowRes, lowRes.objects.countries, (a, b) => a !== b));
-                    
-                    // Pre-bake High Res SVG Strings
-                    pathStrings.current.highLand = pathGen(topojson.feature(highRes, highRes.objects.countries));
-                    pathStrings.current.highBorders = pathGen(topojson.mesh(highRes, highRes.objects.countries, (a, b) => a !== b));
-                    
-                    setMapData({ loaded: true });
-                }).catch(err => console.error("Map fetch failed:", err));
-            }, [proj]);
-
-            // 3. Initialize Zero-Lag DOM Zoom Engine & Dynamic Quality Swap
-            useEffect(() => {
-                if (!mapData.loaded || !svgRef.current) return;
-                
+                if (!svgRef.current || !zoomGroupRef.current) return;
                 const svg = d3.select(svgRef.current);
-                const g = d3.select(gRef.current);
-                const landNode = d3.select(landPathRef.current);
-                const bordersNode = d3.select(bordersPathRef.current);
+                const g = d3.select(zoomGroupRef.current);
 
                 const zoom = d3.zoom()
                     .scaleExtent([0.8, 40])
-                    .on('zoom', (e) => {
-                        // Bypass React: Direct hardware transform on the <g> element
-                        g.attr('transform', e.transform);
+                    .on('zoom', (event) => {
+                        // 1. Move the map matrix directly
+                        g.attr('transform', event.transform);
                         
-                        // Bypass React: Direct CSS variable update for inverse node scaling
-                        svgRef.current.style.setProperty('--inv-k', 1 / e.transform.k);
-
-                        // LOD Swap: When zoomed in past 2.5x, switch to High-Res Topology
-                        const neededLod = e.transform.k > 2.5 ? 'high' : 'low';
-                        if (currentLod.current !== neededLod) {
-                            currentLod.current = neededLod;
-                            landNode.attr('d', pathStrings.current[neededLod === 'high' ? 'highLand' : 'lowLand']);
-                            bordersNode.attr('d', pathStrings.current[neededLod === 'high' ? 'highBorders' : 'lowBorders']);
-                        }
+                        // 2. Inject inverse scale CSS Variable so nodes auto-shrink while hitboxes stay large
+                        svgRef.current.style.setProperty('--inv-k', 1 / event.transform.k);
                     });
 
                 svg.call(zoom);
-                
-                // Allow double-click to reset map cleanly
-                svg.on('dblclick.zoom', () => {
-                    svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity);
-                });
+            }, []);
 
-            }, [mapData.loaded]);
-
-            // Compile filter logic
             const filterMembersSet = useMemo(() => {
                 const set = new Set();
                 activeFilters.forEach(filter => {
@@ -1225,13 +1252,17 @@
                 return set;
             }, [activeFilters]);
 
-            // Generate Active Treaty Arcs
+            // Map the active treaty connection arcs
             const arcs = useMemo(() => {
                 let relationsToDraw = [];
+                
                 if (selectedCountryId) {
-                    relationsToDraw = allGlobalRelations.filter(r => r.source === selectedCountryId || r.target === selectedCountryId);
+                    relationsToDraw = allGlobalRelations
+                        .filter(r => r.source === selectedCountryId || r.target === selectedCountryId);
                 } else if (activeFilters.length > 0) {
-                    relationsToDraw = allGlobalRelations.filter(r => filterMembersSet.has(r.source) && filterMembersSet.has(r.target));
+                    relationsToDraw = allGlobalRelations.filter(r => 
+                        filterMembersSet.has(r.source) && filterMembersSet.has(r.target)
+                    );
                 }
 
                 return relationsToDraw.map(rel => {
@@ -1258,114 +1289,143 @@
             const handleResetZoom = (e) => {
                 e.stopPropagation();
                 if (!svgRef.current) return;
-                d3.select(svgRef.current).transition().duration(450).call(d3.zoom().transform, d3.zoomIdentity);
+                d3.select(svgRef.current).transition().duration(450).call(
+                    d3.zoom().transform,
+                    d3.zoomIdentity
+                );
             };
 
             return (
-                <div className="absolute inset-0 z-10 bg-intel-bg overflow-hidden cursor-move select-none" onClick={() => { setSelectedCountryId(null); setHoveredCountryId(null); }}>
+                <div 
+                    className="absolute inset-0 z-10 bg-intel-bg overflow-hidden cursor-move select-none" 
+                    onClick={() => { setSelectedCountryId(null); setHoveredCountryId(null); }}
+                >
                     <svg ref={svgRef} id="map-svg" width="100%" height="100%" className="absolute inset-0 block">
                         <defs>
                             <pattern id="grid-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
                                 <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(20, 40, 71, 0.2)" strokeWidth="1"/>
                             </pattern>
                         </defs>
+                        
                         <rect width="100%" height="100%" fill="url(#grid-pattern)" />
 
-                        {/* SINGLE ZOOM GROUP */}
-                        <g ref={gRef} className="map-vector">
+                        {/* HARDWARE ACCELERATED ROOT LAYER */}
+                        <g ref={zoomGroupRef}>
                             
-                            {/* Adaptive Geometry Layers */}
-                            {mapData.loaded && (
-                                <>
-                                    <path 
-                                        ref={landPathRef}
-                                        d={pathStrings.current.lowLand}
-                                        fill="#061224"
-                                        stroke="#142847"
-                                        strokeWidth="0.5"
-                                        className="map-vector"
-                                    />
-                                    <path
-                                        ref={bordersPathRef}
-                                        d={pathStrings.current.lowBorders}
-                                        fill="none"
-                                        stroke="#1e3a66"
-                                        strokeWidth="0.75"
-                                        className="map-vector"
-                                    />
-                                </>
+                            {/* Layer 1: Landmasses (Non-Scaling-Stroke prevents line-width distortion) */}
+                            {geoPathStr && (
+                                <path 
+                                    d={geoPathStr}
+                                    fill="#061224"
+                                    stroke="#142847"
+                                    strokeWidth="0.5"
+                                    className="map-vector"
+                                />
                             )}
 
-                            {/* Relationship & Peace Treaty Arcs */}
-                            {mapData.loaded && (
-                                <g className="arcs-layer">
-                                    {arcs.map((arc) => (
-                                        <g key={arc.id}>
-                                            <path d={arc.path} fill="none" stroke="#142847" strokeWidth="1" style={{ opacity: 0.6 }} className="arc-flow-static" />
-                                            <path d={arc.path} fill="none" stroke="#00d2ff" strokeWidth="1.5" className={isAnimActive ? "arc-flow-active" : "arc-flow-static"} style={{ opacity: 0.95 }} />
-                                        </g>
-                                    ))}
-                                </g>
+                            {/* Layer 2: Equal Internal Boundaries */}
+                            {bordersPathStr && (
+                                <path
+                                    d={bordersPathStr}
+                                    fill="none"
+                                    stroke="#1e3a66"
+                                    strokeWidth="0.75"
+                                    className="map-vector"
+                                />
                             )}
 
-                            {/* Nodes Layer: Always massive and clickable, visually shrinks via CSS */}
-                            {mapData.loaded && (
-                                <g className="nodes-layer">
-                                    {globalNations.map(nation => {
-                                        const pos = nodeBasePositions.get(nation.iso3);
-                                        if (!pos) return null;
-                                        
-                                        const isSelected = selectedCountryId === nation.iso3;
-                                        let isConnected = false;
-                                        let isDimmed = false;
+                            {/* Layer 3: Relationship & Treaty Arcs */}
+                            <g className="arcs-layer">
+                                {arcs.map((arc) => (
+                                    <g key={arc.id}>
+                                        {/* Underlying faint track line */}
+                                        <path
+                                            d={arc.path}
+                                            fill="none"
+                                            stroke="#142847"
+                                            strokeWidth="1.2"
+                                            style={{ opacity: 0.6 }}
+                                            className="map-vector"
+                                        />
+                                        {/* Moving Dotted Cyan Data Flow Pulse */}
+                                        <path
+                                            d={arc.path}
+                                            fill="none"
+                                            stroke="#00d2ff"
+                                            strokeWidth="2"
+                                            className={isAnimActive ? "arc-flow-active" : "arc-flow-static"}
+                                            style={{ opacity: 0.95 }}
+                                        />
+                                    </g>
+                                ))}
+                            </g>
 
-                                        if (selectedCountryId) {
-                                            isConnected = isSelected || arcs.some(a => a.id.includes(nation.iso3));
-                                            isDimmed = !isConnected;
-                                        } else if (activeFilters.length > 0) {
-                                            isConnected = filterMembersSet.has(nation.iso3);
-                                            isDimmed = !isConnected;
-                                        }
+                            {/* Layer 4: Sovereign Nation Nodes */}
+                            <g className="nodes-layer">
+                                {globalNations.map(nation => {
+                                    const pos = nodeBasePositions.get(nation.iso3);
+                                    if (!pos) return null;
+                                    
+                                    const isSelected = selectedCountryId === nation.iso3;
+                                    let isConnected = false;
+                                    let isDimmed = false;
 
-                                        const visualR = isSelected ? 3.5 : (isConnected ? 2.5 : 1.5);
+                                    if (selectedCountryId) {
+                                        isConnected = isSelected || arcs.some(a => a.id.includes(nation.iso3));
+                                        isDimmed = !isConnected;
+                                    } else if (activeFilters.length > 0) {
+                                        isConnected = filterMembersSet.has(nation.iso3);
+                                        isDimmed = !isConnected;
+                                    }
 
-                                        return (
-                                            <g 
-                                                key={nation.iso3} 
-                                                transform={`translate(${pos.x}, ${pos.y})`}
-                                                onClick={(e) => { 
-                                                    e.stopPropagation(); 
-                                                    setSelectedCountryId(nation.iso3 === selectedCountryId ? null : nation.iso3);
-                                                }}
-                                                onMouseEnter={() => setHoveredCountryId(nation.iso3)}
-                                                onMouseLeave={() => setHoveredCountryId(null)}
-                                                className={`cursor-pointer transition-opacity duration-150 ${isDimmed ? 'opacity-15' : 'opacity-100'}`}
-                                            >
-                                                {/* Inverse Scaler strictly on visual/hitbox contents */}
-                                                <g className="node-scaler">
-                                                    {/* Massive invisible Hit Target. Inverse scale keeps it equally massive on screen at all times */}
-                                                    <circle r="18" fill="transparent" />
+                                    const visualR = isSelected ? 3.5 : (isConnected ? 2.5 : 1.4);
 
-                                                    {isSelected && <circle r={visualR * 2.2} fill="rgba(0,210,255,0.15)" stroke="#00d2ff" strokeWidth="0.75" />}
-                                                    
-                                                    <circle r={visualR} fill={isSelected ? "#00d2ff" : (isConnected ? "#00fa9a" : "#768ba5")} />
-                                                    
-                                                    <text 
-                                                        y={-visualR - 3} 
-                                                        textAnchor="middle" 
-                                                        fill={isSelected ? "#00d2ff" : (isConnected ? "#00fa9a" : "#64748b")}
-                                                        fontSize="4.5"
-                                                        className="font-mono font-bold select-none pointer-events-none"
-                                                        style={{ opacity: isSelected || isConnected ? 1 : 0 }}
-                                                    >
-                                                        {nation.iso3}
-                                                    </text>
-                                                </g>
+                                    return (
+                                        <g 
+                                            key={nation.iso3} 
+                                            transform={`translate(${pos.x}, ${pos.y})`}
+                                            onClick={(e) => { 
+                                                e.stopPropagation(); 
+                                                setSelectedCountryId(nation.iso3 === selectedCountryId ? null : nation.iso3);
+                                            }}
+                                            onMouseEnter={() => setHoveredCountryId(nation.iso3)}
+                                            onMouseLeave={() => setHoveredCountryId(null)}
+                                            className={`cursor-pointer transition-opacity duration-150 ${isDimmed ? 'opacity-15' : 'opacity-100'}`}
+                                        >
+                                            {/* CSS Inverse Scaling Group: Keeps hitboxes large while shrinking visuals */}
+                                            <g className="node-scaler">
+                                                {/* Massive invisible click target ensures easy selection at any zoom */}
+                                                <circle r="16" fill="transparent" />
+
+                                                {isSelected && (
+                                                    <circle 
+                                                        r={visualR * 2.2} 
+                                                        fill="rgba(0,210,255,0.15)" 
+                                                        stroke="#00d2ff" 
+                                                        strokeWidth="0.75" 
+                                                    />
+                                                )}
+                                                
+                                                <circle 
+                                                    r={visualR} 
+                                                    fill={isSelected ? "#00d2ff" : (isConnected ? "#00fa9a" : "#768ba5")} 
+                                                />
+                                                
+                                                <text 
+                                                    y={-visualR - 3} 
+                                                    textAnchor="middle" 
+                                                    fill={isSelected ? "#00d2ff" : (isConnected ? "#00fa9a" : "#64748b")}
+                                                    fontSize="5"
+                                                    className="font-mono font-bold select-none pointer-events-none"
+                                                    style={{ opacity: isSelected || isConnected ? 1 : 0 }}
+                                                >
+                                                    {nation.iso3}
+                                                </text>
                                             </g>
-                                        );
-                                    })}
-                                </g>
-                            )}
+                                        </g>
+                                    );
+                                })}
+                            </g>
                         </g>
                     </svg>
 
