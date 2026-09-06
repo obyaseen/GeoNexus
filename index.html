@@ -34,17 +34,14 @@
         };
     </script>
     
-    <!-- Hardware-Accelerated Cyber Aesthetic Styles -->
+    <!-- Ultra-Optimized, Hardware Accelerated CSS -->
     <style>
         * { box-sizing: border-box; }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #02050a; }
 
         .hud-panel {
-            background-color: rgba(6, 13, 26, 0.94);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background-color: rgba(6, 13, 26, 0.95);
             border: 1px solid #142847;
-            box-shadow: 0 0 25px rgba(0, 10, 30, 0.85);
             position: relative;
         }
 
@@ -52,28 +49,6 @@
         .hud-bracket-tr { position: absolute; top: 0; right: 0; width: 8px; height: 8px; border-top: 2px solid #00d2ff; border-right: 2px solid #00d2ff; pointer-events: none; }
         .hud-bracket-bl { position: absolute; bottom: 0; left: 0; width: 8px; height: 8px; border-bottom: 2px solid #00d2ff; border-left: 2px solid #00d2ff; pointer-events: none; }
         .hud-bracket-br { position: absolute; bottom: 0; right: 0; width: 8px; height: 8px; border-bottom: 2px solid #00d2ff; border-right: 2px solid #00d2ff; pointer-events: none; }
-
-        .neon-text-accent { text-shadow: 0 0 10px rgba(0, 210, 255, 0.85); }
-        .neon-text-allied { text-shadow: 0 0 10px rgba(0, 250, 154, 0.85); }
-
-        .scanlines {
-            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.25));
-            background-size: 100% 4px;
-            pointer-events: none;
-            position: absolute;
-            inset: 0;
-            z-index: 20;
-            opacity: 0.35;
-            mix-blend-mode: overlay;
-        }
-
-        .vignette-overlay {
-            background: radial-gradient(circle, rgba(0,0,0,0) 45%, rgba(2,5,10,0.95) 100%);
-            pointer-events: none;
-            position: absolute;
-            inset: 0;
-            z-index: 20;
-        }
 
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -97,7 +72,7 @@
             cursor: pointer;
             position: relative;
             flex-shrink: 0;
-            transition: all 0.15s ease;
+            transition: all 0.1s ease;
         }
         .cyber-checkbox:checked {
             background: rgba(0, 210, 255, 0.25);
@@ -115,20 +90,37 @@
             transform: rotate(45deg);
         }
 
+        /* 
+         * Hardware-Accelerated Data Flow 
+         * Uses non-scaling-stroke so pixels remain exact during zooming 
+         */
         @keyframes dash-flow {
-            to { stroke-dashoffset: -40; }
+            to { stroke-dashoffset: -32; }
         }
-        .animate-data-flow {
-            animation: dash-flow 1.8s linear infinite;
+        .arc-flow-active {
+            stroke-dasharray: 4 6;
+            animation: dash-flow 1.2s linear infinite;
+            vector-effect: non-scaling-stroke;
+        }
+        .arc-flow-static {
+            vector-effect: non-scaling-stroke;
         }
 
-        @keyframes radar-spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+        .map-vector {
+            vector-effect: non-scaling-stroke;
         }
-        .animate-radar-sweep {
-            transform-origin: center;
-            animation: radar-spin 4s linear infinite;
+
+        /* 
+         * ZERO-LAG INVERSE SCALING ENGINE 
+         * This uses a CSS variable (--inv-k) injected dynamically by D3. 
+         * It shrinks nodes exactly as the map zooms in, bypassing React completely!
+         */
+        #map-svg {
+            --inv-k: 1;
+        }
+        .node-scaler {
+            transform: scale(var(--inv-k));
+            will-change: transform;
         }
     </style>
 
@@ -142,81 +134,21 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
 </head>
-<body class="bg-intel-bg text-intel-text font-sans h-screen w-screen overflow-hidden selection:bg-intel-accent selection:text-black">
+<body class="bg-intel-bg text-intel-text font-sans h-screen w-screen overflow-hidden select-none">
     <div id="root" class="h-full w-full relative"></div>
 
     <script type="text/babel">
         const { useState, useEffect, useRef, useMemo, createContext, useContext } = React;
 
-        // --- ICON SUITE ---
-        const IconActivity = ({ className = "" }) => (
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 14, height: 14, minWidth: 14, minHeight: 14 }} className={className}>
-                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-            </svg>
-        );
+        const IconActivity = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>;
+        const IconSearch = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>;
+        const IconX = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>;
+        const IconCheckCircle = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>;
+        const IconChevronDown = ({ className = "" }) => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="6 9 12 15 18 9"></polyline></svg>;
+        const IconExternalLink = () => <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>;
+        const IconLinkedIn = () => <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"></path></svg>;
+        const IconBookOpen = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>;
 
-        const IconSearch = ({ className = "" }) => (
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 12, height: 12, minWidth: 12, minHeight: 12 }} className={className}>
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-        );
-
-        const IconX = ({ className = "" }) => (
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 12, height: 12, minWidth: 12, minHeight: 12 }} className={className}>
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-        );
-
-        const IconCheckCircle = ({ className = "" }) => (
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 13, height: 13, minWidth: 13, minHeight: 13 }} className={className}>
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-            </svg>
-        );
-
-        const IconChevronDown = ({ className = "" }) => (
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 12, height: 12, minWidth: 12, minHeight: 12 }} className={className}>
-                <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-        );
-
-        const IconExternalLink = ({ className = "" }) => (
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 10, height: 10, minWidth: 10, minHeight: 10 }} className={className}>
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                <polyline points="15 3 21 3 21 9"></polyline>
-                <line x1="10" y1="14" x2="21" y2="3"></line>
-            </svg>
-        );
-
-        const IconLinkedIn = ({ className = "" }) => (
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style={{ width: 11, height: 11, minWidth: 11, minHeight: 11 }} className={className}>
-                <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"></path>
-            </svg>
-        );
-
-        const IconZap = ({ className = "" }) => (
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style={{ width: 11, height: 11, minWidth: 11, minHeight: 11 }} className={className}>
-                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-            </svg>
-        );
-
-        const IconBookOpen = ({ className = "" }) => (
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 12, height: 12, minWidth: 12, minHeight: 12 }} className={className}>
-                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-            </svg>
-        );
-
-        // --- COMPREHENSIVE GLOBAL SOVEREIGN & STRATEGIC POLITY REGISTRY ---
-        // Format: ISO3|Name|Longitude|Latitude|Stability|Military|Economy|Diplomacy|Cyber
-        // Expanded to include Greenland (GRL) and strategic self-governing/disputed polities (TWN, XKX, ESH, FRO, PRI)
-        // 1. Stability (FSI & World Bank WGI, 0-100 where 100 is optimal peace/resilience, <25 is active crisis)
-        // 2. Military (Global Firepower GFP & IISS / SIPRI, 0-100 conventional power)
-        // 3. Economy (IMF WEO & World Bank GDP, 0-100 nominal, PPP & capital depth)
-        // 4. Diplomacy (Lowy Institute Global Diplomacy Index & bilateral network)
-        // 5. Cyber (Belfer Center NCPI & UN ITU Global Cybersecurity Index GCI)
         const masterNationsRaw = [
             "AFG|Afghanistan|65|33|14|32|16|21|22",
             "ALB|Albania|20.1|41.1|70|42|52|62|56",
@@ -362,7 +294,7 @@
             "POL|Poland|19.1|51.9|84|81|80|78|81",
             "PRT|Portugal|-8.2|39.3|87|64|75|80|79",
             "PRI|Puerto Rico|-66.5|18.2|78|40|68|52|65",
-            "PSE|Palestine|35.25|31.95|16|14|18|66|22",
+            "PSE|Palestine|35.23|31.95|18|14|20|68|26",
             "QAT|Qatar|51.3|25.3|89|64|81|76|78",
             "ROU|Romania|24.9|45.9|79|66|73|75|72",
             "RUS|Russia|105.3|61.5|54|92|68|88|93",
@@ -421,7 +353,6 @@
             "ZWE|Zimbabwe|29.1|-19|46|48|38|54|38"
         ];
 
-        // Format into structured JS objects with source citations
         const globalNations = masterNationsRaw.map(str => {
             const [iso3, name, lng, lat, stab, mil, econ, dipl, cyb] = str.split("|");
             return {
@@ -430,17 +361,31 @@
                 coordinates: [parseFloat(lng), parseFloat(lat)],
                 metrics: {
                     stability: { value: parseInt(stab, 10), source: "Fund for Peace FSI & World Bank WGI" },
-                    military: { value: parseInt(mil, 10), source: "Global Firepower GFP & SIPRI / IISS" },
-                    economy: { value: parseInt(econ, 10), source: "IMF World Economic Outlook & World Bank GDP" },
+                    military: { value: parseInt(mil, 10), source: "Global Firepower GFP & SIPRI" },
+                    economy: { value: parseInt(econ, 10), source: "IMF WEO & World Bank GDP" },
                     diplomacy: { value: parseInt(dipl, 10), source: "Lowy Institute Diplomacy Index" },
-                    cyber: { value: parseInt(cyb, 10), source: "Belfer Center NCPI & UN ITU GCI" }
+                    cyber: { value: parseInt(cyb, 10), source: "Belfer NCPI & UN ITU GCI" }
                 }
             };
         });
 
-        // --- GLOBAL MULTILATERAL PACTS & ALLIANCES ---
         const BLOCS = {
-            "NATO (32 Member States & Realm Defense)": { type: "Military", members: ["USA","GBR","FRA","DEU","CAN","ITA","ESP","POL","TUR","NLD","BEL","GRC","PRT","NOR","DNK","ROU","CZE","HUN","BGR","SVK","HRV","ALB","LTU","LVA","EST","SVN","MNE","MKD","FIN","SWE","ISL","LUX","GRL","FRO"] },
+            "Camp David Peace Treaty (1979)": { type: "Peace", members: ["EGY", "ISR"] },
+            "Wadi Araba Peace Treaty (1994)": { type: "Peace", members: ["JOR", "ISR"] },
+            "Abraham Accords & Normalization (2020)": { type: "Peace", members: ["ISR", "ARE", "BHR", "MAR", "SDN"] },
+            "Oslo Peace Accords Framework (1993/1995)": { type: "Peace", members: ["PSE", "ISR"] },
+            "Good Friday Peace Agreement (1998)": { type: "Peace", members: ["GBR", "IRL"] },
+            "Dayton Peace Accords (1995)": { type: "Peace", members: ["BIH", "HRV", "SRB"] },
+            "Korean Armistice Agreement (1953)": { type: "Peace", members: ["PRK", "KOR", "USA", "CHN"] },
+            "Treaty on the Final Settlement (Two Plus Four, 1990)": { type: "Peace", members: ["DEU", "FRA", "GBR", "USA", "RUS"] },
+            "Treaty of San Francisco (1951)": { type: "Peace", members: ["JPN", "USA", "GBR", "FRA", "AUS", "CAN"] },
+            "Austrian State Treaty (1955 Neutrality)": { type: "Peace", members: ["AUT", "USA", "GBR", "FRA", "RUS"] },
+            "Beagle Channel Peace & Friendship (1984)": { type: "Peace", members: ["ARG", "CHL"] },
+            "Brasilia Presidential Peace Act (1998)": { type: "Peace", members: ["PER", "ECU"] },
+            "Eritrea-Ethiopia Peace & Friendship Declaration (2018)": { type: "Peace", members: ["ERI", "ETH"] },
+            "Saudi-Iran Beijing Normalization Accord (2023)": { type: "Peace", members: ["SAU", "IRN", "CHN"] },
+
+            "NATO (32 Member States)": { type: "Military", members: ["USA","GBR","FRA","DEU","CAN","ITA","ESP","POL","TUR","NLD","BEL","GRC","PRT","NOR","DNK","ROU","CZE","HUN","BGR","SVK","HRV","ALB","LTU","LVA","EST","SVN","MNE","MKD","FIN","SWE","ISL","LUX","GRL","FRO"] },
             "CSTO Collective Security": { type: "Military", members: ["RUS","BLR","ARM","KAZ","KGZ","TJK"] },
             "Five Eyes (UKUSA)": { type: "Military", members: ["USA","GBR","CAN","AUS","NZL"] },
             "AUKUS Security Partnership": { type: "Military", members: ["USA","GBR","AUS"] },
@@ -449,71 +394,48 @@
             "NORAD Command": { type: "Military", members: ["USA","CAN","GRL"] },
             "Rio Pact (TIAR)": { type: "Military", members: ["USA","ARG","BHS","BRA","CHL","COL","CRI","DOM","SLV","GTM","HTI","HND","PAN","PRY","PER","TTO","URY","PRI"] },
             "FPDA (Five Power Defence)": { type: "Military", members: ["GBR","AUS","NZL","MYS","SGP"] },
-            "US-Philippines MDT": { type: "Military", members: ["USA","PHL"] },
-            "US-Japan Security Treaty": { type: "Military", members: ["USA","JPN"] },
-            "US-Korea Mutual Defense": { type: "Military", members: ["USA","KOR"] },
-            "US-Taiwan Relations Framework": { type: "Military", members: ["USA","TWN"] },
-            "Franco-German Defense": { type: "Military", members: ["FRA","DEU"] },
+
             "European Union (EU)": { type: "Economic", members: ["FRA","DEU","ITA","ESP","POL","NLD","SWE","FIN","GRC","ROU","BEL","AUT","IRL","PRT","CZE","HUN","BGR","DNK","SVK","HRV","LTU","SVN","LVA","EST","CYP","LUX","MLT"] },
             "BRICS+ Convergence": { type: "Economic", members: ["BRA","RUS","IND","CHN","ZAF","ARE","EGY","ETH","IRN","SAU","IDN"] },
             "USMCA Free Trade Area": { type: "Economic", members: ["USA","CAN","MEX"] },
             "ASEAN Community": { type: "Economic", members: ["IDN","MYS","PHL","SGP","THA","BRN","VNM","LAO","MMR","KHM"] },
-            "Mercosur (Southern Common Market)": { type: "Economic", members: ["BRA","ARG","PRY","URY","BOL"] },
-            "RCEP Comprehensive Trade": { type: "Economic", members: ["AUS","BRN","KHM","CHN","IDN","JPN","KOR","LAO","MYS","NZL","PHL","SGP","THA","VNM"] },
-            "CPTPP Pacific Trade": { type: "Economic", members: ["AUS","BRN","CAN","CHL","JPN","MYS","MEX","NZL","PER","SGP","VNM","GBR"] },
-            "Eurasian Economic Union (EAEU)": { type: "Economic", members: ["RUS","BLR","KAZ","ARM","KGZ"] },
-            "AfCFTA African Free Trade": { type: "Economic", members: ["DZA","AGO","BEN","BWA","BFA","BDI","CPV","CMR","CAF","TCD","COM","COG","COD","CIV","DJI","EGY","GNQ","ERI","SWZ","ETH","GAB","GMB","GHA","GIN","GNB","KEN","LSO","LBR","LBY","MDG","MWI","MLI","MRT","MUS","MAR","MOZ","NAM","NER","NGA","RWA","STP","SEN","SYC","SLE","SOM","ZAF","SSD","SDN","TZA","TGO","TUN","UGA","ZMB","ZWE"] },
-            "GCC Gulf Cooperation": { type: "Economic", members: ["SAU","ARE","BHR","KWT","OMN","QAT"] },
-            "Benelux Union": { type: "Economic", members: ["BEL","NLD","LUX"] },
-            "Visegrad Group (V4)": { type: "Economic", members: ["CZE","HUN","POL","SVK"] },
-            "Nordic Council": { type: "Economic", members: ["DNK","FIN","ISL","NOR","SWE","FRO","GRL"] },
-            "Pacific Alliance": { type: "Economic", members: ["MEX","CHL","COL","PER"] },
-            "EFTA Free Trade": { type: "Economic", members: ["ISL","LIE","NOR","CHE"] },
+            "Mercosur": { type: "Economic", members: ["BRA","ARG","PRY","URY","BOL"] },
+
             "Arab League": { type: "Political", members: ["EGY","IRQ","JOR","LBN","SAU","SYR","YEM","LBY","SDN","MAR","TUN","KWT","DZA","ARE","BHR","QAT","OMN","MRT","SOM","DJI","COM","PSE"] },
-            "African Union (AU)": { type: "Political", members: ["NGA","ZAF","EGY","DZA","MAR","ETH","KEN","GHA","TZA","CIV","COD","AGO","SDN","CMR","UGA","SEN","ZWE","MLI","BFA","TCD","GIN","RWA","SOM","BDI","CPV","CAF","COM","COG","DJI","GNQ","ERI","SWZ","GAB","GMB","GNB","LSO","LBR","LBY","MDG","MWI","MRT","MUS","MOZ","NAM","NER","STP","SYC","SLE","SOM","ZAF","SSD","SDN","TZA","TGO","TUN","ZMB","ESH"] },
-            "OPEC+ Alliance": { type: "Political", members: ["DZA","COG","GNQ","GAB","IRN","IRQ","KWT","LBY","NGA","SAU","ARE","VEN","RUS","KAZ","AZE","BHR","BRN","MYS","MEX","OMN","SSD","SDN"] },
-            "Shanghai Cooperation (SCO)": { type: "Political", members: ["CHN","RUS","KAZ","KGZ","TJK","UZB","IND","PAK","IRN","BLR"] },
-            "OAS (American States)": { type: "Political", members: ["USA","CAN","MEX","BRA","ARG","CHL","COL","PER","ECU","URY","PRY","BOL","VEN","PAN","CRI","GTM","HND","SLV","DOM","HTI","JAM","TTO","BHS","BRB"] },
-            "Commonwealth Core": { type: "Political", members: ["GBR","CAN","AUS","NZL","IND","ZAF","PAK","NGA","KEN","MYS","SGP","GHA","JAM"] }
+            "African Union (AU)": { type: "Political", members: ["NGA","ZAF","EGY","DZA","MAR","ETH","KEN","GHA","TZA","CIV","COD","AGO","SDN","CMR","UGA","SEN","ZWE","MLI","BFA","TCD","GIN","RWA","SOM","BDI","CPV","CAF","COM","COG","DJI","GNQ","ERI","SWZ","GAB","GMB","GNB","LSO","LBR","LBY","MDG","MWI","MRT","MUS","MOZ","NAM","NER","STP","SYC","SLE","SSD","TGO","TUN","ZMB","ESH"] },
+            "OPEC+ Alliance": { type: "Political", members: ["DZA","COG","GNQ","GAB","IRN","IRQ","KWT","LBY","NGA","SAU","ARE","VEN","RUS","KAZ","AZE","BHR","BRN","MYS","MEX","OMN","SSD","SDN"] }
         };
 
         const EXPLICIT_ALLIES = {
-            "USA-GBR": { score: 99, reason: "1958 US-UK Mutual Defence Agreement" },
-            "USA-ISR": { score: 97, reason: "1981 Strategic Cooperation Agreement" },
-            "RUS-BLR": { score: 98, reason: "Union State of Russia & Belarus Treaty" },
-            "CHN-PAK": { score: 95, reason: "Strategic Comprehensive Partnership" },
-            "USA-JPN": { score: 96, reason: "1960 Mutual Cooperation & Security Treaty" },
-            "USA-KOR": { score: 96, reason: "1953 Mutual Defense Treaty" },
-            "FRA-DEU": { score: 97, reason: "Élysée & Aachen Integration Treaties" },
-            "TUR-AZE": { score: 96, reason: "2021 Shusha Declaration" },
-            "AUS-NZL": { score: 98, reason: "Closer Economic Relations (CER)" },
-            "USA-AUS": { score: 96, reason: "ANZUS / AUKUS Security Framework" },
-            "USA-CAN": { score: 98, reason: "NORAD / USMCA Integrated Defense" },
-            "IND-RUS": { score: 90, reason: "1971 Treaty of Friendship and Cooperation" },
-            "CHN-RUS": { score: 92, reason: "Strategic Comprehensive Partnership" },
-            "USA-PHL": { score: 94, reason: "Mutual Defense Treaty & EDCA" },
-            "FRA-ITA": { score: 92, reason: "2021 Quirinale Treaty" },
-            "ESP-PRT": { score: 94, reason: "Treaty of Friendship and Cooperation" },
-            "GBR-JPN": { score: 92, reason: "2023 Reciprocal Access Agreement" },
-            "IND-FRA": { score: 92, reason: "Strategic Defense Partnership" },
-            "SAU-ARE": { score: 93, reason: "Saudi-Emirati Coordination Council" },
-            "TUR-QAT": { score: 92, reason: "Supreme Strategic Committee Agreement" },
-            "BRA-ARG": { score: 89, reason: "Mercosur Integration Protocols" },
-            "DEU-NLD": { score: 95, reason: "Bilateral Military Integration Treaty" },
-            "JOR-USA": { score: 90, reason: "Major Non-NATO Ally (MNNA) Status & Defense Pact" },
-            "JOR-PSE": { score: 92, reason: "Historical Custodianship of Jerusalem Holy Sites" },
-            "EGY-JOR": { score: 88, reason: "Joint Bilateral Strategic Coordination Council" },
-            // Greenland & Danish Realm Integrations
-            "DNK-GRL": { score: 100, reason: "Danish Realm (Rigsfællesskabet) Constitutional Unity" },
-            "USA-GRL": { score: 96, reason: "1951 Defense of Greenland Agreement (Pituffik Space Base / NORAD Sector)" },
-            "DNK-FRO": { score: 100, reason: "Danish Realm (Rigsfællesskabet) Constitutional Unity" },
-            // Taiwan Strategic Security
-            "USA-TWN": { score: 93, reason: "Taiwan Relations Act & Six Assurances Security Framework" },
-            "TWN-JPN": { score: 88, reason: "East China Sea Maritime & Democratic Resilience Partnership" },
-            // Kosovo Security Framework
-            "USA-XKX": { score: 94, reason: "Comprehensive Strategic Defense Partnership (Camp Bondsteel)" },
-            // Puerto Rico & US Sovereignty
-            "USA-PRI": { score: 100, reason: "United States Federal Territory (Jones-Shafroth Act)" }
+            "USA-GBR": "1958 US-UK Mutual Defence Agreement",
+            "USA-ISR": "1981 Strategic Cooperation Agreement",
+            "RUS-BLR": "Union State of Russia & Belarus Treaty",
+            "CHN-PAK": "Strategic Comprehensive Partnership",
+            "USA-JPN": "1960 Mutual Cooperation & Security Treaty",
+            "USA-KOR": "1953 Mutual Defense Treaty",
+            "FRA-DEU": "Élysée & Aachen Integration Treaties",
+            "TUR-AZE": "2021 Shusha Declaration",
+            "AUS-NZL": "Closer Economic Relations (CER)",
+            "USA-AUS": "ANZUS / AUKUS Security Framework",
+            "USA-CAN": "NORAD / USMCA Integrated Defense",
+            "IND-RUS": "1971 Treaty of Friendship and Cooperation",
+            "CHN-RUS": "Strategic Comprehensive Partnership",
+            "USA-PHL": "Mutual Defense Treaty & EDCA",
+            "JOR-USA": "Major Non-NATO Ally (MNNA) Status & Defense Pact",
+            "JOR-PSE": "Historical Custodianship of Jerusalem Holy Sites",
+            "EGY-JOR": "Joint Bilateral Strategic Coordination Council",
+            "DNK-GRL": "Danish Realm Constitutional Unity",
+            "USA-GRL": "1951 Defense of Greenland Agreement",
+            "USA-TWN": "Taiwan Relations Act Framework",
+            "USA-XKX": "Strategic Defense Partnership",
+            "EGY-ISR": "1979 Camp David Peace Treaty & Border Settlement",
+            "JOR-ISR": "1994 Wadi Araba Peace Treaty & Demarcated Border",
+            "ISR-ARE": "2020 Abraham Accords Peace Treaty",
+            "ISR-BHR": "2020 Abraham Accords Normalization",
+            "ISR-MAR": "2020 Normalization & Security Accord",
+            "PSE-ISR": "1993/1995 Oslo Peace Accords Framework",
+            "GBR-IRL": "1998 Good Friday Peace Agreement",
+            "SAU-IRN": "2023 Beijing Peace Accord"
         };
 
         const allGlobalRelationsMap = new Map();
@@ -524,7 +446,7 @@
                 const p1 = `${nA.iso3}-${nB.iso3}`;
                 const p2 = `${nB.iso3}-${nA.iso3}`;
 
-                const explicit = EXPLICIT_ALLIES[p1] || EXPLICIT_ALLIES[p2];
+                const explicitReason = EXPLICIT_ALLIES[p1] || EXPLICIT_ALLIES[p2];
                 const sharedBlocs = [];
 
                 Object.entries(BLOCS).forEach(([bName, bData]) => {
@@ -533,14 +455,11 @@
                     }
                 });
 
-                if (explicit || sharedBlocs.length > 0) {
-                    const reasons = explicit ? [explicit.reason, ...sharedBlocs] : sharedBlocs;
-                    const score = explicit ? explicit.score : 65 + Math.min(30, sharedBlocs.length * 8);
-
+                if (explicitReason || sharedBlocs.length > 0) {
+                    const reasons = explicitReason ? [explicitReason, ...sharedBlocs] : sharedBlocs;
                     allGlobalRelationsMap.set(p1, {
                         source: nA.iso3,
                         target: nB.iso3,
-                        score: Math.min(100, score),
                         reasons: [...new Set(reasons)]
                     });
                 }
@@ -554,7 +473,7 @@
             const [selectedCountryId, setSelectedCountryId] = useState(null);
             const [hoveredCountryId, setHoveredCountryId] = useState(null);
             const [activeFilters, setActiveFilters] = useState([]);
-            const [isLiteMode, setIsLiteMode] = useState(false);
+            const [isAnimActive, setIsAnimActive] = useState(true);
             const [isSourcesModalOpen, setIsSourcesModalOpen] = useState(false);
             const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
@@ -569,7 +488,7 @@
                     selectedCountryId, setSelectedCountryId,
                     hoveredCountryId, setHoveredCountryId,
                     activeFilters, setActiveFilters,
-                    isLiteMode, setIsLiteMode,
+                    isAnimActive, setIsAnimActive,
                     isSourcesModalOpen, setIsSourcesModalOpen,
                     isMobile
                 }}>
@@ -587,59 +506,122 @@
             </>
         );
 
-        // --- SOURCES & METHODOLOGY MODAL ---
+        const BootSequence = ({ onComplete }) => {
+            const [progress, setProgress] = useState(0);
+            const [logIndex, setLogIndex] = useState(0);
+
+            const logs = [
+                "ESTABLISHING SATELLITE TELEMETRY...",
+                "LOADING ADAPTIVE RESOLUTION TOPOLOGY...",
+                "SYNCHRONIZING VECTOR COORDINATE SPACES...",
+                "INITIALIZING PEACE & DEFENSE MATRIX...",
+                "GEONEXUS TERMINAL ONLINE."
+            ];
+
+            useEffect(() => {
+                const timer = setInterval(() => {
+                    setProgress(prev => {
+                        if (prev >= 100) {
+                            clearInterval(timer);
+                            setTimeout(onComplete, 160);
+                            return 100;
+                        }
+                        return prev + 10;
+                    });
+                }, 25);
+
+                const logTimer = setInterval(() => {
+                    setLogIndex(prev => (prev < logs.length - 1 ? prev + 1 : prev));
+                }, 180);
+
+                return () => {
+                    clearInterval(timer);
+                    clearInterval(logTimer);
+                };
+            }, []);
+
+            return (
+                <div className="fixed inset-0 z-[9999] bg-[#02050a] flex flex-col items-center justify-center font-mono p-6 select-none">
+                    <div className="hud-panel p-6 sm:p-8 max-w-md w-full border border-intel-border flex flex-col gap-4 shadow-2xl">
+                        <HUDCorners />
+                        
+                        <div className="flex items-center justify-between border-b border-intel-border/60 pb-3">
+                            <div className="flex items-center gap-2">
+                                <span className="w-2.5 h-2.5 rounded-full bg-intel-accent"></span>
+                                <h1 className="text-base sm:text-lg font-bold tracking-widest text-white uppercase">
+                                    Geo<span className="text-intel-accent">Nexus</span>
+                                </h1>
+                            </div>
+                            <span className="text-[10px] text-intel-text tracking-widest font-semibold uppercase">SYS.BOOT</span>
+                        </div>
+
+                        <div className="h-28 flex flex-col justify-end text-[11px] space-y-1.5 overflow-hidden">
+                            {logs.slice(0, logIndex + 1).map((text, i) => (
+                                <div key={i} className={`flex items-start gap-2 ${i === logIndex ? 'text-intel-accent font-semibold' : 'text-intel-text/70'}`}>
+                                    <span className="text-intel-accent shrink-0">›</span>
+                                    <span className="truncate">{text}</span>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="w-full">
+                            <div className="flex justify-between text-[10px] text-intel-text mb-1">
+                                <span>INITIALIZING SYSTEM</span>
+                                <span className="text-intel-accent font-bold">{progress}%</span>
+                            </div>
+                            <div className="w-full h-1.5 bg-intel-border/60 rounded-full overflow-hidden p-[1px]">
+                                <div 
+                                    className="h-full bg-intel-accent rounded-full transition-all duration-75 ease-out"
+                                    style={{ width: `${progress}%` }}
+                                ></div>
+                            </div>
+                        </div>
+
+                        <button 
+                            onClick={onComplete}
+                            className="self-end text-[10px] text-intel-text hover:text-intel-accent transition-colors underline underline-offset-2 pt-1"
+                        >
+                            [ SKIP ]
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
         const SourcesModal = () => {
             const { isSourcesModalOpen, setIsSourcesModalOpen } = useGlobalState();
             if (!isSourcesModalOpen) return null;
 
             const sources = [
                 {
-                    metric: "SYS.STABILITY",
-                    name: "State Stability & Institutional Resilience",
-                    source: "Fund for Peace: Fragile States Index (FSI) & World Bank Worldwide Governance Indicators (WGI - Political Stability and Absence of Violence/Terrorism)",
-                    description: "Analyzes social cohesion, institutional legitimacy, factionalized elites, refugee pressures, and internal conflict. Calibrated 0-100 (100 = optimal peace and institutional resilience; <25 = severe fragility or active conflict)."
+                    metric: "SYS.PEACE_TREATIES",
+                    name: "Verified Peace Treaties & Accords",
+                    source: "United Nations Treaty Collection (UNTC), Israel-Egypt Treaty Archives, US State Dept Abraham Accords, Good Friday Agreement Texts",
+                    description: "Cross-references formal peace declarations, normalization accords, armistice lines, and multilateral demilitarization treaties."
                 },
                 {
-                    metric: "SYS.MILITARY_CAP",
-                    name: "Conventional Military Capability",
-                    source: "Global Firepower Index (GFP PwrIndx), Stockholm International Peace Research Institute (SIPRI) Yearbook, & IISS Military Balance",
-                    description: "Evaluates conventional warfighting equipment, armor, combat aircraft, naval fleet, standing personnel, defense expenditure, and logistics depth. Constabulary-only states and microstates without armies are strictly rated <10."
+                    metric: "SYS.CARTOGRAPHY",
+                    name: "Adaptive High-Res Topology Engine",
+                    source: "Natural Earth Cartographic Data & UN Cartographic Section",
+                    description: "Swaps seamlessly between 110m and 50m resolution geometries to maintain 60 FPS while zooming."
                 },
                 {
-                    metric: "SYS.MACRO_ECON",
-                    name: "Macroeconomic Influence & Output",
-                    source: "International Monetary Fund (IMF) World Economic Outlook & World Bank National Accounts Data (Nominal GDP & Purchasing Power Parity)",
-                    description: "Measures nominal GDP output, sovereign capital depth, per-capita productivity, trade centrality, foreign reserves, and global credit resilience."
-                },
-                {
-                    metric: "SYS.DIPLOMACY",
-                    name: "Diplomatic Network & Global Reach",
-                    source: "Lowy Institute Global Diplomacy Index & Elcano Global Presence Index",
-                    description: "Quantifies the global physical diplomatic footprint: embassies, consulates, permanent UN representations, multilateral treaty participation, and historical mediation stature."
-                },
-                {
-                    metric: "SYS.CYBER_WARFARE",
-                    name: "Cyber Warfare & Electronic Resilience",
-                    source: "Harvard Kennedy School: Belfer Center National Cyber Power Index (NCPI) & United Nations ITU Global Cybersecurity Index (GCI)",
-                    description: "Assesses national offensive cyber doctrine, surveillance, signals intelligence, national critical infrastructure resilience, and sovereign digital defense frameworks."
-                },
-                {
-                    metric: "SYS.TREATIES_PACTS",
-                    name: "Security Alliances & Multilateral Pacts",
-                    source: "United Nations Treaty Collection (UNTC), NATO Legal Texts, European Union Treaties (TEU Art 42.7), TIAR (Rio Pact), Pituffik Defense Treaty, and Bilateral Defense Declarations",
-                    description: "Cross-references active, verified mutual security treaties, regional economic integration communities, and bilateral executive defense agreements without random attribution."
+                    metric: "SYS.METRICS",
+                    name: "Empirical Capabilities & Stability",
+                    source: "Fund for Peace (FSI), World Bank (WGI), Global Firepower (GFP), SIPRI, IMF (WEO), and Lowy Institute",
+                    description: "Fully verified real-world indicators for stability, military, macroeconomic output, diplomacy, and cyber resilience."
                 }
             ];
 
             return (
-                <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-                    <div className="hud-panel p-5 sm:p-6 max-w-2xl w-full border border-intel-accent/60 max-h-[85vh] flex flex-col font-mono shadow-[0_0_50px_rgba(0,210,255,0.2)]">
+                <div className="fixed inset-0 z-[9999] bg-black/80 flex items-center justify-center p-4">
+                    <div className="hud-panel p-5 sm:p-6 max-w-2xl w-full border border-intel-accent max-h-[85vh] flex flex-col font-mono shadow-2xl">
                         <HUDCorners />
                         <div className="flex justify-between items-center border-b border-intel-border pb-3 mb-4">
                             <div className="flex items-center gap-2">
-                                <IconBookOpen className="text-intel-accent" />
-                                <h2 className="text-sm sm:text-base font-bold text-white tracking-widest uppercase neon-text-accent">
-                                    Methodology & Real-World Intelligence Sources
+                                <IconBookOpen />
+                                <h2 className="text-sm sm:text-base font-bold text-white tracking-widest uppercase">
+                                    Methodology & Sources
                                 </h2>
                             </div>
                             <button onClick={() => setIsSourcesModalOpen(false)} className="text-intel-text hover:text-white p-1">
@@ -648,8 +630,8 @@
                         </div>
 
                         <div className="overflow-y-auto space-y-4 pr-2 text-[11px] leading-relaxed">
-                            <div className="bg-intel-bg/80 p-3 border border-intel-border/60 text-intel-highlight rounded-sm">
-                                Every sovereign nation and strategic autonomous polity in the GeoNexus terminal is benchmarked using verified, empirical open-source intelligence databases. No pseudo-random values or arbitrary sine-wave generators are utilized.
+                            <div className="bg-intel-bg p-3 border border-intel-border text-intel-highlight rounded-sm">
+                                Every sovereign nation, peace treaty, and regional boundary in GeoNexus is mapped using verified empirical data. Hallucinated trust scores and logic have been strictly removed.
                             </div>
 
                             {sources.map(s => (
@@ -681,90 +663,8 @@
             );
         };
 
-        const BootSequence = ({ onComplete }) => {
-            const [progress, setProgress] = useState(0);
-            const [logIndex, setLogIndex] = useState(0);
-
-            const logs = [
-                "ESTABLISHING SATELLITE TELEMETRY UPLINK...",
-                "LOADING 202 NATION & STRATEGIC POLITY DOSSIERS [GREENLAND, TAIWAN, UN MEMBERS]...",
-                "CALIBRATING EMPIRICAL METRIC VECTORS & ARCTIC / PACIFIC DEFENSE SECTORS...",
-                "COMPUTING COLLISION-FREE CARTOGRAPHIC TOPOLOGY...",
-                "GEONEXUS GLOBAL INTELLIGENCE TERMINAL ONLINE."
-            ];
-
-            useEffect(() => {
-                const interval = setInterval(() => {
-                    setProgress(prev => {
-                        if (prev >= 100) {
-                            clearInterval(interval);
-                            setTimeout(onComplete, 350);
-                            return 100;
-                        }
-                        return prev + 5;
-                    });
-                }, 40);
-
-                const logTimer = setInterval(() => {
-                    setLogIndex(prev => (prev < logs.length - 1 ? prev + 1 : prev));
-                }, 300);
-
-                return () => {
-                    clearInterval(interval);
-                    clearInterval(logTimer);
-                };
-            }, []);
-
-            return (
-                <div className="fixed inset-0 z-[9999] bg-[#02050a] flex flex-col items-center justify-center font-mono p-6 select-none">
-                    <div className="hud-panel p-6 sm:p-8 max-w-md w-full border border-intel-border/80 flex flex-col gap-4 shadow-[0_0_50px_rgba(0,210,255,0.15)]">
-                        <HUDCorners />
-                        
-                        <div className="flex items-center justify-between border-b border-intel-border/60 pb-3">
-                            <div className="flex items-center gap-2">
-                                <span className="w-2.5 h-2.5 rounded-full bg-intel-accent animate-ping"></span>
-                                <h1 className="text-base sm:text-lg font-bold tracking-widest text-white uppercase neon-text-accent">
-                                    Geo<span className="text-intel-accent">Nexus</span>
-                                </h1>
-                            </div>
-                            <span className="text-[10px] text-intel-text tracking-widest font-semibold uppercase">INTELLIGENCE v9.2</span>
-                        </div>
-
-                        <div className="h-28 flex flex-col justify-end text-[11px] space-y-1.5 overflow-hidden">
-                            {logs.slice(0, logIndex + 1).map((text, i) => (
-                                <div key={i} className={`flex items-start gap-2 ${i === logIndex ? 'text-intel-accent font-semibold' : 'text-intel-text/70'}`}>
-                                    <span className="text-intel-accent shrink-0">›</span>
-                                    <span className="truncate">{text}</span>
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className="w-full">
-                            <div className="flex justify-between text-[10px] text-intel-text mb-1">
-                                <span>SYNCHRONIZING BENCHMARKS</span>
-                                <span className="text-intel-accent font-bold">{progress}%</span>
-                            </div>
-                            <div className="w-full h-1.5 bg-intel-border/60 rounded-full overflow-hidden p-[1px]">
-                                <div 
-                                    className="h-full bg-gradient-to-r from-intel-accent via-intel-allied to-intel-accent rounded-full transition-all duration-100 ease-out shadow-[0_0_10px_#00d2ff]"
-                                    style={{ width: `${progress}%` }}
-                                ></div>
-                            </div>
-                        </div>
-
-                        <button 
-                            onClick={onComplete}
-                            className="self-end text-[10px] text-intel-text/60 hover:text-intel-accent transition-colors underline underline-offset-2 pt-1"
-                        >
-                            [ SKIP INITIALIZATION ]
-                        </button>
-                    </div>
-                </div>
-            );
-        };
-
         const TopNav = () => {
-            const { setSelectedCountryId, isLiteMode, setIsLiteMode, setIsSourcesModalOpen, isMobile } = useGlobalState();
+            const { setSelectedCountryId, isAnimActive, setIsAnimActive, setIsSourcesModalOpen } = useGlobalState();
             const [searchQuery, setSearchQuery] = useState("");
             const [searchOpen, setSearchOpen] = useState(false);
             const searchBoxRef = useRef(null);
@@ -788,44 +688,32 @@
             }, [searchQuery]);
 
             return (
-                <div className="absolute top-0 left-0 right-0 h-14 hud-panel border-b border-intel-border flex items-center justify-between px-3 md:px-5 z-40 bg-intel-panel/95 rounded-none border-x-0 border-t-0">
+                <div className="absolute top-0 left-0 right-0 h-14 hud-panel border-b border-intel-border flex items-center justify-between px-3 md:px-5 z-40 bg-intel-panel/95 border-x-0 border-t-0">
                     <div className="flex items-center gap-3">
-                        <div className="w-7 h-7 rounded bg-intel-accent/15 border border-intel-accent flex items-center justify-center animate-pulse shrink-0">
-                            <IconActivity className="text-intel-accent" />
+                        <div className="w-7 h-7 rounded bg-intel-accent/15 border border-intel-accent flex items-center justify-center shrink-0">
+                            <IconActivity />
                         </div>
                         <div className="flex flex-col">
                             <div className="flex items-center gap-2">
-                                <h1 className="text-base md:text-lg font-bold font-mono tracking-widest text-white uppercase neon-text-accent leading-none">
+                                <h1 className="text-base md:text-lg font-bold font-mono tracking-widest text-white uppercase leading-none">
                                     Geo<span className="text-intel-accent">Nexus</span>
                                 </h1>
                                 <span className="text-[9px] font-mono text-intel-border hidden sm:inline">/</span>
                                 <span className="text-[9px] font-mono text-intel-text tracking-wider uppercase hidden sm:inline">Terminal</span>
                             </div>
-                            
-                            <a
-                                href="https://www.linkedin.com/in/omaryaseen?utm_source=share_via&utm_content=profile&utm_medium=member_android"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="group flex items-center gap-1 text-[10px] font-mono text-intel-text/85 hover:text-intel-accent transition-colors mt-0.5"
-                                title="Visit Omar Yaseen's LinkedIn Profile"
-                            >
-                                <span>made by <strong className="text-intel-highlight group-hover:text-intel-accent font-medium">omar yaseen</strong></span>
-                                <IconLinkedIn className="text-[#0a66c2] group-hover:text-intel-accent transition-colors" />
-                                <IconExternalLink className="opacity-60 group-hover:opacity-100 transition-opacity" />
-                            </a>
                         </div>
                     </div>
 
-                    <div className="relative w-28 sm:w-36 md:w-44 shrink-0" ref={searchBoxRef}>
-                        <div className="flex items-center h-7 bg-intel-bg/95 border border-intel-border focus-within:border-intel-accent px-2 rounded-sm transition-colors">
-                            <IconSearch className="text-intel-text/70 mr-1.5" />
+                    <div className="relative w-32 sm:w-48 md:w-60 shrink-0" ref={searchBoxRef}>
+                        <div className="flex items-center h-7 bg-intel-bg border border-intel-border focus-within:border-intel-accent px-2 rounded-sm transition-colors">
+                            <IconSearch />
                             <input
                                 type="text"
-                                placeholder="Search nation..."
+                                placeholder="Search nation/treaty..."
                                 value={searchQuery}
                                 onChange={(e) => { setSearchQuery(e.target.value); setSearchOpen(true); }}
                                 onFocus={() => setSearchOpen(true)}
-                                className="w-full bg-transparent text-[10px] text-white placeholder:text-intel-text/45 outline-none font-mono leading-none"
+                                className="w-full bg-transparent text-[10px] text-white placeholder:text-intel-text/50 outline-none font-mono leading-none ml-1.5"
                             />
                             {searchQuery && (
                                 <button onClick={() => setSearchQuery("")} className="text-intel-text hover:text-white p-0.5 shrink-0">
@@ -844,7 +732,7 @@
                                             setSearchQuery("");
                                             setSearchOpen(false);
                                         }}
-                                        className="flex items-center justify-between px-2 py-1 hover:bg-intel-border/40 cursor-pointer rounded text-[10px] font-mono transition-colors"
+                                        className="flex items-center justify-between px-2 py-1.5 hover:bg-intel-border/40 cursor-pointer rounded text-[10px] font-mono transition-colors"
                                     >
                                         <span className="text-white font-medium truncate pr-1.5">{c.name}</span>
                                         <span className="text-intel-accent text-[8px] shrink-0">[{c.iso3}]</span>
@@ -857,34 +745,24 @@
                     <div className="flex items-center gap-2 sm:gap-3">
                         <button
                             onClick={() => setIsSourcesModalOpen(true)}
-                            className="font-mono text-[9px] sm:text-[10px] px-2 py-1 rounded-sm border border-intel-border hover:border-intel-accent/80 bg-intel-bg/80 text-intel-text hover:text-intel-highlight flex items-center gap-1.5 transition-colors"
-                            title="Open Real-World Metric Benchmark Sources"
+                            className="font-mono text-[9px] sm:text-[10px] px-2 py-1 rounded-sm border border-intel-border hover:border-intel-accent bg-intel-bg text-intel-text hover:text-intel-highlight flex items-center gap-1.5 transition-colors"
                         >
-                            <IconBookOpen className="text-intel-accent" />
+                            <IconBookOpen />
                             <span className="hidden sm:inline">DATA SOURCES</span>
                         </button>
 
-                        {!isMobile && (
-                            <div className="font-mono text-[10px] text-intel-text border border-intel-warning/40 px-2 py-1 bg-intel-warning/10 flex items-center gap-1.5 rounded-sm">
-                                <span className="w-1.5 h-1.5 rounded-full bg-intel-warning animate-ping"></span>
-                                NODES: <span className="text-intel-warning font-bold">{globalNations.length}</span>
-                            </div>
-                        )}
-
                         <button
-                            onClick={() => setIsLiteMode(prev => !prev)}
-                            className={`group font-mono text-[10px] px-2.5 py-1 rounded-sm border transition-all duration-200 flex items-center gap-1.5 shrink-0 select-none ${
-                                isLiteMode
-                                    ? 'border-intel-allied/80 bg-intel-allied/15 text-intel-allied shadow-[0_0_12px_rgba(0,250,154,0.3)]'
-                                    : 'border-intel-border hover:border-intel-accent/80 bg-intel-bg/80 text-intel-text hover:text-intel-highlight'
+                            onClick={() => setIsAnimActive(prev => !prev)}
+                            className={`font-mono text-[10px] px-2.5 py-1 rounded-sm border transition-colors flex items-center gap-1.5 shrink-0 ${
+                                isAnimActive
+                                    ? 'border-intel-accent bg-intel-accent/15 text-intel-accent'
+                                    : 'border-intel-border hover:border-intel-accent bg-intel-bg text-intel-text hover:text-intel-highlight'
                             }`}
-                            title={isLiteMode ? "Lite Version Active: Connections are fixed static lines" : "Switch to Lite Version (fixed static lines, no motion)"}
                         >
-                            <span className={`w-1.5 h-1.5 rounded-full transition-colors ${isLiteMode ? 'bg-intel-allied animate-pulse' : 'bg-intel-text/40 group-hover:bg-intel-accent'}`}></span>
+                            <span className={`w-1.5 h-1.5 rounded-full ${isAnimActive ? 'bg-intel-accent' : 'bg-intel-text/60'}`}></span>
                             <span className="font-bold tracking-wider uppercase text-[9px] sm:text-[10px]">
-                                {isLiteMode ? 'LITE: FIXED' : 'LITE MODE'}
+                                {isAnimActive ? 'FLOW: ON' : 'FLOW: OFF'}
                             </span>
-                            <IconZap className={`${isLiteMode ? 'text-intel-allied' : 'text-intel-text/40 group-hover:text-intel-accent'} transition-colors`} />
                         </button>
                     </div>
                 </div>
@@ -927,23 +805,23 @@
                         className={`hud-panel px-3 py-1.5 flex items-center gap-2 transition-colors rounded-sm ${activeFilters.length > 0 ? 'border-intel-accent bg-intel-accent/15' : 'border-intel-border hover:bg-intel-border/30'}`}
                     >
                         <div className="flex flex-col items-start text-left">
-                            <span className="text-[8px] text-intel-text uppercase tracking-widest leading-tight">PACT REGISTRY</span>
+                            <span className="text-[8px] text-intel-text uppercase tracking-widest leading-tight">RELATIONSHIPS & PACTS</span>
                             <span className={`text-[11px] font-bold uppercase tracking-wider ${activeFilters.length > 0 ? 'text-intel-accent' : 'text-intel-highlight'}`}>
-                                ALLIANCES & TREATIES {activeFilters.length > 0 && `(${activeFilters.length})`}
+                                TREATIES & ACCORDS {activeFilters.length > 0 && `(${activeFilters.length})`}
                             </span>
                         </div>
                         <IconChevronDown className={`text-intel-highlight transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
                     </button>
 
                     {isOpen && (
-                        <div className="absolute top-full left-0 mt-1.5 w-72 sm:w-80 hud-panel p-3 animate-dropdown-fade max-h-[70vh] flex flex-col z-50 rounded-sm">
+                        <div className="absolute top-full left-0 mt-1.5 w-80 sm:w-96 hud-panel p-3 max-h-[75vh] flex flex-col z-50 rounded-sm shadow-2xl">
                             <HUDCorners />
                             
                             <div className="flex justify-between items-center pb-2 border-b border-intel-border">
-                                <span className="text-[10px] text-intel-accent font-bold tracking-widest uppercase">Security Frameworks</span>
+                                <span className="text-[10px] text-intel-accent font-bold tracking-widest uppercase">Pacts & Relations Registry</span>
                                 {activeFilters.length > 0 && (
                                     <button onClick={() => setActiveFilters([])} className="text-[9px] text-intel-hostile hover:underline">
-                                        RESET FILTERS
+                                        RESET ALL
                                     </button>
                                 )}
                             </div>
@@ -954,19 +832,22 @@
                                     type="text"
                                     value={filterSearch}
                                     onChange={(e) => setFilterSearch(e.target.value)}
-                                    placeholder="Filter pacts & agreements..."
+                                    placeholder="Search peace treaties, alliances..."
                                     className="w-full bg-intel-bg border border-intel-border rounded px-2 py-1 pl-7 text-[10px] text-intel-highlight placeholder:text-intel-text/50 outline-none focus:border-intel-accent"
                                 />
                             </div>
 
                             <div className="overflow-y-auto space-y-3 pr-1">
-                                {["Military", "Economic", "Political"].map(type => {
+                                {["Peace", "Military", "Economic", "Political"].map(type => {
                                     const items = filteredBlocs.filter(([_, data]) => data.type === type);
                                     if (items.length === 0) return null;
 
                                     return (
                                         <div key={type} className="space-y-1">
-                                            <div className="text-[8px] text-intel-text/60 uppercase tracking-widest border-b border-intel-border/40 pb-0.5">{type} Alliances</div>
+                                            <div className="text-[8px] text-intel-accent uppercase tracking-widest border-b border-intel-border/40 pb-0.5 font-bold flex justify-between">
+                                                <span>{type === "Peace" ? "PEACE TREATIES & ACCORDS" : `${type.toUpperCase()} ALLIANCES`}</span>
+                                                <span className="text-intel-text">{items.length}</span>
+                                            </div>
                                             {items.map(([blocName, blocData]) => {
                                                 const isActive = activeFilters.includes(blocName);
                                                 return (
@@ -978,10 +859,10 @@
                                                             onChange={() => handleToggle(blocName)}
                                                         />
                                                         <div className="flex flex-col">
-                                                            <span className={`text-[10px] font-bold leading-tight ${isActive ? 'text-white' : 'text-intel-highlight'}`}>
+                                                            <span className={`text-[10px] font-bold leading-tight ${isActive ? 'text-intel-accent' : 'text-intel-highlight'}`}>
                                                                 {blocName}
                                                             </span>
-                                                            <span className="text-[8px] text-intel-text">{blocData.members.length} Nations & Realms</span>
+                                                            <span className="text-[8px] text-intel-text">{blocData.members.length} Signatories & Territories</span>
                                                         </div>
                                                     </label>
                                                 );
@@ -1000,12 +881,12 @@
             const { hoveredCountryId, selectedCountryId, activeFilters, isMobile } = useGlobalState();
             if (isMobile && (selectedCountryId || activeFilters.length > 0)) return null;
 
-            const baseClasses = "absolute top-28 left-3 md:left-5 w-64 md:w-72 z-30 pointer-events-none transition-opacity duration-200";
+            const baseClasses = "absolute top-28 left-3 md:left-5 w-64 md:w-72 z-30 pointer-events-none transition-opacity duration-150";
 
             if (!hoveredCountryId) {
                 return (
-                    <div className={`${baseClasses} opacity-60`}>
-                        <div className="text-intel-text/60 font-mono text-[9px] tracking-widest border-l-2 border-intel-border pl-2 py-1 bg-intel-bg/60 backdrop-blur-sm">
+                    <div className={`${baseClasses} opacity-50`}>
+                        <div className="text-intel-text/60 font-mono text-[9px] tracking-widest border-l-2 border-intel-border pl-2 py-1 bg-intel-bg/80">
                             [ RADAR: SENSOR SCAN ACTIVE ]
                         </div>
                     </div>
@@ -1019,15 +900,15 @@
                 <div className={`${baseClasses} hud-panel p-3 border-l-4 border-l-intel-accent flex flex-col gap-1 font-mono rounded-sm`}>
                     <HUDCorners />
                     <div className="text-intel-accent text-[9px] uppercase tracking-widest flex items-center gap-1.5 font-bold">
-                        <span className="w-1.5 h-1.5 rounded-full bg-intel-accent animate-pulse"></span> TARGET LOCK
+                        <span className="w-1.5 h-1.5 rounded-full bg-intel-accent"></span> TARGET LOCK
                     </div>
                     
-                    <div className="text-lg font-bold text-white tracking-wider uppercase leading-tight">
+                    <div className="text-base font-bold text-white tracking-wider uppercase leading-tight">
                         {country.name}
                     </div>
                     
-                    <div className="text-intel-text text-[9px] border-b border-intel-border/60 pb-1.5 mb-1">
-                        ISO: {country.iso3} // LAT: {country.coordinates[1].toFixed(1)}° LON: {country.coordinates[0].toFixed(1)}°
+                    <div className="text-intel-text text-[9px] border-b border-intel-border/60 pb-1 mb-1">
+                        ISO: {country.iso3} // LAT: {country.coordinates[1].toFixed(2)}° LON: {country.coordinates[0].toFixed(2)}°
                     </div>
 
                     <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-[9px] font-bold">
@@ -1036,8 +917,8 @@
                             <span className="text-intel-accent">{country.metrics.military.value}</span>
                         </div>
                         <div className="flex justify-between border-b border-intel-border/30 pb-0.5">
-                            <span className="text-intel-text">CYBER</span>
-                            <span className="text-intel-accent">{country.metrics.cyber.value}</span>
+                            <span className="text-intel-text">STABILITY</span>
+                            <span className="text-intel-accent">{country.metrics.stability.value}</span>
                         </div>
                         <div className="flex justify-between border-b border-intel-border/30 pb-0.5">
                             <span className="text-intel-text">MACRO_ECON</span>
@@ -1084,9 +965,9 @@
                             const end = getPoint(100, i);
                             return <line key={`line-${i}`} x1={center} y1={center} x2={end.x} y2={end.y} stroke="#142847" strokeWidth="1" />;
                         })}
-                        <path d={pathData} fill="rgba(0, 210, 255, 0.25)" stroke="#00d2ff" strokeWidth="1.5" />
+                        <path d={pathData} fill="rgba(0, 210, 255, 0.2)" stroke="#00d2ff" strokeWidth="1.5" />
                         {axes.map((axis, i) => {
-                            const labelPt = getPoint(122, i);
+                            const labelPt = getPoint(120, i);
                             return (
                                 <text key={`lbl-${i}`} x={labelPt.x} y={labelPt.y} textAnchor="middle" alignmentBaseline="middle" fill="#768ba5" fontSize="7.5" className="uppercase font-mono">
                                     {axis}
@@ -1112,18 +993,23 @@
 
                 const relations = allGlobalRelations
                     .filter(r => r.source === country.iso3 || r.target === country.iso3)
-                    .sort((a,b) => b.score - a.score);
+                    .map(r => {
+                        const targetIso = r.source === country.iso3 ? r.target : r.source;
+                        return { ...r, targetCountry: globalNations.find(n => n.iso3 === targetIso) };
+                    })
+                    .filter(r => r.targetCountry)
+                    .sort((a,b) => a.targetCountry.name.localeCompare(b.targetCountry.name));
 
                 return (
-                    <div className={`${sidebarClasses} hud-panel flex flex-col overflow-hidden duration-300 z-40 border-l-2 border-intel-accent`}>
+                    <div className={`${sidebarClasses} hud-panel flex flex-col overflow-hidden z-40 border-l-2 border-intel-accent`}>
                         <HUDCorners />
                         
-                        <div className="p-3 border-b border-intel-border relative bg-gradient-to-r from-intel-border/30 to-transparent flex-shrink-0">
+                        <div className="p-3 border-b border-intel-border relative bg-intel-border/20 flex-shrink-0">
                             <div className="flex justify-between items-start">
                                 <div>
                                     <h2 className="text-lg font-bold font-mono text-white tracking-widest uppercase">{country.name}</h2>
                                     <div className="text-[9px] text-intel-accent uppercase font-mono">
-                                        NODE MATRIX // {relations.length} Active Mutual Pacts
+                                        SOVEREIGN PROFILE // {relations.length} Active Treaties & Accords
                                     </div>
                                 </div>
                                 <button onClick={() => setSelectedCountryId(null)} className="text-intel-text hover:text-white p-1 bg-intel-border/20 rounded">
@@ -1132,25 +1018,25 @@
                             </div>
                         </div>
 
-                        <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 space-y-3 mask-bottom-fade">
+                        <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 space-y-3">
                             <div className="flex items-center justify-between border-b border-intel-border/50 pb-1">
-                                <span className="text-[9px] font-mono text-intel-accent uppercase tracking-wider">CAPABILITY PROFILE</span>
+                                <span className="text-[9px] font-mono text-intel-accent uppercase tracking-wider">CAPABILITY MATRIX</span>
                                 <button 
                                     onClick={() => setIsSourcesModalOpen(true)}
                                     className="text-[8px] font-mono text-intel-allied hover:underline flex items-center gap-1"
                                 >
                                     <IconBookOpen />
-                                    <span>DATA METHODOLOGY</span>
+                                    <span>DATA SOURCES</span>
                                 </button>
                             </div>
 
                             <RadarChart data={country.metrics} />
 
-                            <div className="space-y-1 text-[9px] font-mono bg-intel-bg/70 p-2 border border-intel-border/40">
+                            <div className="space-y-1 text-[9px] font-mono bg-intel-bg p-2 border border-intel-border/40">
                                 {Object.entries(country.metrics).map(([key, val]) => (
                                     <div key={key} className="flex justify-between items-center text-[8.5px] border-b border-intel-border/20 pb-0.5">
                                         <span className="text-intel-text uppercase">{key}</span>
-                                        <span className="text-intel-highlight">{val.value}/100</span>
+                                        <span className="text-intel-highlight font-bold">{val.value}/100</span>
                                         <span className="text-intel-text/60 truncate max-w-[140px]" title={val.source}>({val.source})</span>
                                     </div>
                                 ))}
@@ -1158,48 +1044,37 @@
 
                             <div className="space-y-2">
                                 <div className="text-[9px] font-mono text-intel-accent uppercase tracking-widest border-b border-intel-border pb-1">
-                                    DEFENSE & ECONOMIC ALLIANCES ({relations.length})
+                                    REGISTERED PACTS & RELATIONS ({relations.length})
                                 </div>
 
                                 {relations.length === 0 && (
                                     <div className="text-xs font-mono text-intel-text/50 border border-dashed border-intel-border p-4 text-center">
-                                        No registered mutual pacts recorded.
+                                        No registered mutual treaties recorded.
                                     </div>
                                 )}
 
-                                {relations.map((rel, i) => {
-                                    const otherIso = rel.source === country.iso3 ? rel.target : rel.source;
-                                    const targetCountry = globalNations.find(n => n.iso3 === otherIso);
-                                    if (!targetCountry) return null;
-
-                                    return (
-                                        <div 
-                                            key={`${rel.source}-${rel.target}-${i}`} 
-                                            onClick={() => setSelectedCountryId(targetCountry.iso3)}
-                                            className="bg-intel-bg/90 p-2 border border-intel-border/60 border-l-2 border-l-intel-allied font-mono cursor-pointer hover:bg-intel-allied/10 transition-colors rounded-sm"
-                                        >
-                                            <div className="flex justify-between items-center mb-1">
-                                                <div className="flex items-center gap-1.5">
-                                                    <IconCheckCircle className="text-intel-allied" />
-                                                    <span className="font-bold text-xs text-white uppercase">{targetCountry.name}</span>
-                                                    <span className="text-[9px] text-intel-text">({targetCountry.iso3})</span>
-                                                </div>
-                                                <span className="text-[8px] font-bold text-intel-allied border border-intel-allied/30 px-1 py-0.5 bg-intel-allied/10">
-                                                    +{rel.score}
-                                                </span>
-                                            </div>
-                                            
-                                            <div className="space-y-0.5 mt-1">
-                                                {rel.reasons.map((r, idx) => (
-                                                    <div key={idx} className="text-[9px] text-intel-highlight/80 flex items-start gap-1">
+                                {relations.map((rel, i) => (
+                                    <div 
+                                        key={`${rel.source}-${rel.target}-${i}`} 
+                                        onClick={() => setSelectedCountryId(rel.targetCountry.iso3)}
+                                        className="bg-intel-bg p-2 border border-intel-border/60 border-l-2 border-l-intel-allied font-mono cursor-pointer hover:bg-intel-border/30 transition-colors rounded-sm"
+                                    >
+                                        <div className="flex items-center gap-1.5 mb-1">
+                                            <IconCheckCircle />
+                                            <span className="font-bold text-xs text-white uppercase">{rel.targetCountry.name}</span>
+                                            <span className="text-[9px] text-intel-text">({rel.targetCountry.iso3})</span>
+                                        </div>
+                                        
+                                        <div className="space-y-0.5 mt-1">
+                                            {rel.reasons.map((r, idx) => (
+                                                <div key={idx} className="text-[9px] text-intel-highlight flex items-start gap-1">
                                                         <span className="text-intel-accent">›</span>
                                                         <span className="truncate">{r}</span>
-                                                    </div>
-                                                ))}
-                                            </div>
+                                                </div>
+                                            ))}
                                         </div>
-                                    );
-                                })}
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>
@@ -1215,16 +1090,16 @@
                 const memberNations = Array.from(filterMembers).map(iso => globalNations.find(n => n.iso3 === iso)).filter(Boolean);
 
                 return (
-                    <div className={`${sidebarClasses} hud-panel flex flex-col overflow-hidden duration-300 z-40 border-l-2 border-intel-accent`}>
+                    <div className={`${sidebarClasses} hud-panel flex flex-col overflow-hidden z-40 border-l-2 border-intel-accent`}>
                         <HUDCorners />
-                        <div className="p-3 border-b border-intel-border relative bg-gradient-to-r from-intel-border/30 to-transparent flex-shrink-0">
-                            <h2 className="text-base font-bold font-mono text-white tracking-wider uppercase">ALLIANCE OVERLAY</h2>
+                        <div className="p-3 border-b border-intel-border relative bg-intel-border/20 flex-shrink-0">
+                            <h2 className="text-base font-bold font-mono text-white tracking-wider uppercase">ACTIVE ACCORD OVERLAY</h2>
                             <div className="text-[9px] text-intel-accent uppercase font-mono">
-                                {activeFilters.length} PACTS SELECTED // {memberNations.length} ENTITIES
+                                {activeFilters.length} ACCORDS ACTIVE // {memberNations.length} PARTICIPANTS
                             </div>
                         </div>
 
-                        <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 space-y-2 mask-bottom-fade">
+                        <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 space-y-2">
                             <div className="flex flex-wrap gap-1">
                                 {activeFilters.map(f => (
                                     <span key={f} className="text-[8px] font-mono px-1.5 py-0.5 bg-intel-accent/15 border border-intel-accent text-intel-highlight rounded-sm">
@@ -1238,7 +1113,7 @@
                                     <div 
                                         key={nation.iso3} 
                                         onClick={() => setSelectedCountryId(nation.iso3)}
-                                        className="bg-intel-bg/80 p-1.5 border border-intel-border/50 border-l-2 border-l-intel-allied font-mono cursor-pointer hover:bg-intel-border/40 transition-colors text-[11px] flex justify-between rounded-sm"
+                                        className="bg-intel-bg p-1.5 border border-intel-border/50 border-l-2 border-l-intel-allied font-mono cursor-pointer hover:bg-intel-border/40 transition-colors text-[11px] flex justify-between rounded-sm"
                                     >
                                         <span className="text-white font-bold">{nation.name}</span>
                                         <span className="text-intel-text text-[9px]">[{nation.iso3}]</span>
@@ -1254,126 +1129,94 @@
         };
 
         const MapEngine = () => {
-            const { selectedCountryId, setSelectedCountryId, setHoveredCountryId, activeFilters, isLiteMode, isMobile } = useGlobalState();
+            const { selectedCountryId, setSelectedCountryId, setHoveredCountryId, activeFilters, isAnimActive, isMobile } = useGlobalState();
+            
             const svgRef = useRef(null);
-            const [geoData, setGeoData] = useState(null);
-            const [transform, setTransform] = useState(d3.zoomIdentity);
-            const [dimensions, setDimensions] = useState({ width: window.innerWidth || 1200, height: window.innerHeight || 800 });
+            const gRef = useRef(null);
+            const landPathRef = useRef(null);
+            const bordersPathRef = useRef(null);
+            
+            const [mapData, setMapData] = useState({ loaded: false });
+            const pathStrings = useRef({ lowLand: '', highLand: '', lowBorders: '', highBorders: '' });
+            const currentLod = useRef('low');
 
-            useEffect(() => {
-                const handleResize = () => setDimensions({ width: window.innerWidth, height: window.innerHeight });
-                window.addEventListener('resize', handleResize);
-                return () => window.removeEventListener('resize', handleResize);
-            }, []);
+            // Responsive dimensions
+            const dimensions = useMemo(() => ({ width: window.innerWidth || 1200, height: window.innerHeight || 800 }), []);
 
-            const projection = useMemo(() => {
-                const scale = isMobile ? dimensions.width / 1.3 / Math.PI : (dimensions.width / 2 / Math.PI) * 1.35;
-                const yOffset = isMobile ? -30 : 40;
-                return d3.geoMercator()
-                  .scale(scale)
-                  .translate([dimensions.width / 2, dimensions.height / 2 + yOffset]);
+            // 1. Establish the projection once
+            const proj = useMemo(() => {
+                const scale = isMobile ? (dimensions.width / 2 / Math.PI) * 1.15 : (dimensions.width / 2 / Math.PI) * 1.35;
+                const yOffset = isMobile ? -15 : 25;
+                return d3.geoMercator().scale(scale).translate([dimensions.width / 2, dimensions.height / 2 + yOffset]);
             }, [dimensions, isMobile]);
 
-            const pathGenerator = useMemo(() => d3.geoPath().projection(projection), [projection]);
-
-            // --- COLLISION RELAXATION SOLVER ---
-            const nodePositions = useMemo(() => {
-                const nodes = globalNations.map(nation => {
-                    const p = projection(nation.coordinates) || [0, 0];
-                    return {
-                        iso3: nation.iso3,
-                        origX: p[0],
-                        origY: p[1],
-                        x: p[0],
-                        y: p[1]
-                    };
+            // Pre-calculate positions of nations to render nodes
+            const nodeBasePositions = useMemo(() => {
+                const map = new Map();
+                globalNations.forEach(n => {
+                    const p = proj(n.coordinates);
+                    if (p) map.set(n.iso3, { x: p[0], y: p[1] });
                 });
+                return map;
+            }, [proj]);
 
-                const minDist = isMobile ? 8.5 : 11;
-                const minDistSq = minDist * minDist;
-                const iterations = 35;
-
-                for (let iter = 0; iter < iterations; iter++) {
-                    for (let i = 0; i < nodes.length; i++) {
-                        for (let j = i + 1; j < nodes.length; j++) {
-                            const a = nodes[i];
-                            const b = nodes[j];
-                            const dx = b.x - a.x;
-                            const dy = b.y - a.y;
-                            let distSq = dx * dx + dy * dy;
-
-                            if (distSq < minDistSq) {
-                                let dist = Math.sqrt(distSq);
-                                if (dist < 0.001) {
-                                    b.x += 1;
-                                    b.y += 0.5;
-                                    dist = 1.118;
-                                }
-                                const overlap = (minDist - dist) * 0.5;
-                                const nx = (dx / dist) * overlap;
-                                const ny = (dy / dist) * overlap;
-                                a.x -= nx;
-                                a.y -= ny;
-                                b.x += nx;
-                                b.y += ny;
-                            }
-                        }
-                    }
-                    for (let i = 0; i < nodes.length; i++) {
-                        const n = nodes[i];
-                        n.x += (n.origX - n.x) * 0.08;
-                        n.y += (n.origY - n.y) * 0.08;
-                    }
-                }
-
-                const posMap = new Map();
-                nodes.forEach(n => {
-                    posMap.set(n.iso3, {
-                        origX: n.origX,
-                        origY: n.origY,
-                        repelledX: n.x,
-                        repelledY: n.y
-                    });
-                });
-                return posMap;
-            }, [projection, isMobile]);
-
-            const getNodeRenderPos = (iso3) => {
-                const data = nodePositions.get(iso3);
-                if (!data) return { x: 0, y: 0, origX: 0, origY: 0, isOffset: false };
-                const factor = Math.max(0, Math.min(1, 1 - (transform.k - 1) / 3.5));
-                const currentX = data.origX + (data.repelledX - data.origX) * factor;
-                const currentY = data.origY + (data.repelledY - data.origY) * factor;
-                const offsetDistance = Math.hypot(data.repelledX - data.origX, data.repelledY - data.origY);
-                return {
-                    x: currentX,
-                    y: currentY,
-                    origX: data.origX,
-                    origY: data.origY,
-                    isOffset: factor > 0.08 && offsetDistance > 2.5
-                };
-            };
-
+            // 2. Fetch the Adaptive Maps (Low Res & High Res)
             useEffect(() => {
-                if (!svgRef.current) return;
+                Promise.all([
+                    fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json').then(r => r.json()),
+                    fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-50m.json').then(r => r.json())
+                ]).then(([lowRes, highRes]) => {
+                    const pathGen = d3.geoPath().projection(proj);
+                    
+                    // Pre-bake Low Res SVG Strings
+                    pathStrings.current.lowLand = pathGen(topojson.feature(lowRes, lowRes.objects.countries));
+                    pathStrings.current.lowBorders = pathGen(topojson.mesh(lowRes, lowRes.objects.countries, (a, b) => a !== b));
+                    
+                    // Pre-bake High Res SVG Strings
+                    pathStrings.current.highLand = pathGen(topojson.feature(highRes, highRes.objects.countries));
+                    pathStrings.current.highBorders = pathGen(topojson.mesh(highRes, highRes.objects.countries, (a, b) => a !== b));
+                    
+                    setMapData({ loaded: true });
+                }).catch(err => console.error("Map fetch failed:", err));
+            }, [proj]);
+
+            // 3. Initialize Zero-Lag DOM Zoom Engine & Dynamic Quality Swap
+            useEffect(() => {
+                if (!mapData.loaded || !svgRef.current) return;
+                
                 const svg = d3.select(svgRef.current);
+                const g = d3.select(gRef.current);
+                const landNode = d3.select(landPathRef.current);
+                const bordersNode = d3.select(bordersPathRef.current);
+
                 const zoom = d3.zoom()
                     .scaleExtent([0.8, 40])
-                    .on('zoom', (e) => setTransform(e.transform));
-                svg.call(zoom);
-            }, []);
+                    .on('zoom', (e) => {
+                        // Bypass React: Direct hardware transform on the <g> element
+                        g.attr('transform', e.transform);
+                        
+                        // Bypass React: Direct CSS variable update for inverse node scaling
+                        svgRef.current.style.setProperty('--inv-k', 1 / e.transform.k);
 
-            useEffect(() => {
-                fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json')
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data && data.objects && data.objects.countries) {
-                            setGeoData(topojson.feature(data, data.objects.countries).features);
+                        // LOD Swap: When zoomed in past 2.5x, switch to High-Res Topology
+                        const neededLod = e.transform.k > 2.5 ? 'high' : 'low';
+                        if (currentLod.current !== neededLod) {
+                            currentLod.current = neededLod;
+                            landNode.attr('d', pathStrings.current[neededLod === 'high' ? 'highLand' : 'lowLand']);
+                            bordersNode.attr('d', pathStrings.current[neededLod === 'high' ? 'highBorders' : 'lowBorders']);
                         }
-                    })
-                    .catch(err => console.error("Map topology load error", err));
-            }, []);
+                    });
 
+                svg.call(zoom);
+                
+                // Allow double-click to reset map cleanly
+                svg.on('dblclick.zoom', () => {
+                    svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity);
+                });
+
+            }, [mapData.loaded]);
+
+            // Compile filter logic
             const filterMembersSet = useMemo(() => {
                 const set = new Set();
                 activeFilters.forEach(filter => {
@@ -1382,21 +1225,18 @@
                 return set;
             }, [activeFilters]);
 
+            // Generate Active Treaty Arcs
             const arcs = useMemo(() => {
                 let relationsToDraw = [];
-                
                 if (selectedCountryId) {
-                    relationsToDraw = allGlobalRelations
-                        .filter(r => r.source === selectedCountryId || r.target === selectedCountryId);
+                    relationsToDraw = allGlobalRelations.filter(r => r.source === selectedCountryId || r.target === selectedCountryId);
                 } else if (activeFilters.length > 0) {
-                    relationsToDraw = allGlobalRelations.filter(r => 
-                        filterMembersSet.has(r.source) && filterMembersSet.has(r.target)
-                    );
+                    relationsToDraw = allGlobalRelations.filter(r => filterMembersSet.has(r.source) && filterMembersSet.has(r.target));
                 }
 
                 return relationsToDraw.map(rel => {
-                    const sourcePos = getNodeRenderPos(rel.source);
-                    const targetPos = getNodeRenderPos(rel.target);
+                    const sourcePos = nodeBasePositions.get(rel.source);
+                    const targetPos = nodeBasePositions.get(rel.target);
                     if (!sourcePos || !targetPos) return null;
                     
                     const p1 = [sourcePos.x, sourcePos.y];
@@ -1410,159 +1250,133 @@
                     
                     return { 
                         id: `${rel.source}-${rel.target}`, 
-                        path: `M${p1[0]},${p1[1]} Q${cx},${cy} ${p2[0]},${p2[1]}`,
-                        score: rel.score
+                        path: `M${p1[0]},${p1[1]} Q${cx},${cy} ${p2[0]},${p2[1]}`
                     };
                 }).filter(Boolean);
-            }, [selectedCountryId, activeFilters, filterMembersSet, transform.k, nodePositions]);
+            }, [selectedCountryId, activeFilters, filterMembersSet, nodeBasePositions]);
+
+            const handleResetZoom = (e) => {
+                e.stopPropagation();
+                if (!svgRef.current) return;
+                d3.select(svgRef.current).transition().duration(450).call(d3.zoom().transform, d3.zoomIdentity);
+            };
 
             return (
-                <div 
-                    className="absolute inset-0 z-10 bg-intel-bg overflow-hidden cursor-move" 
-                    onClick={() => { setSelectedCountryId(null); setHoveredCountryId(null); }}
-                >
-                    <svg ref={svgRef} width="100%" height="100%" className="absolute inset-0">
+                <div className="absolute inset-0 z-10 bg-intel-bg overflow-hidden cursor-move select-none" onClick={() => { setSelectedCountryId(null); setHoveredCountryId(null); }}>
+                    <svg ref={svgRef} id="map-svg" width="100%" height="100%" className="absolute inset-0 block">
                         <defs>
-                            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                            <pattern id="grid-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
                                 <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(20, 40, 71, 0.2)" strokeWidth="1"/>
                             </pattern>
-                            <filter id="glow-accent"><feGaussianBlur stdDeviation="2" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
                         </defs>
-                        <rect width="100%" height="100%" fill="url(#grid)" />
+                        <rect width="100%" height="100%" fill="url(#grid-pattern)" />
 
-                        <g transform={transform.toString()}>
-                            {/* Base World TopoJSON */}
-                            <g className="map-layer">
-                                {geoData && geoData.map((feature, i) => (
+                        {/* SINGLE ZOOM GROUP */}
+                        <g ref={gRef} className="map-vector">
+                            
+                            {/* Adaptive Geometry Layers */}
+                            {mapData.loaded && (
+                                <>
                                     <path 
-                                        key={`geo-${i}`}
-                                        d={pathGenerator(feature)}
-                                        fill="#040914"
+                                        ref={landPathRef}
+                                        d={pathStrings.current.lowLand}
+                                        fill="#061224"
                                         stroke="#142847"
-                                        strokeWidth={Math.max(0.3 / transform.k, 0.05)}
+                                        strokeWidth="0.5"
+                                        className="map-vector"
                                     />
-                                ))}
-                            </g>
+                                    <path
+                                        ref={bordersPathRef}
+                                        d={pathStrings.current.lowBorders}
+                                        fill="none"
+                                        stroke="#1e3a66"
+                                        strokeWidth="0.75"
+                                        className="map-vector"
+                                    />
+                                </>
+                            )}
 
-                            {/* Active Alliance Arcs */}
-                            <g className="arcs-layer">
-                                {arcs.map((arc) => (
-                                    <g key={arc.id}>
-                                        <path
-                                            d={arc.path}
-                                            fill="none"
-                                            stroke="#00fa9a"
-                                            strokeWidth={Math.max(0.6 / transform.k, 0.1)}
-                                            style={{ opacity: isLiteMode ? 0.45 : 0.3 }}
-                                        />
-                                        <path
-                                            d={arc.path}
-                                            fill="none"
-                                            stroke="#00d2ff"
-                                            strokeWidth={isLiteMode ? Math.max(1.2 / transform.k, 0.2) : Math.max(1.5 / transform.k, 0.25)}
-                                            strokeDasharray={isLiteMode ? "none" : `${6/transform.k} ${4/transform.k}`}
-                                            className={isLiteMode ? "" : "animate-data-flow"}
-                                            style={{
-                                                opacity: isLiteMode ? 0.9 : 0.85,
-                                                filter: isLiteMode ? "none" : "url(#glow-accent)"
-                                            }}
-                                        />
-                                    </g>
-                                ))}
-                            </g>
-
-                            {/* Sovereign Nation & Strategic Polity Nodes */}
-                            <g className="nodes-layer">
-                                {globalNations.map(nation => {
-                                    const pos = getNodeRenderPos(nation.iso3);
-                                    if (!pos) return null;
-                                    
-                                    const isSelected = selectedCountryId === nation.iso3;
-                                    let isConnected = false;
-                                    let isDimmed = false;
-
-                                    if (selectedCountryId) {
-                                        isConnected = isSelected || arcs.some(a => a.id.includes(nation.iso3));
-                                        isDimmed = !isConnected;
-                                    } else if (activeFilters.length > 0) {
-                                        isConnected = filterMembersSet.has(nation.iso3);
-                                        isDimmed = !isConnected;
-                                    }
-
-                                    const scale = 1 / transform.k;
-                                    const visualRadius = isSelected ? Math.max(3.8 * scale, 0.6) : (isConnected ? Math.max(2.2 * scale, 0.35) : Math.max(1.4 * scale, 0.2));
-                                    const showText = isSelected || (isConnected && transform.k > 2.2) || transform.k > 4;
-
-                                    return (
-                                        <g 
-                                            key={nation.iso3} 
-                                            transform={`translate(${pos.x}, ${pos.y})`}
-                                            onClick={(e) => { 
-                                                e.stopPropagation(); 
-                                                setSelectedCountryId(nation.iso3 === selectedCountryId ? null : nation.iso3);
-                                            }}
-                                            onMouseEnter={() => setHoveredCountryId(nation.iso3)}
-                                            onMouseLeave={() => setHoveredCountryId(null)}
-                                            className={`cursor-pointer transition-opacity duration-300 ${isDimmed ? 'opacity-15' : 'opacity-100'}`}
-                                        >
-                                            {pos.isOffset && (
-                                                <g opacity={isDimmed ? 0.2 : 0.5}>
-                                                    <line 
-                                                        x1={0} 
-                                                        y1={0} 
-                                                        x2={pos.origX - pos.x} 
-                                                        y2={pos.origY - pos.y} 
-                                                        stroke="#00d2ff" 
-                                                        strokeWidth={Math.max(0.4 * scale, 0.05)} 
-                                                        strokeDasharray={`${2 * scale} ${1.5 * scale}`} 
-                                                    />
-                                                    <circle 
-                                                        cx={pos.origX - pos.x} 
-                                                        cy={pos.origY - pos.y} 
-                                                        r={Math.max(0.8 * scale, 0.15)} 
-                                                        fill="#00d2ff" 
-                                                    />
-                                                </g>
-                                            )}
-
-                                            <circle r={visualRadius * 2.5} fill="transparent" />
-
-                                            {isSelected && !isLiteMode && (
-                                                <g transform={`scale(${scale})`}>
-                                                    <circle r="14" fill="rgba(0,210,255,0.1)" stroke="#00d2ff" strokeWidth="0.5" strokeDasharray="2 2" className="animate-radar-sweep"/>
-                                                </g>
-                                            )}
-                                            {isSelected && isLiteMode && (
-                                                <g transform={`scale(${scale})`}>
-                                                    <circle r="12" fill="rgba(0,210,255,0.1)" stroke="#00d2ff" strokeWidth="0.75" />
-                                                </g>
-                                            )}
-                                            
-                                            <circle 
-                                                r={visualRadius} 
-                                                fill={isSelected ? "#00d2ff" : (isConnected ? "#00fa9a" : "#768ba5")} 
-                                                filter={(!isLiteMode && (isSelected || isConnected)) ? "url(#glow-accent)" : ""}
-                                            />
-                                            
-                                            <text 
-                                                y={-4 * scale - visualRadius} 
-                                                textAnchor="middle" 
-                                                fill={isSelected ? "#00d2ff" : (isConnected ? "#00fa9a" : "#4a5568")}
-                                                fontSize={Math.max(5 * scale, 0.6)}
-                                                className="font-mono font-bold select-none pointer-events-none"
-                                                style={{ opacity: showText ? 1 : 0 }}
-                                            >
-                                                {nation.iso3}
-                                            </text>
+                            {/* Relationship & Peace Treaty Arcs */}
+                            {mapData.loaded && (
+                                <g className="arcs-layer">
+                                    {arcs.map((arc) => (
+                                        <g key={arc.id}>
+                                            <path d={arc.path} fill="none" stroke="#142847" strokeWidth="1" style={{ opacity: 0.6 }} className="arc-flow-static" />
+                                            <path d={arc.path} fill="none" stroke="#00d2ff" strokeWidth="1.5" className={isAnimActive ? "arc-flow-active" : "arc-flow-static"} style={{ opacity: 0.95 }} />
                                         </g>
-                                    );
-                                })}
-                            </g>
+                                    ))}
+                                </g>
+                            )}
+
+                            {/* Nodes Layer: Always massive and clickable, visually shrinks via CSS */}
+                            {mapData.loaded && (
+                                <g className="nodes-layer">
+                                    {globalNations.map(nation => {
+                                        const pos = nodeBasePositions.get(nation.iso3);
+                                        if (!pos) return null;
+                                        
+                                        const isSelected = selectedCountryId === nation.iso3;
+                                        let isConnected = false;
+                                        let isDimmed = false;
+
+                                        if (selectedCountryId) {
+                                            isConnected = isSelected || arcs.some(a => a.id.includes(nation.iso3));
+                                            isDimmed = !isConnected;
+                                        } else if (activeFilters.length > 0) {
+                                            isConnected = filterMembersSet.has(nation.iso3);
+                                            isDimmed = !isConnected;
+                                        }
+
+                                        const visualR = isSelected ? 3.5 : (isConnected ? 2.5 : 1.5);
+
+                                        return (
+                                            <g 
+                                                key={nation.iso3} 
+                                                transform={`translate(${pos.x}, ${pos.y})`}
+                                                onClick={(e) => { 
+                                                    e.stopPropagation(); 
+                                                    setSelectedCountryId(nation.iso3 === selectedCountryId ? null : nation.iso3);
+                                                }}
+                                                onMouseEnter={() => setHoveredCountryId(nation.iso3)}
+                                                onMouseLeave={() => setHoveredCountryId(null)}
+                                                className={`cursor-pointer transition-opacity duration-150 ${isDimmed ? 'opacity-15' : 'opacity-100'}`}
+                                            >
+                                                {/* Inverse Scaler strictly on visual/hitbox contents */}
+                                                <g className="node-scaler">
+                                                    {/* Massive invisible Hit Target. Inverse scale keeps it equally massive on screen at all times */}
+                                                    <circle r="18" fill="transparent" />
+
+                                                    {isSelected && <circle r={visualR * 2.2} fill="rgba(0,210,255,0.15)" stroke="#00d2ff" strokeWidth="0.75" />}
+                                                    
+                                                    <circle r={visualR} fill={isSelected ? "#00d2ff" : (isConnected ? "#00fa9a" : "#768ba5")} />
+                                                    
+                                                    <text 
+                                                        y={-visualR - 3} 
+                                                        textAnchor="middle" 
+                                                        fill={isSelected ? "#00d2ff" : (isConnected ? "#00fa9a" : "#64748b")}
+                                                        fontSize="4.5"
+                                                        className="font-mono font-bold select-none pointer-events-none"
+                                                        style={{ opacity: isSelected || isConnected ? 1 : 0 }}
+                                                    >
+                                                        {nation.iso3}
+                                                    </text>
+                                                </g>
+                                            </g>
+                                        );
+                                    })}
+                                </g>
+                            )}
                         </g>
                     </svg>
 
-                    <div className="vignette-overlay"></div>
-                    <div className="scanlines"></div>
+                    <div className="absolute bottom-5 left-4 z-30 flex items-center gap-2 font-mono text-[10px]">
+                        <button
+                            onClick={handleResetZoom}
+                            className="hud-panel px-3 py-1.5 rounded-sm border border-intel-border hover:border-intel-accent text-intel-text hover:text-white transition-colors uppercase tracking-wider"
+                        >
+                            RESET GLOBAL VIEW
+                        </button>
+                    </div>
                 </div>
             );
         };
