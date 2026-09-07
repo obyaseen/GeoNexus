@@ -2,7 +2,7 @@
 
 **GeoNexus** is a single-file, zero-dependency interactive global intelligence dashboard built to visualize geopolitical networks, bilateral security treaties, and multilateral defense and economic pacts.
 
-Designed with an immersive tactical HUD aesthetic, the terminal projects 196 sovereign nations onto an interactive vector map, dynamically mapping multilateral alliances (NATO, BRICS+, Quad, AfCFTA, Five Eyes, and more) along with high-trust bilateral defense accords.
+Designed with an immersive tactical HUD aesthetic, the terminal projects 196+ sovereign nations onto an interactive vector map, dynamically mapping multilateral alliances (NATO, BRICS+, Quad, AfCFTA, Five Eyes, and more) along with high-trust bilateral defense accords.
 
 ---
 
