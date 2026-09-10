@@ -603,7 +603,7 @@
                 {
                     metric: "SYS.INTEL_FEEDS",
                     name: "Live Geopolitical News Routing",
-                    source: "Google News Open RSS API Feeds via AllOrigins Proxy",
+                    source: "Google News Open RSS API Feeds via RSS2JSON",
                     description: "Aggregates and streams publicly trusted live news comms localized dynamically to the active selected nation-state."
                 }
             ];
@@ -998,96 +998,71 @@
                 setLoading(true);
                 setError(false);
                 
-                const parseRss2Json = (items) => {
-                    return items.slice(0, 4).map(item => {
-                        const titleParts = item.title.split(' - ');
-                        const source = titleParts.length > 1 ? titleParts.pop() : 'INTEL DESK';
-                        const pubDateStr = item.pubDate ? item.pubDate.replace(/-/g, '/') : null;
-                        return {
-                            headline: titleParts.join(' - '),
-                            source: source,
-                            link: item.link,
-                            pubDate: new Date(pubDateStr || Date.now())
-                        };
-                    });
-                };
-
-                const parseXML = (xmlString) => {
-                    const parser = new DOMParser();
-                    const xmlDoc = parser.parseFromString(xmlString, "text/xml");
-                    const items = Array.from(xmlDoc.querySelectorAll("item")).slice(0, 4);
-                    
-                    if (items.length === 0) throw new Error("No XML items");
-                    
-                    return items.map(item => {
-                        const titleStr = item.querySelector("title")?.textContent || "Encrypted Communique";
-                        const titleParts = titleStr.split(' - ');
-                        const source = titleParts.length > 1 ? titleParts.pop() : 'INTEL DESK';
-                        
-                        return {
-                            headline: titleParts.join(' - '),
-                            source: source,
-                            link: item.querySelector("link")?.textContent || "#",
-                            pubDate: new Date(item.querySelector("pubDate")?.textContent || Date.now())
-                        };
-                    });
-                };
-
-                const fetchFeed = async () => {
-                    // Removed 'geopolitics' to ensure results for smaller nations
-                    const query = encodeURIComponent(`"${countryName}" news`);
-                    const gnewsUrl = `https://news.google.com/rss/search?q=${query}&hl=en-US&gl=US&ceid=US:en`;
-                    
+                const fetchNews = async () => {
                     try {
-                        // Attempt 1: RSS2JSON (Fast & reliable JSON conversion)
-                        const res1 = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(gnewsUrl)}`);
-                        if (!res1.ok) throw new Error("RSS2JSON HTTP Error");
-                        const data1 = await res1.json();
-                        
-                        if (data1.items && data1.items.length > 0) {
-                            return parseRss2Json(data1.items);
-                        }
-                        throw new Error("No items found in RSS2JSON");
-                    } catch (err1) {
-                        try {
-                            // Attempt 2: Fallback to allorigins RAW XML
-                            const res2 = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(gnewsUrl)}`);
-                            if (!res2.ok) throw new Error("AllOrigins HTTP Error");
-                            const data2 = await res2.json();
+                        // Helper to fetch Google News RSS directly into JSON using rss2json (bypasses Google's captcha blocks)
+                        const getItems = async (q) => {
+                            const rssUrl = `https://news.google.com/rss/search?q=${q}&hl=en-US&gl=US&ceid=US:en`;
+                            const url = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
                             
-                            if (data2.contents) {
-                                return parseXML(data2.contents);
-                            }
-                            throw new Error("No contents in AllOrigins proxy");
-                        } catch (err2) {
-                            // Attempt 3: Yahoo News via RSS2JSON (Last Resort Fallback)
-                            const yahooUrl = `https://news.search.yahoo.com/rss?p=${query}`;
-                            const res3 = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(yahooUrl)}`);
-                            const data3 = await res3.json();
+                            const res = await fetch(url);
+                            if (!res.ok) return [];
                             
-                            if (data3.items && data3.items.length > 0) {
-                                return parseRss2Json(data3.items);
-                            }
-                            throw new Error("All intelligence uplinks failed");
-                        }
-                    }
-                };
+                            const data = await res.json();
+                            if (data.status !== 'ok' || !data.items) return [];
+                            
+                            return data.items;
+                        };
 
-                fetchFeed()
-                    .then(items => {
-                        if (isMounted) {
-                            setNews(items);
-                            setLoading(false);
+                        // 1st Attempt: Broad highly-relevant query across requested topics
+                        let items = await getItems(encodeURIComponent(`${countryName} economy OR politics OR stability OR military`));
+                        
+                        // 2nd Attempt: If no specific topical results, fallback to general news
+                        if (items.length === 0) {
+                            items = await getItems(encodeURIComponent(`${countryName} news`));
                         }
-                    })
-                    .catch(err => {
+
+                        // 3rd Attempt: Absolute fallback to just the country name
+                        if (items.length === 0) {
+                            items = await getItems(encodeURIComponent(countryName));
+                        }
+
+                        // Strictly limit to the 5 most recent articles
+                        items = items.slice(0, 5);
+                        
+                        if (items.length > 0) {
+                            const parsedNews = items.map(item => {
+                                const titleStr = item.title || "";
+                                const link = item.link || "#";
+                                const pubDateRaw = item.pubDate || "";
+                                
+                                // Google news appends " - Publisher" at the end of the title
+                                const titleParts = titleStr.split(' - ');
+                                const source = titleParts.length > 1 ? titleParts.pop().trim() : 'UNKNOWN';
+                                const headline = titleParts.join(' - ').trim();
+                                
+                                const pubDate = new Date(pubDateRaw);
+                                
+                                return { headline, source, link, pubDate: isNaN(pubDate) ? new Date() : pubDate };
+                            });
+                            
+                            if (isMounted) {
+                                setNews(parsedNews);
+                                setLoading(false);
+                            }
+                        } else {
+                            if (isMounted) { setError(true); setLoading(false); }
+                        }
+                    } catch (err) {
                         if (isMounted) {
                             console.error("Live Feed Error:", err);
                             setError(true);
                             setLoading(false);
                         }
-                    });
+                    }
+                };
 
+                fetchNews();
                 return () => { isMounted = false; };
             }, [countryName]);
 
@@ -1115,10 +1090,7 @@
                     ) : (
                         <div className="space-y-2">
                             {news.map((item, idx) => {
-                                const isDateValid = !isNaN(item.pubDate);
-                                const timeString = isDateValid ? item.pubDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'JUST NOW';
-                                const dateString = isDateValid ? item.pubDate.toLocaleDateString() : 'TODAY';
-                                
+                                const timeString = item.pubDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                                 return (
                                     <a 
                                         key={idx}
@@ -1131,7 +1103,7 @@
                                             <span className="text-[8px] text-intel-warning uppercase tracking-wider font-bold truncate">
                                                 SRC: {item.source}
                                             </span>
-                                            <span className="text-[8px] text-intel-text shrink-0">{dateString} {timeString}</span>
+                                            <span className="text-[8px] text-intel-text shrink-0">{item.pubDate.toLocaleDateString()} {timeString}</span>
                                         </div>
                                         <div className="text-[10px] text-white leading-tight group-hover:text-intel-highlight transition-colors mt-1">
                                             {item.headline}
@@ -1210,10 +1182,10 @@
                                 ))}
                             </div>
                             
-                            {/* LIVE NEWS INTELLIGENCE FEED (MOVED TO THE TOP) */}
+                            {/* LIVE NEWS INTELLIGENCE FEED */}
                             <LiveNewsFeed countryName={country.name} />
 
-                            {/* MUTUAL ACCORDS (MOVED BELOW THE NEWS) */}
+                            {/* MUTUAL ACCORDS */}
                             <div className="space-y-2 mt-4">
                                 <div className="text-[9px] font-mono text-intel-accent uppercase tracking-widest border-b border-intel-border pb-1">
                                     MUTUAL ACCORDS & STRATEGIC PACTS ({relations.length})
