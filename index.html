@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>GeoNexus: Global Intelligence Terminal</title>
     
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -34,7 +33,6 @@
         };
     </script>
     
-    <!-- Ultra-Optimized, Hardware Accelerated CSS -->
     <style>
         * { box-sizing: border-box; }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #02050a; }
@@ -54,11 +52,6 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #142847; border-radius: 2px; }
         ::-webkit-scrollbar-thumb:hover { background: #00d2ff; }
-
-        .mask-bottom-fade {
-            mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
-            -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
-        }
 
         .cyber-checkbox {
             appearance: none;
@@ -90,10 +83,6 @@
             transform: rotate(45deg);
         }
 
-        /* 
-         * Hardware-Accelerated Data Flow 
-         * Uses non-scaling-stroke so pixels remain exact during zooming 
-         */
         @keyframes dash-flow {
             to { stroke-dashoffset: -32; }
         }
@@ -105,16 +94,9 @@
         .arc-flow-static {
             vector-effect: non-scaling-stroke;
         }
-
         .map-vector {
             vector-effect: non-scaling-stroke;
         }
-
-        /* 
-         * ZERO-LAG INVERSE SCALING ENGINE 
-         * This uses a CSS variable (--inv-k) injected dynamically by D3. 
-         * It shrinks nodes exactly as the map zooms in, bypassing React completely!
-         */
         #map-svg {
             --inv-k: 1;
         }
@@ -124,10 +106,7 @@
         }
     </style>
 
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-
-    <!-- Dependencies -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.6/babel.min.js"></script>
@@ -140,7 +119,6 @@
     <script type="text/babel">
         const { useState, useEffect, useRef, useMemo, createContext, useContext } = React;
 
-        // --- ICONS ---
         const IconActivity = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>;
         const IconSearch = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>;
         const IconX = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>;
@@ -149,9 +127,8 @@
         const IconExternalLink = () => <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>;
         const IconLinkedIn = () => <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"></path></svg>;
         const IconBookOpen = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>;
-        const IconLink = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>;
+        const IconRadio = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="2"></circle><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48 0a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"></path></svg>;
 
-        // --- GLOBAL SOVEREIGN REGISTRY ---
         const masterNationsRaw = [
             "AFG|Afghanistan|65|33|14|32|16|21|22",
             "ALB|Albania|20.1|41.1|70|42|52|62|56",
@@ -419,7 +396,6 @@
             "Shanghai Cooperation (SCO)": { type: "Political", members: ["CHN","RUS","KAZ","KGZ","TJK","UZB","IND","PAK","IRN","BLR"] }
         };
 
-        // Explicit High-Value Bilateral Treaties (Without arbitrary scoring)
         const STRATEGIC_PARTNERSHIPS = {
             "USA-GBR": ["1958 US-UK Mutual Defence Agreement"],
             "USA-ISR": ["1981 Strategic Cooperation Agreement"],
@@ -623,6 +599,12 @@
                     name: "Empirical Capabilities & Stability",
                     source: "Fund for Peace (FSI), World Bank (WGI), Global Firepower (GFP), SIPRI, IMF (WEO), and Lowy Institute",
                     description: "Fully verified real-world indicators for stability, military, macroeconomic output, diplomacy, and cyber resilience."
+                },
+                {
+                    metric: "SYS.INTEL_FEEDS",
+                    name: "Live Geopolitical News Routing",
+                    source: "Google News Open RSS API Feeds via AllOrigins Proxy",
+                    description: "Aggregates and streams publicly trusted live news comms localized dynamically to the active selected nation-state."
                 }
             ];
 
@@ -634,7 +616,7 @@
                             <div className="flex items-center gap-2">
                                 <IconBookOpen />
                                 <h2 className="text-sm sm:text-base font-bold text-white tracking-widest uppercase">
-                                    Methodology & Treaty Sources
+                                    Methodology & Data Sources
                                 </h2>
                             </div>
                             <button onClick={() => setIsSourcesModalOpen(false)} className="text-intel-text hover:text-white p-1">
@@ -644,7 +626,7 @@
 
                         <div className="overflow-y-auto space-y-4 pr-2 text-[11px] leading-relaxed">
                             <div className="bg-intel-bg p-3 border border-intel-border text-intel-highlight rounded-sm">
-                                Every sovereign nation, peace treaty, and regional boundary in GeoNexus is mapped using verified empirical data and international diplomatic registries. all capability metrics are derived directly from: Fund for Peace (FSI) ,World Bank (WGI) ,Global Firepower (GFP) ,(SIPRI) , IMF (WEO) and the Lowy Institute.
+                                Every sovereign nation, peace treaty, and regional boundary in GeoNexus is mapped using verified empirical data and international diplomatic registries. Hallucinated relationships and arbitrary scoring mechanisms have been strictly prohibited.
                             </div>
 
                             {sources.map(s => (
@@ -1006,19 +988,175 @@
             );
         };
 
+        const LiveNewsFeed = ({ countryName }) => {
+            const [news, setNews] = useState([]);
+            const [loading, setLoading] = useState(true);
+            const [error, setError] = useState(false);
+
+            useEffect(() => {
+                let isMounted = true;
+                setLoading(true);
+                setError(false);
+                
+                const parseRss2Json = (items) => {
+                    return items.slice(0, 4).map(item => {
+                        const titleParts = item.title.split(' - ');
+                        const source = titleParts.length > 1 ? titleParts.pop() : 'INTEL DESK';
+                        const pubDateStr = item.pubDate ? item.pubDate.replace(/-/g, '/') : null;
+                        return {
+                            headline: titleParts.join(' - '),
+                            source: source,
+                            link: item.link,
+                            pubDate: new Date(pubDateStr || Date.now())
+                        };
+                    });
+                };
+
+                const parseXML = (xmlString) => {
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(xmlString, "text/xml");
+                    const items = Array.from(xmlDoc.querySelectorAll("item")).slice(0, 4);
+                    
+                    if (items.length === 0) throw new Error("No XML items");
+                    
+                    return items.map(item => {
+                        const titleStr = item.querySelector("title")?.textContent || "Encrypted Communique";
+                        const titleParts = titleStr.split(' - ');
+                        const source = titleParts.length > 1 ? titleParts.pop() : 'INTEL DESK';
+                        
+                        return {
+                            headline: titleParts.join(' - '),
+                            source: source,
+                            link: item.querySelector("link")?.textContent || "#",
+                            pubDate: new Date(item.querySelector("pubDate")?.textContent || Date.now())
+                        };
+                    });
+                };
+
+                const fetchFeed = async () => {
+                    // Removed 'geopolitics' to ensure results for smaller nations
+                    const query = encodeURIComponent(`"${countryName}" news`);
+                    const gnewsUrl = `https://news.google.com/rss/search?q=${query}&hl=en-US&gl=US&ceid=US:en`;
+                    
+                    try {
+                        // Attempt 1: RSS2JSON (Fast & reliable JSON conversion)
+                        const res1 = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(gnewsUrl)}`);
+                        if (!res1.ok) throw new Error("RSS2JSON HTTP Error");
+                        const data1 = await res1.json();
+                        
+                        if (data1.items && data1.items.length > 0) {
+                            return parseRss2Json(data1.items);
+                        }
+                        throw new Error("No items found in RSS2JSON");
+                    } catch (err1) {
+                        try {
+                            // Attempt 2: Fallback to allorigins RAW XML
+                            const res2 = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(gnewsUrl)}`);
+                            if (!res2.ok) throw new Error("AllOrigins HTTP Error");
+                            const data2 = await res2.json();
+                            
+                            if (data2.contents) {
+                                return parseXML(data2.contents);
+                            }
+                            throw new Error("No contents in AllOrigins proxy");
+                        } catch (err2) {
+                            // Attempt 3: Yahoo News via RSS2JSON (Last Resort Fallback)
+                            const yahooUrl = `https://news.search.yahoo.com/rss?p=${query}`;
+                            const res3 = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(yahooUrl)}`);
+                            const data3 = await res3.json();
+                            
+                            if (data3.items && data3.items.length > 0) {
+                                return parseRss2Json(data3.items);
+                            }
+                            throw new Error("All intelligence uplinks failed");
+                        }
+                    }
+                };
+
+                fetchFeed()
+                    .then(items => {
+                        if (isMounted) {
+                            setNews(items);
+                            setLoading(false);
+                        }
+                    })
+                    .catch(err => {
+                        if (isMounted) {
+                            console.error("Live Feed Error:", err);
+                            setError(true);
+                            setLoading(false);
+                        }
+                    });
+
+                return () => { isMounted = false; };
+            }, [countryName]);
+
+            return (
+                <div className="mb-4 mt-2 p-2 border border-intel-warning/40 bg-intel-warning/5 rounded-sm relative">
+                    <div className="absolute -top-1.5 -left-1.5 w-3 h-3 border-t-2 border-l-2 border-intel-warning"></div>
+                    <div className="absolute -bottom-1.5 -right-1.5 w-3 h-3 border-b-2 border-r-2 border-intel-warning"></div>
+                    
+                    <div className="text-[9px] font-mono text-intel-warning uppercase tracking-widest border-b border-intel-warning/20 pb-1.5 mb-2 flex justify-between items-center font-bold">
+                        <span className="flex items-center gap-1.5">
+                            <IconRadio /> 
+                            <span className="animate-pulse">LIVE NEWS INTERCEPT</span>
+                        </span>
+                        {loading && <span>SCANNING...</span>}
+                    </div>
+                    
+                    {loading ? (
+                        <div className="text-[10px] font-mono text-intel-text/60 border border-dashed border-intel-warning/30 p-4 text-center animate-pulse">
+                            [ ESTABLISHING SECURE UPLINK TO LOCAL COMMUNIQUES... ]
+                        </div>
+                    ) : error || news.length === 0 ? (
+                        <div className="text-[10px] font-mono text-intel-hostile/70 border border-dashed border-intel-hostile/30 p-4 text-center">
+                            [ UPLINK FAILED: NO VERIFIED COMMS DETECTED ]
+                        </div>
+                    ) : (
+                        <div className="space-y-2">
+                            {news.map((item, idx) => {
+                                const isDateValid = !isNaN(item.pubDate);
+                                const timeString = isDateValid ? item.pubDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'JUST NOW';
+                                const dateString = isDateValid ? item.pubDate.toLocaleDateString() : 'TODAY';
+                                
+                                return (
+                                    <a 
+                                        key={idx}
+                                        href={item.link}
+                                        target="_blank"
+                                        rel="noopener noreferrer" 
+                                        className="block bg-intel-bg/80 p-2 border border-intel-border/60 border-l-2 border-l-intel-warning font-mono cursor-pointer hover:bg-intel-warning/10 hover:border-intel-warning/50 transition-all rounded-sm group"
+                                    >
+                                        <div className="flex justify-between items-start gap-2 mb-1 border-b border-intel-border/30 pb-0.5">
+                                            <span className="text-[8px] text-intel-warning uppercase tracking-wider font-bold truncate">
+                                                SRC: {item.source}
+                                            </span>
+                                            <span className="text-[8px] text-intel-text shrink-0">{dateString} {timeString}</span>
+                                        </div>
+                                        <div className="text-[10px] text-white leading-tight group-hover:text-intel-highlight transition-colors mt-1">
+                                            {item.headline}
+                                        </div>
+                                    </a>
+                                )
+                            })}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
         const IntelligenceSidebar = () => {
             const { selectedCountryId, setSelectedCountryId, activeFilters, setIsSourcesModalOpen, isMobile } = useGlobalState();
             const scrollRef = useRef(null);
 
             const sidebarClasses = isMobile
-                ? "absolute bottom-0 left-0 right-0 h-[55vh] rounded-t-lg"
-                : "absolute top-16 right-4 w-[360px] max-h-[calc(100vh-5.5rem)] rounded-sm";
+                ? "absolute bottom-0 left-0 right-0 h-[60vh] rounded-t-lg shadow-[0_-10px_40px_rgba(0,0,0,0.8)]"
+                : "absolute top-16 right-4 w-[380px] max-h-[calc(100vh-5.5rem)] rounded-sm";
 
             if (selectedCountryId) {
                 const country = globalNations.find(n => n.iso3 === selectedCountryId);
                 if (!country) return null;
 
-                // Sort relationships alphabetically by target country name
                 const relations = allGlobalRelations
                     .filter(r => r.source === country.iso3 || r.target === country.iso3)
                     .map(r => {
@@ -1047,7 +1185,8 @@
                             </div>
                         </div>
 
-                        <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 space-y-3">
+                        <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 space-y-3 pb-6">
+                            
                             <div className="flex items-center justify-between border-b border-intel-border/50 pb-1">
                                 <span className="text-[9px] font-mono text-intel-accent uppercase tracking-wider">CAPABILITY MATRIX</span>
                                 <button 
@@ -1061,7 +1200,7 @@
 
                             <RadarChart data={country.metrics} />
 
-                            <div className="space-y-1 text-[9px] font-mono bg-intel-bg p-2 border border-intel-border/40">
+                            <div className="space-y-1 text-[9px] font-mono bg-intel-bg p-2 border border-intel-border/40 mb-2">
                                 {Object.entries(country.metrics).map(([key, val]) => (
                                     <div key={key} className="flex justify-between items-center text-[8.5px] border-b border-intel-border/20 pb-0.5">
                                         <span className="text-intel-text uppercase">{key}</span>
@@ -1070,8 +1209,12 @@
                                     </div>
                                 ))}
                             </div>
+                            
+                            {/* LIVE NEWS INTELLIGENCE FEED (MOVED TO THE TOP) */}
+                            <LiveNewsFeed countryName={country.name} />
 
-                            <div className="space-y-2">
+                            {/* MUTUAL ACCORDS (MOVED BELOW THE NEWS) */}
+                            <div className="space-y-2 mt-4">
                                 <div className="text-[9px] font-mono text-intel-accent uppercase tracking-widest border-b border-intel-border pb-1">
                                     MUTUAL ACCORDS & STRATEGIC PACTS ({relations.length})
                                 </div>
@@ -1105,6 +1248,7 @@
                                     </div>
                                 ))}
                             </div>
+
                         </div>
                     </div>
                 );
@@ -1157,7 +1301,6 @@
             return null;
         };
 
-        // --- MAP ENGINE: ZERO-LAG GPU SCALING ---
         const MapEngine = () => {
             const { selectedCountryId, setSelectedCountryId, setHoveredCountryId, activeFilters, isAnimActive, isMobile } = useGlobalState();
             const svgRef = useRef(null);
@@ -1167,14 +1310,12 @@
             const [bordersPathStr, setBordersPathStr] = useState("");
             const [dimensions, setDimensions] = useState({ width: window.innerWidth || 1200, height: window.innerHeight || 800 });
 
-            // Handle window resizing
             useEffect(() => {
                 const handleResize = () => setDimensions({ width: window.innerWidth, height: window.innerHeight });
                 window.addEventListener('resize', handleResize);
                 return () => window.removeEventListener('resize', handleResize);
             }, []);
 
-            // Natural Mercator Projection covering the whole world
             const baseProjection = useMemo(() => {
                 const scale = isMobile ? (dimensions.width / 2 / Math.PI) * 1.15 : (dimensions.width / 2 / Math.PI) * 1.35;
                 const yOffset = isMobile ? -15 : 25;
@@ -1183,7 +1324,6 @@
                     .translate([dimensions.width / 2, dimensions.height / 2 + yOffset]);
             }, [dimensions, isMobile]);
 
-            // Memoize the SVG path strings for the map so React NEVER recalculates them
             useEffect(() => {
                 const pathGen = d3.geoPath().projection(baseProjection);
 
@@ -1212,7 +1352,6 @@
                 fetchMap();
             }, [baseProjection]);
 
-            // Pre-calculate positions for all sovereign nodes
             const nodeBasePositions = useMemo(() => {
                 const map = new Map();
                 globalNations.forEach(n => {
@@ -1224,8 +1363,6 @@
                 return map;
             }, [baseProjection]);
 
-            // DIRECT D3 HARDWARE ACCELERATION
-            // Bypasses React state completely during dragging and scrolling to ensure a perfectly locked 60 FPS
             useEffect(() => {
                 if (!svgRef.current || !zoomGroupRef.current) return;
                 const svg = d3.select(svgRef.current);
@@ -1234,10 +1371,7 @@
                 const zoom = d3.zoom()
                     .scaleExtent([0.8, 40])
                     .on('zoom', (event) => {
-                        // 1. Move the map matrix directly
                         g.attr('transform', event.transform);
-                        
-                        // 2. Inject inverse scale CSS Variable so nodes auto-shrink while hitboxes stay large
                         svgRef.current.style.setProperty('--inv-k', 1 / event.transform.k);
                     });
 
@@ -1252,7 +1386,6 @@
                 return set;
             }, [activeFilters]);
 
-            // Map the active treaty connection arcs
             const arcs = useMemo(() => {
                 let relationsToDraw = [];
                 
@@ -1309,10 +1442,8 @@
                         
                         <rect width="100%" height="100%" fill="url(#grid-pattern)" />
 
-                        {/* HARDWARE ACCELERATED ROOT LAYER */}
                         <g ref={zoomGroupRef}>
                             
-                            {/* Layer 1: Landmasses (Non-Scaling-Stroke prevents line-width distortion) */}
                             {geoPathStr && (
                                 <path 
                                     d={geoPathStr}
@@ -1323,7 +1454,6 @@
                                 />
                             )}
 
-                            {/* Layer 2: Equal Internal Boundaries */}
                             {bordersPathStr && (
                                 <path
                                     d={bordersPathStr}
@@ -1334,11 +1464,9 @@
                                 />
                             )}
 
-                            {/* Layer 3: Relationship & Treaty Arcs */}
                             <g className="arcs-layer">
                                 {arcs.map((arc) => (
                                     <g key={arc.id}>
-                                        {/* Underlying faint track line */}
                                         <path
                                             d={arc.path}
                                             fill="none"
@@ -1347,7 +1475,6 @@
                                             style={{ opacity: 0.6 }}
                                             className="map-vector"
                                         />
-                                        {/* Moving Dotted Cyan Data Flow Pulse */}
                                         <path
                                             d={arc.path}
                                             fill="none"
@@ -1360,7 +1487,6 @@
                                 ))}
                             </g>
 
-                            {/* Layer 4: Sovereign Nation Nodes */}
                             <g className="nodes-layer">
                                 {globalNations.map(nation => {
                                     const pos = nodeBasePositions.get(nation.iso3);
@@ -1392,9 +1518,7 @@
                                             onMouseLeave={() => setHoveredCountryId(null)}
                                             className={`cursor-pointer transition-opacity duration-150 ${isDimmed ? 'opacity-15' : 'opacity-100'}`}
                                         >
-                                            {/* CSS Inverse Scaling Group: Keeps hitboxes large while shrinking visuals */}
                                             <g className="node-scaler">
-                                                {/* Massive invisible click target ensures easy selection at any zoom */}
                                                 <circle r="16" fill="transparent" />
 
                                                 {isSelected && (
