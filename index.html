@@ -114,6 +114,24 @@
         input[type="date"]::-webkit-calendar-picker-indicator:hover {
             opacity: 1;
         }
+
+        @media print {
+            body { 
+                background: #02050a !important; 
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact;
+                color-adjust: exact;
+            }
+            .hud-panel {
+                background-color: #060d1a !important;
+            }
+            /* Hide UI elements not needed in print */
+            button[title="Toggle treaty line flow animation"],
+            button[title="RESET GLOBAL VIEW"],
+            .cyber-checkbox {
+                display: none !important;
+            }
+        }
     </style>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -122,7 +140,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.6/babel.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body class="bg-intel-bg text-intel-text font-sans h-screen w-screen overflow-hidden select-none">
     <div id="root" class="h-full w-full relative"></div>
@@ -1328,46 +1345,19 @@
 
         const IntelligenceSidebar = () => {
             const { selectedCountryId, setSelectedCountryId, activeFilters, setIsSourcesModalOpen, isMobile } = useGlobalState();
-            const [isDownloading, setIsDownloading] = useState(false);
             const scrollRef = useRef(null);
 
             const sidebarClasses = isMobile
                 ? "absolute bottom-0 left-0 right-0 h-[60vh] rounded-t-lg shadow-[0_-10px_40px_rgba(0,0,0,0.8)]"
                 : "absolute top-16 right-4 w-[380px] max-h-[calc(100vh-5.5rem)] rounded-sm";
 
-            const downloadBriefing = () => {
-                setIsDownloading(true);
-                // Target the body instead of root to ensure the whole dark theme and SVG are captured correctly
-                const element = document.body; 
-                
-                const originalOverflow = document.body.style.overflow;
-                document.body.style.overflow = 'visible'; // Sometimes hidden overflow clips the PDF
-
+            const handlePrint = () => {
                 const country = globalNations.find(n => n.iso3 === selectedCountryId);
                 const isoStr = country ? country.iso3 : 'GLOBAL';
-
-                const opt = {
-                    margin:       0,
-                    filename:     `GeoNexus_Dossier_${isoStr}.pdf`,
-                    image:        { type: 'jpeg', quality: 0.95 },
-                    // Increased scale slightly for better resolution, explicit background color to prevent white screen
-                    html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#02050a', logging: false },
-                    jsPDF:        { unit: 'px', format: [window.innerWidth, window.innerHeight], orientation: window.innerWidth > window.innerHeight ? 'landscape' : 'portrait' }
-                };
-
-                if (window.html2pdf) {
-                    window.html2pdf().set(opt).from(element).save().then(() => {
-                        setIsDownloading(false);
-                        document.body.style.overflow = originalOverflow;
-                    }).catch(err => {
-                        console.error("PDF generation failed:", err);
-                        setIsDownloading(false);
-                        document.body.style.overflow = originalOverflow;
-                    });
-                } else {
-                    console.error("html2pdf library not found.");
-                    setIsDownloading(false);
-                }
+                document.title = `GeoNexus_Dossier_${isoStr}`;
+                window.print();
+                // Restore original title
+                document.title = 'GeoNexus: Global Intelligence Terminal';
             };
 
             if (selectedCountryId) {
@@ -1398,15 +1388,12 @@
                                 </div>
                                 <div className="flex items-center gap-1.5">
                                     <button 
-                                        onClick={downloadBriefing} 
-                                        disabled={isDownloading}
-                                        className={`p-1.5 rounded transition-colors flex items-center gap-1.5 ${isDownloading ? 'bg-intel-warning/20 text-intel-warning border border-intel-warning/50' : 'bg-intel-accent/15 text-intel-accent border border-intel-accent/50 hover:bg-intel-accent hover:text-black'}`}
-                                        title="Download Intel Dossier (PDF Snapshot)"
+                                        onClick={handlePrint} 
+                                        className="p-1.5 rounded transition-colors flex items-center gap-1.5 bg-intel-accent/15 text-intel-accent border border-intel-accent/50 hover:bg-intel-accent hover:text-black"
+                                        title="Print Intel Dossier"
                                     >
-                                        {isDownloading ? <IconRefresh className="animate-spin" /> : <IconDownload />}
-                                        <span className="text-[9px] font-mono font-bold hidden sm:inline">
-                                            {isDownloading ? 'EXPORTING' : 'DOSSIER'}
-                                        </span>
+                                        <IconDownload />
+                                        <span className="text-[9px] font-mono font-bold hidden sm:inline">DOSSIER</span>
                                     </button>
                                     <button onClick={() => setSelectedCountryId(null)} className="text-intel-text hover:text-white p-1.5 bg-intel-border/20 rounded ml-1">
                                         <IconX />
@@ -1790,6 +1777,7 @@
                         <button
                             onClick={handleResetZoom}
                             className="hud-panel px-3 py-1.5 rounded-sm border border-intel-border hover:border-intel-accent text-intel-text hover:text-white transition-colors uppercase tracking-wider"
+                            title="RESET GLOBAL VIEW"
                         >
                             RESET GLOBAL VIEW
                         </button>
