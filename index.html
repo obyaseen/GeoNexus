@@ -1337,10 +1337,11 @@
 
             const downloadBriefing = () => {
                 setIsDownloading(true);
-                const element = document.getElementById('root');
+                // Target the body instead of root to ensure the whole dark theme and SVG are captured correctly
+                const element = document.body; 
                 
                 const originalOverflow = document.body.style.overflow;
-                document.body.style.overflow = 'hidden';
+                document.body.style.overflow = 'visible'; // Sometimes hidden overflow clips the PDF
 
                 const country = globalNations.find(n => n.iso3 === selectedCountryId);
                 const isoStr = country ? country.iso3 : 'GLOBAL';
@@ -1349,7 +1350,8 @@
                     margin:       0,
                     filename:     `GeoNexus_Dossier_${isoStr}.pdf`,
                     image:        { type: 'jpeg', quality: 0.95 },
-                    html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#02050a' },
+                    // Increased scale slightly for better resolution, explicit background color to prevent white screen
+                    html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#02050a', logging: false },
                     jsPDF:        { unit: 'px', format: [window.innerWidth, window.innerHeight], orientation: window.innerWidth > window.innerHeight ? 'landscape' : 'portrait' }
                 };
 
@@ -1821,4 +1823,4 @@
         root.render(<App />);
     </script>
 </body>
-    </html>
+</html>
