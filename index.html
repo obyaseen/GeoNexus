@@ -105,6 +105,7 @@
             will-change: transform;
         }
         
+        /* Stylized Date Picker constraints */
         input[type="date"]::-webkit-calendar-picker-indicator {
             filter: invert(1);
             cursor: pointer;
@@ -124,9 +125,9 @@
             .hud-panel {
                 background-color: #060d1a !important;
             }
+            /* Hide UI elements not needed in print */
             button[title="Toggle treaty line flow animation"],
             button[title="RESET GLOBAL VIEW"],
-            button[title="Toggle Population Heatmap"],
             .cyber-checkbox {
                 display: none !important;
             }
@@ -155,6 +156,8 @@
         const IconLinkedIn = () => <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"></path></svg>;
         const IconBookOpen = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>;
         const IconRadio = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="2"></circle><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48 0a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"></path></svg>;
+        
+        // New icons for pagination, download, and calendar
         const IconRefresh = ({ className = "" }) => <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>;
         const IconArrowLeft = () => <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>;
         const IconArrowRight = () => <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>;
@@ -497,35 +500,11 @@
             const [isAnimActive, setIsAnimActive] = useState(true);
             const [isSourcesModalOpen, setIsSourcesModalOpen] = useState(false);
             const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-            const [isChoroplethActive, setIsChoroplethActive] = useState(false);
-            const [populationData, setPopulationData] = useState(new Map());
 
             useEffect(() => {
                 const handleResize = () => setIsMobile(window.innerWidth < 768);
                 window.addEventListener('resize', handleResize);
                 return () => window.removeEventListener('resize', handleResize);
-            }, []);
-
-            useEffect(() => {
-                // Fetch dynamic population data for the choropleth heatmap overlay via reliable RESTCountries API
-                fetch('https://restcountries.com/v3.1/all?fields=cca3,population')
-                    .then(res => res.json())
-                    .then(data => {
-                        const popMap = new Map();
-                        if (Array.isArray(data)) {
-                            data.forEach(d => {
-                                if (d.cca3 && d.population) popMap.set(d.cca3, d.population);
-                            });
-                        }
-                        setPopulationData(popMap);
-                    })
-                    .catch(err => {
-                        console.warn("Could not fetch population API, utilizing empirical proxy fallback data...", err);
-                        const popMap = new Map();
-                        // Empirical proxy if API goes down
-                        globalNations.forEach(n => popMap.set(n.iso3, n.metrics.economy.value * n.metrics.military.value * 20000));
-                        setPopulationData(popMap);
-                    });
             }, []);
 
             return (
@@ -535,9 +514,7 @@
                     activeFilters, setActiveFilters,
                     isAnimActive, setIsAnimActive,
                     isSourcesModalOpen, setIsSourcesModalOpen,
-                    isMobile,
-                    isChoroplethActive, setIsChoroplethActive,
-                    populationData
+                    isMobile
                 }}>
                     {children}
                 </GlobalStateContext.Provider>
@@ -655,8 +632,8 @@
                 {
                     metric: "SYS.METRICS",
                     name: "Empirical Capabilities & Stability",
-                    source: "Fund for Peace (FSI), World Bank (WGI), Global Firepower (GFP), SIPRI, IMF (WEO), Lowy Institute, and RESTCountries API",
-                    description: "Fully verified real-world indicators for stability, military, macroeconomic output, diplomacy, cyber resilience, and global population density."
+                    source: "Fund for Peace (FSI), World Bank (WGI), Global Firepower (GFP), SIPRI, IMF (WEO), and Lowy Institute",
+                    description: "Fully verified real-world indicators for stability, military, macroeconomic output, diplomacy, and cyber resilience."
                 },
                 {
                     metric: "SYS.INTEL_FEEDS",
@@ -717,7 +694,7 @@
         };
 
         const TopNav = () => {
-            const { setSelectedCountryId, isAnimActive, setIsAnimActive, setIsSourcesModalOpen, isChoroplethActive, setIsChoroplethActive } = useGlobalState();
+            const { setSelectedCountryId, isAnimActive, setIsAnimActive, setIsSourcesModalOpen } = useGlobalState();
             const [searchQuery, setSearchQuery] = useState("");
             const [searchOpen, setSearchOpen] = useState(false);
             const searchBoxRef = useRef(null);
@@ -815,21 +792,6 @@
                         >
                             <IconBookOpen />
                             <span className="hidden sm:inline">DATA SOURCES</span>
-                        </button>
-
-                        <button
-                            onClick={() => setIsChoroplethActive(prev => !prev)}
-                            className={`font-mono text-[10px] px-2.5 py-1 rounded-sm border transition-colors flex items-center gap-1.5 shrink-0 ${
-                                isChoroplethActive
-                                    ? 'border-intel-warning bg-intel-warning/15 text-intel-warning'
-                                    : 'border-intel-border hover:border-intel-warning bg-intel-bg text-intel-text hover:text-intel-warning'
-                            }`}
-                            title="Toggle Population Heatmap"
-                        >
-                            <span className={`w-1.5 h-1.5 rounded-full ${isChoroplethActive ? 'bg-intel-warning' : 'bg-intel-text/60'}`}></span>
-                            <span className="font-bold tracking-wider uppercase text-[9px] sm:text-[10px]">
-                                {isChoroplethActive ? 'POP: ON' : 'POP: OFF'}
-                            </span>
                         </button>
 
                         <button
@@ -1465,9 +1427,13 @@
                                 ))}
                             </div>
                             
+                            {/* LIVE NEWS INTELLIGENCE FEED */}
                             <LiveNewsFeed countryName={country.name} />
+
+                            {/* HISTORICAL CALENDAR DATABANK */}
                             <HistoricalCalendarArchive countryName={country.name} />
 
+                            {/* MUTUAL ACCORDS */}
                             <div className="space-y-2 mt-4">
                                 <div className="text-[9px] font-mono text-intel-accent uppercase tracking-widest border-b border-intel-border pb-1">
                                     MUTUAL ACCORDS & STRATEGIC PACTS ({relations.length})
@@ -1556,13 +1522,11 @@
         };
 
         const MapEngine = () => {
-            const { selectedCountryId, setSelectedCountryId, setHoveredCountryId, activeFilters, isAnimActive, isMobile, isChoroplethActive, populationData } = useGlobalState();
+            const { selectedCountryId, setSelectedCountryId, setHoveredCountryId, activeFilters, isAnimActive, isMobile } = useGlobalState();
             const svgRef = useRef(null);
             const zoomGroupRef = useRef(null);
-            const zoomBehaviorRef = useRef(null); 
             
             const [geoPathStr, setGeoPathStr] = useState("");
-            const [geoFeatures, setGeoFeatures] = useState([]);
             const [bordersPathStr, setBordersPathStr] = useState("");
             const [dimensions, setDimensions] = useState({ width: window.innerWidth || 1200, height: window.innerHeight || 800 });
 
@@ -1580,9 +1544,9 @@
                     .translate([dimensions.width / 2, dimensions.height / 2 + yOffset]);
             }, [dimensions, isMobile]);
 
-            const pathGen = useMemo(() => d3.geoPath().projection(baseProjection), [baseProjection]);
-
             useEffect(() => {
+                const pathGen = d3.geoPath().projection(baseProjection);
+
                 const fetchMap = async () => {
                     try {
                         const res = await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-50m.json');
@@ -1591,7 +1555,6 @@
                             const feat = topojson.feature(data, data.objects.countries);
                             const borders = topojson.mesh(data, data.objects.countries, (a, b) => a !== b);
                             setGeoPathStr(pathGen(feat));
-                            setGeoFeatures(feat.features);
                             setBordersPathStr(pathGen(borders));
                         }
                     } catch (e) {
@@ -1601,14 +1564,13 @@
                             const feat2 = topojson.feature(data2, data2.objects.countries);
                             const borders2 = topojson.mesh(data2, data2.objects.countries, (a, b) => a !== b);
                             setGeoPathStr(pathGen(feat2));
-                            setGeoFeatures(feat2.features);
                             setBordersPathStr(pathGen(borders2));
                         }
                     }
                 };
 
                 fetchMap();
-            }, [pathGen]);
+            }, [baseProjection]);
 
             const nodeBasePositions = useMemo(() => {
                 const map = new Map();
@@ -1626,14 +1588,14 @@
                 const svg = d3.select(svgRef.current);
                 const g = d3.select(zoomGroupRef.current);
 
-                zoomBehaviorRef.current = d3.zoom()
+                const zoom = d3.zoom()
                     .scaleExtent([0.8, 40])
                     .on('zoom', (event) => {
                         g.attr('transform', event.transform);
                         svgRef.current.style.setProperty('--inv-k', 1 / event.transform.k);
                     });
 
-                svg.call(zoomBehaviorRef.current);
+                svg.call(zoom);
             }, []);
 
             const filterMembersSet = useMemo(() => {
@@ -1679,115 +1641,11 @@
 
             const handleResetZoom = (e) => {
                 e.stopPropagation();
-                if (!svgRef.current || !zoomBehaviorRef.current) return;
-                
-                d3.select(svgRef.current).transition().duration(750).call(
-                    zoomBehaviorRef.current.transform,
+                if (!svgRef.current) return;
+                d3.select(svgRef.current).transition().duration(450).call(
+                    d3.zoom().transform,
                     d3.zoomIdentity
                 );
-            };
-
-            const nameToIso = useMemo(() => {
-                const map = new Map();
-                globalNations.forEach(n => {
-                    map.set(n.name.toLowerCase(), n.iso3);
-                    map.set(n.iso3.toLowerCase(), n.iso3); // Fallback by Code
-                });
-                
-                // Exhaustive manual mapping to guarantee exact data resolution for split boundaries and aliases
-                const aliases = {
-                    "united states of america": "USA",
-                    "dem. rep. congo": "COD",
-                    "democratic republic of the congo": "COD",
-                    "congo, the democratic republic of the": "COD",
-                    "central african rep.": "CAF",
-                    "dominican rep.": "DOM",
-                    "eq. guinea": "GNQ",
-                    "bosnia and herz.": "BIH",
-                    "bosnia and herzegovina": "BIH",
-                    "s. sudan": "SSD",
-                    "côte d'ivoire": "CIV",
-                    "ivory coast": "CIV",
-                    "syria": "SYR",
-                    "syrian arab republic": "SYR",
-                    "palestine": "PSE",
-                    "west bank": "PSE",
-                    "gaza": "PSE",
-                    "gaza strip": "PSE",
-                    "state of palestine": "PSE",
-                    "north korea": "PRK",
-                    "dem. rep. korea": "PRK",
-                    "south korea": "KOR",
-                    "republic of korea": "KOR",
-                    "w. sahara": "ESH",
-                    "western sahara": "ESH",
-                    "russia": "RUS",
-                    "russian federation": "RUS",
-                    "vietnam": "VNM",
-                    "viet nam": "VNM",
-                    "iran": "IRN",
-                    "iran (islamic republic of)": "IRN",
-                    "venezuela": "VEN",
-                    "venezuela (bolivarian republic of)": "VEN",
-                    "united kingdom": "GBR",
-                    "u.k.": "GBR",
-                    "united arab emirates": "ARE",
-                    "u.a.e.": "ARE",
-                    "turkey": "TUR",
-                    "türkiye": "TUR",
-                    "bolivia": "BOL",
-                    "bolivia (plurinational state of)": "BOL",
-                    "tanzania": "TZA",
-                    "united republic of tanzania": "TZA",
-                    "moldova": "MDA",
-                    "republic of moldova": "MDA",
-                    "south africa": "ZAF",
-                    "taiwan": "TWN",
-                    "macao": "MAC",
-                    "hong kong": "HKG",
-                    "czechia": "CZE",
-                    "czech republic": "CZE",
-                    "macedonia": "MKD",
-                    "north macedonia": "MKD"
-                };
-                Object.entries(aliases).forEach(([name, iso]) => map.set(name, iso));
-                return map;
-            }, []);
-
-            // Using d3.scaleLog mapping exact exact population brackets to stark gradient colors
-            const colorScale = useMemo(() => {
-                return d3.scaleLog()
-                    .domain([100000, 1000000, 10000000, 100000000, 1000000000])
-                    .range(["#061224", "#1e3a8a", "#00d2ff", "#ffaa00", "#ff1e46"])
-                    .clamp(true);
-            }, []);
-
-            const countryColors = useMemo(() => {
-                const map = new Map();
-                if (!isChoroplethActive || geoFeatures.length === 0) return map; 
-
-                geoFeatures.forEach(feat => {
-                    const name = feat.properties?.name?.toLowerCase();
-                    let iso3 = nameToIso.get(name);
-                    if (!iso3) {
-                        const match = globalNations.find(n => name && (n.name.toLowerCase().includes(name) || name.includes(n.name.toLowerCase())));
-                        if (match) iso3 = match.iso3;
-                    }
-                    
-                    if (iso3 && populationData.has(iso3)) {
-                        const pop = populationData.get(iso3);
-                        map.set(feat.id || name, colorScale(Math.max(100000, pop))); // Clamp floor to 100k to avoid math errors
-                    } else {
-                        map.set(feat.id || name, "#061224");
-                    }
-                });
-                return map;
-            }, [isChoroplethActive, geoFeatures, nameToIso, populationData, colorScale]);
-
-            const getColor = (feature) => {
-                if (!isChoroplethActive) return "#061224";
-                const name = feature.properties?.name?.toLowerCase();
-                return countryColors.get(feature.id || name) || "#061224";
             };
 
             return (
@@ -1806,29 +1664,14 @@
 
                         <g ref={zoomGroupRef}>
                             
-                            {isChoroplethActive && geoFeatures.length > 0 ? (
-                                <g className="choropleth-layer">
-                                    {geoFeatures.map((feat, i) => (
-                                        <path 
-                                            key={`choro-${i}`}
-                                            d={pathGen(feat)}
-                                            fill={getColor(feat)}
-                                            stroke="#142847"
-                                            strokeWidth="0.5"
-                                            className="map-vector transition-colors duration-500"
-                                        />
-                                    ))}
-                                </g>
-                            ) : (
-                                geoPathStr && (
-                                    <path 
-                                        d={geoPathStr}
-                                        fill="#061224"
-                                        stroke="#142847"
-                                        strokeWidth="0.5"
-                                        className="map-vector transition-colors duration-500"
-                                    />
-                                )
+                            {geoPathStr && (
+                                <path 
+                                    d={geoPathStr}
+                                    fill="#061224"
+                                    stroke="#142847"
+                                    strokeWidth="0.5"
+                                    className="map-vector"
+                                />
                             )}
 
                             {bordersPathStr && (
@@ -1929,24 +1772,6 @@
                             </g>
                         </g>
                     </svg>
-
-                    {/* Overlay Index for Population Map */}
-                    {isChoroplethActive && (
-                        <div className="absolute bottom-5 right-4 z-30 hud-panel p-3 border border-intel-warning rounded-sm flex flex-col gap-2 transition-opacity duration-300 pointer-events-none shadow-2xl">
-                            <div className="text-[9px] font-mono font-bold text-intel-warning uppercase tracking-widest flex items-center gap-1.5">
-                                <span className="w-1.5 h-1.5 rounded-full bg-intel-warning animate-pulse"></span>
-                                Population Density Scale
-                            </div>
-                            <div className="w-64 h-2 rounded-sm" style={{ background: 'linear-gradient(to right, #061224 0%, #1e3a8a 25%, #00d2ff 50%, #ffaa00 75%, #ff1e46 100%)' }}></div>
-                            <div className="flex justify-between text-[8px] font-mono text-intel-text uppercase w-full">
-                                <span className="w-8 text-left">&lt;100K</span>
-                                <span className="w-8 text-center pl-3">1M</span>
-                                <span className="w-8 text-center pl-2">10M</span>
-                                <span className="w-8 text-center">100M</span>
-                                <span className="w-8 text-right">1B+</span>
-                            </div>
-                        </div>
-                    )}
 
                     <div className="absolute bottom-5 left-4 z-30 flex items-center gap-2 font-mono text-[10px]">
                         <button
