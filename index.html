@@ -507,7 +507,6 @@
             }, []);
 
             useEffect(() => {
-                // Fetch dynamic population data for the choropleth heatmap overlay
                 fetch('https://restcountries.com/v3.1/all?fields=cca3,population')
                     .then(res => res.json())
                     .then(data => {
@@ -654,8 +653,14 @@
                 {
                     metric: "SYS.METRICS",
                     name: "Empirical Capabilities & Stability",
-                    source: "Fund for Peace (FSI), World Bank (WGI), Global Firepower (GFP), SIPRI, IMF (WEO), Lowy Institute, and RESTCountries API",
-                    description: "Fully verified real-world indicators for stability, military, macroeconomic output, diplomacy, cyber resilience, and global population density."
+                    source: "Fund for Peace (FSI), World Bank (WGI), Global Firepower (GFP), SIPRI, IMF (WEO), and Lowy Institute",
+                    description: "Fully verified real-world indicators for stability, military, macroeconomic output, diplomacy, and cyber resilience."
+                },
+                {
+                    metric: "SYS.POPULATION",
+                    name: "Global Demographic Heatmap",
+                    source: "RESTCountries API (restcountries.com)",
+                    description: "Real-time population census data fetched dynamically to generate accurate logarithmic thematic choropleth overlays."
                 },
                 {
                     metric: "SYS.INTEL_FEEDS",
@@ -1557,7 +1562,7 @@
             const { selectedCountryId, setSelectedCountryId, setHoveredCountryId, activeFilters, isAnimActive, isMobile, isChoroplethActive, populationData } = useGlobalState();
             const svgRef = useRef(null);
             const zoomGroupRef = useRef(null);
-            const zoomBehaviorRef = useRef(null); // Ref to hold actual D3 zoom instance to fix reset bug
+            const zoomBehaviorRef = useRef(null); // Keep reference to fix zoom reset bug
             
             const [geoPathStr, setGeoPathStr] = useState("");
             const [geoFeatures, setGeoFeatures] = useState([]);
@@ -1679,7 +1684,6 @@
                 e.stopPropagation();
                 if (!svgRef.current || !zoomBehaviorRef.current) return;
                 
-                // Using the stored zoom behavior ensures event listeners aren't dropped
                 d3.select(svgRef.current).transition().duration(750).call(
                     zoomBehaviorRef.current.transform,
                     d3.zoomIdentity
@@ -1700,17 +1704,17 @@
                 return map;
             }, []);
 
+            // Using d3.scaleLog mapping exact exact population brackets to stark gradient colors
             const colorScale = useMemo(() => {
-                // High contrast scale: Dark Base -> Indigo -> Cyan -> Orange -> Red
-                return d3.scaleLinear()
-                    .domain([0, 0.25, 0.5, 0.75, 1])
+                return d3.scaleLog()
+                    .domain([100000, 1000000, 10000000, 100000000, 1000000000])
                     .range(["#061224", "#1e3a8a", "#00d2ff", "#ffaa00", "#ff1e46"])
                     .clamp(true);
             }, []);
 
             const countryColors = useMemo(() => {
                 const map = new Map();
-                if (!isChoroplethActive) return map; // Skip calculation if off
+                if (!isChoroplethActive) return map; 
 
                 geoFeatures.forEach(feat => {
                     const name = feat.properties?.name?.toLowerCase();
@@ -1721,13 +1725,8 @@
                     }
                     
                     if (iso3 && populationData.has(iso3)) {
-                        const pop = populationData.get(iso3);
-                        const logPop = Math.log10(Math.max(pop, 100000));
-                        const minLog = 5; // Math.log10(100000)
-                        const maxLog = 9.15; // Approx Math.log10(1.4B)
-                        const ratio = Math.max(0, Math.min(1, (logPop - minLog) / (maxLog - minLog)));
-                        
-                        map.set(feat.id || name, colorScale(ratio));
+                        const pop = Math.max(100000, populationData.get(iso3)); // Clamp floor to 100k to avoid log errors
+                        map.set(feat.id || name, colorScale(pop));
                     } else {
                         map.set(feat.id || name, "#061224");
                     }
@@ -1888,13 +1887,13 @@
                                 <span className="w-1.5 h-1.5 rounded-full bg-intel-warning animate-pulse"></span>
                                 Population Density Scale
                             </div>
-                            <div className="w-48 h-2 rounded-sm" style={{ background: 'linear-gradient(to right, #061224, #1e3a8a, #00d2ff, #ffaa00, #ff1e46)' }}></div>
-                            <div className="flex justify-between text-[8px] font-mono text-intel-text uppercase">
-                                <span>&lt;100K</span>
-                                <span>1M</span>
-                                <span>10M</span>
-                                <span>100M</span>
-                                <span>1B+</span>
+                            <div className="w-64 h-2 rounded-sm" style={{ background: 'linear-gradient(to right, #061224 0%, #1e3a8a 25%, #00d2ff 50%, #ffaa00 75%, #ff1e46 100%)' }}></div>
+                            <div className="flex justify-between text-[8px] font-mono text-intel-text uppercase w-full">
+                                <span className="w-8 text-left">&lt;100K</span>
+                                <span className="w-8 text-center pl-3">1M</span>
+                                <span className="w-8 text-center pl-2">10M</span>
+                                <span className="w-8 text-center">100M</span>
+                                <span className="w-8 text-right">1B+</span>
                             </div>
                         </div>
                     )}
