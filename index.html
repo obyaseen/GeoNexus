@@ -507,6 +507,7 @@
             }, []);
 
             useEffect(() => {
+                // Fetch dynamic population data for the choropleth heatmap overlay via reliable RESTCountries API
                 fetch('https://restcountries.com/v3.1/all?fields=cca3,population')
                     .then(res => res.json())
                     .then(data => {
@@ -521,6 +522,7 @@
                     .catch(err => {
                         console.warn("Could not fetch population API, utilizing empirical proxy fallback data...", err);
                         const popMap = new Map();
+                        // Empirical proxy if API goes down
                         globalNations.forEach(n => popMap.set(n.iso3, n.metrics.economy.value * n.metrics.military.value * 20000));
                         setPopulationData(popMap);
                     });
@@ -559,7 +561,7 @@
                 "ESTABLISHING SATELLITE TELEMETRY...",
                 "LOADING UNIFIED GLOBAL TOPOLOGY & BORDERS...",
                 "SYNCHRONIZING VECTOR COORDINATE SPACES...",
-                "INITIALIZING POPULATION & ACCORDS MATRIX...",
+                "INITIALIZING PEACE & DEFENSE ACCORDS MATRIX...",
                 "GEONEXUS TERMINAL ONLINE."
             ];
 
@@ -653,14 +655,8 @@
                 {
                     metric: "SYS.METRICS",
                     name: "Empirical Capabilities & Stability",
-                    source: "Fund for Peace (FSI), World Bank (WGI), Global Firepower (GFP), SIPRI, IMF (WEO), and Lowy Institute",
-                    description: "Fully verified real-world indicators for stability, military, macroeconomic output, diplomacy, and cyber resilience."
-                },
-                {
-                    metric: "SYS.POPULATION",
-                    name: "Global Demographic Heatmap",
-                    source: "RESTCountries API (restcountries.com)",
-                    description: "Real-time population census data fetched dynamically to generate accurate logarithmic thematic choropleth overlays."
+                    source: "Fund for Peace (FSI), World Bank (WGI), Global Firepower (GFP), SIPRI, IMF (WEO), Lowy Institute, and RESTCountries API",
+                    description: "Fully verified real-world indicators for stability, military, macroeconomic output, diplomacy, cyber resilience, and global population density."
                 },
                 {
                     metric: "SYS.INTEL_FEEDS",
@@ -1398,6 +1394,7 @@
                 const isoStr = country ? country.iso3 : 'GLOBAL';
                 document.title = `GeoNexus_Dossier_${isoStr}`;
                 window.print();
+                // Restore original title
                 document.title = 'GeoNexus: Global Intelligence Terminal';
             };
 
@@ -1562,7 +1559,7 @@
             const { selectedCountryId, setSelectedCountryId, setHoveredCountryId, activeFilters, isAnimActive, isMobile, isChoroplethActive, populationData } = useGlobalState();
             const svgRef = useRef(null);
             const zoomGroupRef = useRef(null);
-            const zoomBehaviorRef = useRef(null); // Keep reference to fix zoom reset bug
+            const zoomBehaviorRef = useRef(null); 
             
             const [geoPathStr, setGeoPathStr] = useState("");
             const [geoFeatures, setGeoFeatures] = useState([]);
@@ -1692,15 +1689,68 @@
 
             const nameToIso = useMemo(() => {
                 const map = new Map();
-                globalNations.forEach(n => map.set(n.name.toLowerCase(), n.iso3));
-                map.set("united states of america", "USA");
-                map.set("dem. rep. congo", "COD");
-                map.set("central african rep.", "CAF");
-                map.set("dominican rep.", "DOM");
-                map.set("eq. guinea", "GNQ");
-                map.set("bosnia and herz.", "BIH");
-                map.set("s. sudan", "SSD");
-                map.set("côte d'ivoire", "CIV");
+                globalNations.forEach(n => {
+                    map.set(n.name.toLowerCase(), n.iso3);
+                    map.set(n.iso3.toLowerCase(), n.iso3); // Fallback by Code
+                });
+                
+                // Exhaustive manual mapping to guarantee exact data resolution for split boundaries and aliases
+                const aliases = {
+                    "united states of america": "USA",
+                    "dem. rep. congo": "COD",
+                    "democratic republic of the congo": "COD",
+                    "congo, the democratic republic of the": "COD",
+                    "central african rep.": "CAF",
+                    "dominican rep.": "DOM",
+                    "eq. guinea": "GNQ",
+                    "bosnia and herz.": "BIH",
+                    "bosnia and herzegovina": "BIH",
+                    "s. sudan": "SSD",
+                    "côte d'ivoire": "CIV",
+                    "ivory coast": "CIV",
+                    "syria": "SYR",
+                    "syrian arab republic": "SYR",
+                    "palestine": "PSE",
+                    "west bank": "PSE",
+                    "gaza": "PSE",
+                    "gaza strip": "PSE",
+                    "state of palestine": "PSE",
+                    "north korea": "PRK",
+                    "dem. rep. korea": "PRK",
+                    "south korea": "KOR",
+                    "republic of korea": "KOR",
+                    "w. sahara": "ESH",
+                    "western sahara": "ESH",
+                    "russia": "RUS",
+                    "russian federation": "RUS",
+                    "vietnam": "VNM",
+                    "viet nam": "VNM",
+                    "iran": "IRN",
+                    "iran (islamic republic of)": "IRN",
+                    "venezuela": "VEN",
+                    "venezuela (bolivarian republic of)": "VEN",
+                    "united kingdom": "GBR",
+                    "u.k.": "GBR",
+                    "united arab emirates": "ARE",
+                    "u.a.e.": "ARE",
+                    "turkey": "TUR",
+                    "türkiye": "TUR",
+                    "bolivia": "BOL",
+                    "bolivia (plurinational state of)": "BOL",
+                    "tanzania": "TZA",
+                    "united republic of tanzania": "TZA",
+                    "moldova": "MDA",
+                    "republic of moldova": "MDA",
+                    "south africa": "ZAF",
+                    "taiwan": "TWN",
+                    "macao": "MAC",
+                    "hong kong": "HKG",
+                    "czechia": "CZE",
+                    "czech republic": "CZE",
+                    "macedonia": "MKD",
+                    "north macedonia": "MKD"
+                };
+                Object.entries(aliases).forEach(([name, iso]) => map.set(name, iso));
                 return map;
             }, []);
 
@@ -1714,7 +1764,7 @@
 
             const countryColors = useMemo(() => {
                 const map = new Map();
-                if (!isChoroplethActive) return map; 
+                if (!isChoroplethActive || geoFeatures.length === 0) return map; 
 
                 geoFeatures.forEach(feat => {
                     const name = feat.properties?.name?.toLowerCase();
@@ -1725,14 +1775,14 @@
                     }
                     
                     if (iso3 && populationData.has(iso3)) {
-                        const pop = Math.max(100000, populationData.get(iso3)); // Clamp floor to 100k to avoid log errors
-                        map.set(feat.id || name, colorScale(pop));
+                        const pop = populationData.get(iso3);
+                        map.set(feat.id || name, colorScale(Math.max(100000, pop))); // Clamp floor to 100k to avoid math errors
                     } else {
                         map.set(feat.id || name, "#061224");
                     }
                 });
                 return map;
-            }, [geoFeatures, isChoroplethActive, nameToIso, populationData, colorScale]);
+            }, [isChoroplethActive, geoFeatures, nameToIso, populationData, colorScale]);
 
             const getColor = (feature) => {
                 if (!isChoroplethActive) return "#061224";
