@@ -115,6 +115,18 @@
             opacity: 1;
         }
 
+        /* Burn effect for Secure Memo */
+        .burn-effect {
+            animation: burnAnim 0.6s ease-in-out forwards;
+        }
+        @keyframes burnAnim {
+            0% { filter: contrast(1) brightness(1); transform: scale(1); opacity: 1; }
+            20% { filter: contrast(3) brightness(2) invert(1); transform: skewX(10deg); background: #ff1e46; opacity: 0.8; }
+            40% { filter: contrast(5) brightness(10); transform: skewX(-10deg) scaleY(0.5); opacity: 0.9; }
+            60% { transform: scaleY(0); opacity: 0; }
+            100% { filter: contrast(1); transform: scale(1); opacity: 1; }
+        }
+
         @media print {
             body { 
                 background: #02050a !important; 
@@ -125,10 +137,10 @@
             .hud-panel {
                 background-color: #060d1a !important;
             }
-            /* Hide UI elements not needed in print */
             button[title="Toggle treaty line flow animation"],
             button[title="RESET GLOBAL VIEW"],
-            .cyber-checkbox {
+            .cyber-checkbox,
+            .pointer-events-auto {
                 display: none !important;
             }
         }
@@ -156,224 +168,87 @@
         const IconLinkedIn = () => <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"></path></svg>;
         const IconBookOpen = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>;
         const IconRadio = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="2"></circle><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48 0a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"></path></svg>;
-        
-        // New icons for pagination, download, and calendar
         const IconRefresh = ({ className = "" }) => <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>;
         const IconArrowLeft = () => <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>;
         const IconArrowRight = () => <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>;
         const IconDownload = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>;
         const IconCalendar = ({ className = "" }) => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>;
+        const IconDatabase = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>;
 
         const masterNationsRaw = [
-            "AFG|Afghanistan|65|33|14|32|16|21|22",
-            "ALB|Albania|20.1|41.1|70|42|52|62|56",
-            "DZA|Algeria|1.6|28|62|74|68|74|55",
-            "AND|Andorra|1.55|42.52|92|5|58|45|48",
-            "AGO|Angola|17.8|-11.2|46|56|54|61|38",
-            "ATG|Antigua and Barbuda|-61.8|17.05|79|10|42|44|39",
-            "ARG|Argentina|-63.6|-38.4|66|68|76|82|67",
-            "ARM|Armenia|45|40|61|52|50|64|51",
-            "AUS|Australia|133.7|-25.2|93|76|83|84|89",
-            "AUT|Austria|14.1|47.51|92|62|82|83|80",
-            "AZE|Azerbaijan|47.5|40.1|65|68|62|71|62",
-            "BHS|Bahamas|-77.3|25|81|12|50|48|46",
-            "BHR|Bahrain|50.55|26.15|70|58|70|68|60",
-            "BGD|Bangladesh|90.2|23.6|58|64|67|72|60",
-            "BRB|Barbados|-59.55|13.19|83|11|48|50|47",
-            "BLR|Belarus|27.9|53.7|56|67|58|66|68",
-            "BEL|Belgium|4.46|50.5|88|65|83|86|82",
-            "BLZ|Belize|-88.9|17.1|70|15|36|44|35",
-            "BEN|Benin|2.3|9.3|54|32|38|48|38",
-            "BTN|Bhutan|90.4|27.5|78|18|36|42|36",
-            "BOL|Bolivia|-63.5|-16.2|55|48|52|59|44",
-            "BIH|Bosnia and Herzegovina|17.6|43.9|60|44|48|59|48",
-            "BWA|Botswana|24.6|-22.3|77|42|52|56|52",
-            "BRA|Brazil|-51.9|-14.2|71|72|83|85|66",
-            "BRN|Brunei|114.72|4.53|84|46|65|60|58",
-            "BGR|Bulgaria|25.4|42.7|74|58|67|72|65",
-            "BFA|Burkina Faso|-1.5|12.2|30|40|32|45|34",
-            "BDI|Burundi|29.9|-3.3|32|36|22|41|26",
-            "CPV|Cabo Verde|-24|16|78|12|40|48|42",
-            "KHM|Cambodia|104.9|12.5|56|48|48|58|43",
-            "CMR|Cameroon|12.3|3.8|42|52|49|58|42",
-            "CAN|Canada|-106.3|56.1|91|74|86|83|88",
-            "CAF|Central African Republic|20.9|6.6|20|24|18|34|18",
-            "TCD|Chad|18.7|15.4|28|46|30|43|26",
-            "CHL|Chile|-71.5|-35.6|82|67|76|79|72",
-            "CHN|China|104.1|35.8|80|96|95|98|96",
-            "COL|Colombia|-74.2|4.5|58|69|74|78|64",
-            "COM|Comoros|43.33|-11.7|48|14|25|38|26",
-            "COG|Congo|15.8|-0.2|44|40|44|50|36",
-            "COD|DR Congo|23.6|-4|24|48|40|53|30",
-            "CRI|Costa Rica|-83.7|9.9|84|8|62|68|60",
-            "CIV|Ivory Coast|-5.5|7.5|52|48|56|62|50",
-            "HRV|Croatia|15.2|45.1|81|60|71|74|69",
-            "CUB|Cuba|-77.7|21.5|60|55|46|75|48",
-            "CYP|Cyprus|33.4|35.1|78|50|68|70|65",
-            "CZE|Czechia|15.4|49.8|89|66|79|81|78",
-            "DNK|Denmark|9.5|56.2|96|66|83|82|87",
-            "DJI|Djibouti|42.5|11.8|55|35|40|54|38",
-            "DMA|Dominica|-61.35|15.42|80|6|38|41|35",
-            "DOM|Dominican Republic|-70.1|18.7|68|49|65|66|56",
-            "ECU|Ecuador|-78.1|-1.8|57|56|62|67|52",
-            "EGY|Egypt|30.8|26.8|58|79|69|81|62",
-            "SLV|El Salvador|-88.8|13.9|64|44|52|58|47",
-            "GNQ|Equatorial Guinea|10.2|1.6|50|34|48|46|32",
-            "ERI|Eritrea|39.3|15.1|36|50|25|36|24",
-            "EST|Estonia|25|58.5|91|52|68|69|92",
-            "SWZ|Eswatini|31.4|-26.5|50|28|40|44|35",
-            "ETH|Ethiopia|40.4|9.1|38|68|58|72|48",
-            "FRO|Faroe Islands|-6.9|62|95|15|64|50|62",
-            "FJI|Fiji|178.06|-17.71|72|28|45|52|42",
-            "FIN|Finland|25.7|61.9|98|72|79|76|86",
-            "FRA|France|2.2|46.2|84|85|86|91|89",
-            "GAB|Gabon|11.6|-0.8|54|38|52|52|40",
-            "GMB|Gambia|-15.3|13.4|60|22|34|46|36",
-            "GEO|Georgia|43.3|42.3|64|50|56|66|60",
-            "DEU|Germany|10.4|51.1|91|79|91|89|86",
-            "GHA|Ghana|-1|7.9|70|48|58|68|58",
-            "GRC|Greece|21.8|39|78|74|73|81|73",
-            "GRD|Grenada|-61.68|12.12|80|6|39|42|36",
-            "GRL|Greenland|-41.5|71.7|94|22|62|52|60",
-            "GTM|Guatemala|-90.2|15.7|56|45|56|60|46",
-            "GIN|Guinea|-9.6|9.9|42|44|40|49|35",
-            "GNB|Guinea-Bissau|-15.1|11.8|40|28|26|41|28",
-            "GUY|Guyana|-58.9|4.8|66|26|58|48|40",
-            "HTI|Haiti|-72.2|18.9|22|16|24|38|22",
-            "HND|Honduras|-86.2|15.1|54|44|48|56|42",
-            "HUN|Hungary|19.5|47.1|79|64|74|77|72",
-            "ISL|Iceland|-19|64.9|97|7|72|68|78",
-            "IND|India|78.9|20.5|73|89|88|86|82",
-            "IDN|Indonesia|113.9|-0.7|74|78|82|79|67",
-            "IRN|Iran|53.6|32.4|42|77|48|58|85",
-            "IRQ|Iraq|43.6|33.2|38|66|64|62|44",
-            "IRL|Ireland|-8.2|53.4|94|40|84|79|81",
-            "ISR|Israel|34.8|31.3|56|89|83|74|97",
-            "ITA|Italy|12.8|42.6|83|80|85|87|82",
-            "JAM|Jamaica|-77.2|18.1|72|28|48|58|49",
-            "JPN|Japan|138.2|36.2|93|81|90|90|87",
-            "JOR|Jordan|36.6|31.2|72|62|54|76|58",
-            "KAZ|Kazakhstan|66.9|48|70|66|71|74|66",
-            "KEN|Kenya|37.9|0|58|58|62|74|60",
-            "KIR|Kiribati|-157.36|1.87|78|5|26|35|28",
-            "PRK|North Korea|127.5|40.3|31|78|18|26|87",
-            "KOR|South Korea|127.7|35.9|88|86|89|84|91",
-            "XKX|Kosovo|20.9|42.6|66|38|48|66|52",
-            "KWT|Kuwait|47.6|29.35|78|62|78|72|65",
-            "KGZ|Kyrgyzstan|74.7|41.2|58|44|43|56|45",
-            "LAO|Laos|102.4|19.8|62|42|46|54|40",
-            "LVA|Latvia|24.6|56.8|88|50|67|71|75",
-            "LBN|Lebanon|35.85|33.9|22|38|25|58|35",
-            "LSO|Lesotho|28.2|-29.6|60|24|34|44|34",
-            "LBR|Liberia|-9.4|6.4|46|22|28|44|30",
-            "LBY|Libya|17.2|26.3|26|42|45|40|30",
-            "LIE|Liechtenstein|9.53|47.16|96|5|75|48|68",
-            "LTU|Lithuania|23.8|55.1|88|54|69|73|82",
-            "LUX|Luxembourg|6.13|49.61|96|42|85|76|84",
-            "MDG|Madagascar|46.8|-18.7|48|34|35|49|34",
-            "MWI|Malawi|34.3|-13.2|52|28|30|47|32",
-            "MYS|Malaysia|102.2|4.1|80|68|78|78|82",
-            "MDV|Maldives|73.22|3.2|70|20|48|52|45",
-            "MLI|Mali|-3.9|17.5|32|44|36|48|32",
-            "MLT|Malta|14.45|35.9|89|28|70|67|72",
-            "MHL|Marshall Islands|171.18|7.13|80|5|29|36|30",
-            "MRT|Mauritania|-10.9|21|49|44|40|52|34",
-            "MUS|Mauritius|57.55|-20.28|85|22|62|64|66",
-            "MEX|Mexico|-102.5|23.6|68|64|81|78|63",
-            "FSM|Micronesia|150.55|7.42|80|5|30|35|30",
-            "MDA|Moldova|28.3|47.4|61|40|48|62|54",
-            "MCO|Monaco|7.42|43.73|95|5|82|55|60",
-            "MNG|Mongolia|103.8|46.8|72|46|50|61|48",
-            "MNE|Montenegro|19.3|42.7|75|44|52|63|58",
-            "MAR|Morocco|-7|31.7|72|71|68|78|62",
-            "MOZ|Mozambique|35.5|-18.6|42|40|38|51|35",
-            "MMR|Myanmar|95.9|21.9|26|62|42|48|38",
-            "NAM|Namibia|17|-22.9|75|40|52|58|48",
-            "NRU|Nauru|166.92|-0.52|78|5|28|34|28",
-            "NPL|Nepal|84.1|28.3|58|44|46|59|42",
-            "NLD|Netherlands|5.29|52.13|94|68|84|80|90",
-            "NZL|New Zealand|174.8|-40.9|95|60|78|78|84",
-            "NIC|Nicaragua|-85.2|12.8|50|40|42|50|36",
-            "NER|Niger|8|17.6|30|40|30|44|28",
-            "NGA|Nigeria|8.6|9|46|68|72|78|56",
-            "MKD|North Macedonia|21.7|41.6|73|46|54|64|58",
-            "NOR|Norway|8.4|60.4|97|67|83|79|85",
-            "OMN|Oman|55.9|21.5|80|60|72|75|62",
-            "PAK|Pakistan|69.3|30.3|44|81|55|72|65",
-            "PLW|Palau|134.58|7.51|82|5|32|38|32",
-            "PAN|Panama|-80.7|8.5|76|12|68|66|56",
-            "PNG|Papua New Guinea|143.9|-6.3|52|30|46|52|36",
-            "PRY|Paraguay|-58.4|-23.4|67|44|54|59|46",
-            "PER|Peru|-75|-9.1|64|62|69|73|58",
-            "PHL|Philippines|121.7|12.8|64|67|72|74|63",
-            "POL|Poland|19.1|51.9|84|81|80|78|81",
-            "PRT|Portugal|-8.2|39.3|87|64|75|80|79",
-            "PRI|Puerto Rico|-66.5|18.2|78|40|68|52|65",
-            "PSE|Palestine|35.23|31.95|18|14|20|68|26",
-            "QAT|Qatar|51.3|25.3|89|64|81|76|78",
-            "ROU|Romania|24.9|45.9|79|66|73|75|72",
-            "RUS|Russia|105.3|61.5|54|92|68|88|93",
-            "RWA|Rwanda|29.8|-1.9|62|56|48|66|58",
-            "KNA|Saint Kitts and Nevis|-62.75|17.33|81|6|42|42|38",
-            "LCA|Saint Lucia|-60.98|13.9|81|6|42|42|38",
-            "VCT|Saint Vincent|-61.22|13.25|81|6|40|41|38",
-            "WSM|Samoa|-172.1|-13.75|80|5|32|38|32",
-            "SMR|San Marino|12.45|43.93|93|5|62|46|48",
-            "STP|Sao Tome and Principe|6.61|0.2|74|10|30|41|30",
-            "SAU|Saudi Arabia|44.5|23.5|79|81|85|78|82",
-            "SEN|Senegal|-14.4|14.4|68|48|50|66|52",
-            "SRB|Serbia|21|44|68|60|62|71|64",
-            "SYC|Seychelles|55.45|-4.68|82|16|54|54|52",
-            "SLE|Sierra Leone|-11.7|8.4|50|24|30|48|32",
-            "SGP|Singapore|103.85|1.29|96|66|84|75|94",
-            "SVK|Slovakia|19.6|48.6|83|58|73|76|74",
-            "SVN|Slovenia|14.9|46.1|89|52|75|76|78",
-            "SLB|Solomon Islands|160.1|-9.6|65|12|34|42|32",
-            "SOM|Somalia|46.1|5.1|15|24|20|36|18",
-            "ZAF|South Africa|22.9|-30.5|66|60|73|80|61",
-            "SSD|South Sudan|31.3|6.8|14|32|18|32|16",
-            "ESP|Spain|-3.7|40.4|85|76|84|86|83",
-            "LKA|Sri Lanka|80.7|7.8|54|52|55|64|52",
-            "SDN|Sudan|30.2|12.8|14|46|32|45|26",
-            "SUR|Suriname|-56|3.9|68|22|44|48|38",
-            "SWE|Sweden|18.6|60.1|95|71|82|79|87",
-            "CHE|Switzerland|8.22|46.81|98|58|87|79|84",
-            "SYR|Syria|38.5|35|18|48|19|32|44",
-            "TWN|Taiwan|121|23.7|86|82|91|76|94",
-            "TJK|Tajikistan|71.2|38.8|55|46|42|54|40",
-            "TZA|Tanzania|34.8|-6.3|64|50|52|65|48",
-            "THA|Thailand|100.9|15.8|68|73|76|77|72",
-            "TLS|Timor-Leste|125.7|-8.8|62|20|36|48|32",
-            "TGO|Togo|0.8|8.6|52|34|38|49|36",
-            "TON|Tonga|-175.2|-21.17|78|8|32|38|30",
-            "TTO|Trinidad and Tobago|-61.3|10.45|74|24|60|58|54",
-            "TUN|Tunisia|9.5|33.8|58|52|52|64|48",
-            "TUR|Turkey|35.2|38.9|64|85|79|92|81",
-            "TKM|Turkmenistan|59.5|38.9|56|52|52|56|42",
-            "TUV|Tuvalu|177.65|-7.11|80|5|24|34|25",
-            "UGA|Uganda|32.2|1.3|52|54|48|64|46",
-            "UKR|Ukraine|31.1|48.3|34|83|38|81|88",
-            "ARE|United Arab Emirates|54.3|24|88|74|84|77|86",
-            "GBR|United Kingdom|-3.4|55.3|86|84|87|89|94",
-            "USA|United States|-95.7|37|81|99|98|97|99",
-            "URY|Uruguay|-55.7|-32.5|85|46|67|71|68",
-            "UZB|Uzbekistan|64.5|41.3|62|60|58|66|52",
-            "VAT|Vatican City|12.38|41.9|99|4|60|85|55",
-            "VUT|Vanuatu|167.9|-15.3|76|6|32|40|30",
-            "VEN|Venezuela|-66.5|9|36|62|40|58|44",
-            "VNM|Vietnam|108.2|14|79|74|72|73|84",
-            "ESH|Western Sahara|-13|24.5|22|20|18|42|20",
-            "YEM|Yemen|48.5|15.5|12|38|14|24|28",
-            "ZMB|Zambia|27.8|-13.1|62|42|46|58|42",
-            "ZWE|Zimbabwe|29.1|-19|46|48|38|54|38"
+            "AFG|Afghanistan|65|33|14|32|16|21|22", "ALB|Albania|20.1|41.1|70|42|52|62|56", "DZA|Algeria|1.6|28|62|74|68|74|55",
+            "AND|Andorra|1.55|42.52|92|5|58|45|48", "AGO|Angola|17.8|-11.2|46|56|54|61|38", "ATG|Antigua and Barbuda|-61.8|17.05|79|10|42|44|39",
+            "ARG|Argentina|-63.6|-38.4|66|68|76|82|67", "ARM|Armenia|45|40|61|52|50|64|51", "AUS|Australia|133.7|-25.2|93|76|83|84|89",
+            "AUT|Austria|14.1|47.51|92|62|82|83|80", "AZE|Azerbaijan|47.5|40.1|65|68|62|71|62", "BHS|Bahamas|-77.3|25|81|12|50|48|46",
+            "BHR|Bahrain|50.55|26.15|70|58|70|68|60", "BGD|Bangladesh|90.2|23.6|58|64|67|72|60", "BRB|Barbados|-59.55|13.19|83|11|48|50|47",
+            "BLR|Belarus|27.9|53.7|56|67|58|66|68", "BEL|Belgium|4.46|50.5|88|65|83|86|82", "BLZ|Belize|-88.9|17.1|70|15|36|44|35",
+            "BEN|Benin|2.3|9.3|54|32|38|48|38", "BTN|Bhutan|90.4|27.5|78|18|36|42|36", "BOL|Bolivia|-63.5|-16.2|55|48|52|59|44",
+            "BIH|Bosnia and Herzegovina|17.6|43.9|60|44|48|59|48", "BWA|Botswana|24.6|-22.3|77|42|52|56|52", "BRA|Brazil|-51.9|-14.2|71|72|83|85|66",
+            "BRN|Brunei|114.72|4.53|84|46|65|60|58", "BGR|Bulgaria|25.4|42.7|74|58|67|72|65", "BFA|Burkina Faso|-1.5|12.2|30|40|32|45|34",
+            "BDI|Burundi|29.9|-3.3|32|36|22|41|26", "CPV|Cabo Verde|-24|16|78|12|40|48|42", "KHM|Cambodia|104.9|12.5|56|48|48|58|43",
+            "CMR|Cameroon|12.3|3.8|42|52|49|58|42", "CAN|Canada|-106.3|56.1|91|74|86|83|88", "CAF|Central African Republic|20.9|6.6|20|24|18|34|18",
+            "TCD|Chad|18.7|15.4|28|46|30|43|26", "CHL|Chile|-71.5|-35.6|82|67|76|79|72", "CHN|China|104.1|35.8|80|96|95|98|96",
+            "COL|Colombia|-74.2|4.5|58|69|74|78|64", "COM|Comoros|43.33|-11.7|48|14|25|38|26", "COG|Congo|15.8|-0.2|44|40|44|50|36",
+            "COD|DR Congo|23.6|-4|24|48|40|53|30", "CRI|Costa Rica|-83.7|9.9|84|8|62|68|60", "CIV|Ivory Coast|-5.5|7.5|52|48|56|62|50",
+            "HRV|Croatia|15.2|45.1|81|60|71|74|69", "CUB|Cuba|-77.7|21.5|60|55|46|75|48", "CYP|Cyprus|33.4|35.1|78|50|68|70|65",
+            "CZE|Czechia|15.4|49.8|89|66|79|81|78", "DNK|Denmark|9.5|56.2|96|66|83|82|87", "DJI|Djibouti|42.5|11.8|55|35|40|54|38",
+            "DMA|Dominica|-61.35|15.42|80|6|38|41|35", "DOM|Dominican Republic|-70.1|18.7|68|49|65|66|56", "ECU|Ecuador|-78.1|-1.8|57|56|62|67|52",
+            "EGY|Egypt|30.8|26.8|58|79|69|81|62", "SLV|El Salvador|-88.8|13.9|64|44|52|58|47", "GNQ|Equatorial Guinea|10.2|1.6|50|34|48|46|32",
+            "ERI|Eritrea|39.3|15.1|36|50|25|36|24", "EST|Estonia|25|58.5|91|52|68|69|92", "SWZ|Eswatini|31.4|-26.5|50|28|40|44|35",
+            "ETH|Ethiopia|40.4|9.1|38|68|58|72|48", "FRO|Faroe Islands|-6.9|62|95|15|64|50|62", "FJI|Fiji|178.06|-17.71|72|28|45|52|42",
+            "FIN|Finland|25.7|61.9|98|72|79|76|86", "FRA|France|2.2|46.2|84|85|86|91|89", "GAB|Gabon|11.6|-0.8|54|38|52|52|40",
+            "GMB|Gambia|-15.3|13.4|60|22|34|46|36", "GEO|Georgia|43.3|42.3|64|50|56|66|60", "DEU|Germany|10.4|51.1|91|79|91|89|86",
+            "GHA|Ghana|-1|7.9|70|48|58|68|58", "GRC|Greece|21.8|39|78|74|73|81|73", "GRD|Grenada|-61.68|12.12|80|6|39|42|36",
+            "GRL|Greenland|-41.5|71.7|94|22|62|52|60", "GTM|Guatemala|-90.2|15.7|56|45|56|60|46", "GIN|Guinea|-9.6|9.9|42|44|40|49|35",
+            "GNB|Guinea-Bissau|-15.1|11.8|40|28|26|41|28", "GUY|Guyana|-58.9|4.8|66|26|58|48|40", "HTI|Haiti|-72.2|18.9|22|16|24|38|22",
+            "HND|Honduras|-86.2|15.1|54|44|48|56|42", "HUN|Hungary|19.5|47.1|79|64|74|77|72", "ISL|Iceland|-19|64.9|97|7|72|68|78",
+            "IND|India|78.9|20.5|73|89|88|86|82", "IDN|Indonesia|113.9|-0.7|74|78|82|79|67", "IRN|Iran|53.6|32.4|42|77|48|58|85",
+            "IRQ|Iraq|43.6|33.2|38|66|64|62|44", "IRL|Ireland|-8.2|53.4|94|40|84|79|81", "ISR|Israel|34.8|31.3|56|89|83|74|97",
+            "ITA|Italy|12.8|42.6|83|80|85|87|82", "JAM|Jamaica|-77.2|18.1|72|28|48|58|49", "JPN|Japan|138.2|36.2|93|81|90|90|87",
+            "JOR|Jordan|36.6|31.2|72|62|54|76|58", "KAZ|Kazakhstan|66.9|48|70|66|71|74|66", "KEN|Kenya|37.9|0|58|58|62|74|60",
+            "KIR|Kiribati|-157.36|1.87|78|5|26|35|28", "PRK|North Korea|127.5|40.3|31|78|18|26|87", "KOR|South Korea|127.7|35.9|88|86|89|84|91",
+            "XKX|Kosovo|20.9|42.6|66|38|48|66|52", "KWT|Kuwait|47.6|29.35|78|62|78|72|65", "KGZ|Kyrgyzstan|74.7|41.2|58|44|43|56|45",
+            "LAO|Laos|102.4|19.8|62|42|46|54|40", "LVA|Latvia|24.6|56.8|88|50|67|71|75", "LBN|Lebanon|35.85|33.9|22|38|25|58|35",
+            "LSO|Lesotho|28.2|-29.6|60|24|34|44|34", "LBR|Liberia|-9.4|6.4|46|22|28|44|30", "LBY|Libya|17.2|26.3|26|42|45|40|30",
+            "LIE|Liechtenstein|9.53|47.16|96|5|75|48|68", "LTU|Lithuania|23.8|55.1|88|54|69|73|82", "LUX|Luxembourg|6.13|49.61|96|42|85|76|84",
+            "MDG|Madagascar|46.8|-18.7|48|34|35|49|34", "MWI|Malawi|34.3|-13.2|52|28|30|47|32", "MYS|Malaysia|102.2|4.1|80|68|78|78|82",
+            "MDV|Maldives|73.22|3.2|70|20|48|52|45", "MLI|Mali|-3.9|17.5|32|44|36|48|32", "MLT|Malta|14.45|35.9|89|28|70|67|72",
+            "MHL|Marshall Islands|171.18|7.13|80|5|29|36|30", "MRT|Mauritania|-10.9|21|49|44|40|52|34", "MUS|Mauritius|57.55|-20.28|85|22|62|64|66",
+            "MEX|Mexico|-102.5|23.6|68|64|81|78|63", "FSM|Micronesia|150.55|7.42|80|5|30|35|30", "MDA|Moldova|28.3|47.4|61|40|48|62|54",
+            "MCO|Monaco|7.42|43.73|95|5|82|55|60", "MNG|Mongolia|103.8|46.8|72|46|50|61|48", "MNE|Montenegro|19.3|42.7|75|44|52|63|58",
+            "MAR|Morocco|-7|31.7|72|71|68|78|62", "MOZ|Mozambique|35.5|-18.6|42|40|38|51|35", "MMR|Myanmar|95.9|21.9|26|62|42|48|38",
+            "NAM|Namibia|17|-22.9|75|40|52|58|48", "NRU|Nauru|166.92|-0.52|78|5|28|34|28", "NPL|Nepal|84.1|28.3|58|44|46|59|42",
+            "NLD|Netherlands|5.29|52.13|94|68|84|80|90", "NZL|New Zealand|174.8|-40.9|95|60|78|78|84", "NIC|Nicaragua|-85.2|12.8|50|40|42|50|36",
+            "NER|Niger|8|17.6|30|40|30|44|28", "NGA|Nigeria|8.6|9|46|68|72|78|56", "MKD|North Macedonia|21.7|41.6|73|46|54|64|58",
+            "NOR|Norway|8.4|60.4|97|67|83|79|85", "OMN|Oman|55.9|21.5|80|60|72|75|62", "PAK|Pakistan|69.3|30.3|44|81|55|72|65",
+            "PLW|Palau|134.58|7.51|82|5|32|38|32", "PAN|Panama|-80.7|8.5|76|12|68|66|56", "PNG|Papua New Guinea|143.9|-6.3|52|30|46|52|36",
+            "PRY|Paraguay|-58.4|-23.4|67|44|54|59|46", "PER|Peru|-75|-9.1|64|62|69|73|58", "PHL|Philippines|121.7|12.8|64|67|72|74|63",
+            "POL|Poland|19.1|51.9|84|81|80|78|81", "PRT|Portugal|-8.2|39.3|87|64|75|80|79", "PRI|Puerto Rico|-66.5|18.2|78|40|68|52|65",
+            "PSE|Palestine|35.23|31.95|18|14|20|68|26", "QAT|Qatar|51.3|25.3|89|64|81|76|78", "ROU|Romania|24.9|45.9|79|66|73|75|72",
+            "RUS|Russia|105.3|61.5|54|92|68|88|93", "RWA|Rwanda|29.8|-1.9|62|56|48|66|58", "KNA|Saint Kitts and Nevis|-62.75|17.33|81|6|42|42|38",
+            "LCA|Saint Lucia|-60.98|13.9|81|6|42|42|38", "VCT|Saint Vincent|-61.22|13.25|81|6|40|41|38", "WSM|Samoa|-172.1|-13.75|80|5|32|38|32",
+            "SMR|San Marino|12.45|43.93|93|5|62|46|48", "STP|Sao Tome and Principe|6.61|0.2|74|10|30|41|30", "SAU|Saudi Arabia|44.5|23.5|79|81|85|78|82",
+            "SEN|Senegal|-14.4|14.4|68|48|50|66|52", "SRB|Serbia|21|44|68|60|62|71|64", "SYC|Seychelles|55.45|-4.68|82|16|54|54|52",
+            "SLE|Sierra Leone|-11.7|8.4|50|24|30|48|32", "SGP|Singapore|103.85|1.29|96|66|84|75|94", "SVK|Slovakia|19.6|48.6|83|58|73|76|74",
+            "SVN|Slovenia|14.9|46.1|89|52|75|76|78", "SLB|Solomon Islands|160.1|-9.6|65|12|34|42|32", "SOM|Somalia|46.1|5.1|15|24|20|36|18",
+            "ZAF|South Africa|22.9|-30.5|66|60|73|80|61", "SSD|South Sudan|31.3|6.8|14|32|18|32|16", "ESP|Spain|-3.7|40.4|85|76|84|86|83",
+            "LKA|Sri Lanka|80.7|7.8|54|52|55|64|52", "SDN|Sudan|30.2|12.8|14|46|32|45|26", "SUR|Suriname|-56|3.9|68|22|44|48|38",
+            "SWE|Sweden|18.6|60.1|95|71|82|79|87", "CHE|Switzerland|8.22|46.81|98|58|87|79|84", "SYR|Syria|38.5|35|18|48|19|32|44",
+            "TWN|Taiwan|121|23.7|86|82|91|76|94", "TJK|Tajikistan|71.2|38.8|55|46|42|54|40", "TZA|Tanzania|34.8|-6.3|64|50|52|65|48",
+            "THA|Thailand|100.9|15.8|68|73|76|77|72", "TLS|Timor-Leste|125.7|-8.8|62|20|36|48|32", "TGO|Togo|0.8|8.6|52|34|38|49|36",
+            "TON|Tonga|-175.2|-21.17|78|8|32|38|30", "TTO|Trinidad and Tobago|-61.3|10.45|74|24|60|58|54", "TUN|Tunisia|9.5|33.8|58|52|52|64|48",
+            "TUR|Turkey|35.2|38.9|64|85|79|92|81", "TKM|Turkmenistan|59.5|38.9|56|52|52|56|42", "TUV|Tuvalu|177.65|-7.11|80|5|24|34|25",
+            "UGA|Uganda|32.2|1.3|52|54|48|64|46", "UKR|Ukraine|31.1|48.3|34|83|38|81|88", "ARE|United Arab Emirates|54.3|24|88|74|84|77|86",
+            "GBR|United Kingdom|-3.4|55.3|86|84|87|89|94", "USA|United States|-95.7|37|81|99|98|97|99", "URY|Uruguay|-55.7|-32.5|85|46|67|71|68",
+            "UZB|Uzbekistan|64.5|41.3|62|60|58|66|52", "VAT|Vatican City|12.38|41.9|99|4|60|85|55", "VUT|Vanuatu|167.9|-15.3|76|6|32|40|30",
+            "VEN|Venezuela|-66.5|9|36|62|40|58|44", "VNM|Vietnam|108.2|14|79|74|72|73|84", "ESH|Western Sahara|-13|24.5|22|20|18|42|20",
+            "YEM|Yemen|48.5|15.5|12|38|14|24|28", "ZMB|Zambia|27.8|-13.1|62|42|46|58|42", "ZWE|Zimbabwe|29.1|-19|46|48|38|54|38"
         ];
 
         const globalNations = masterNationsRaw.map(str => {
             const [iso3, name, lng, lat, stab, mil, econ, dipl, cyb] = str.split("|");
             return {
-                iso3,
-                name,
-                coordinates: [parseFloat(lng), parseFloat(lat)],
+                iso3, name, coordinates: [parseFloat(lng), parseFloat(lat)],
                 metrics: {
                     stability: { value: parseInt(stab, 10), source: "Fund for Peace FSI & World Bank WGI" },
                     military: { value: parseInt(mil, 10), source: "Global Firepower GFP & SIPRI" },
@@ -432,35 +307,16 @@
         };
 
         const STRATEGIC_PARTNERSHIPS = {
-            "USA-GBR": ["1958 US-UK Mutual Defence Agreement"],
-            "USA-ISR": ["1981 Strategic Cooperation Agreement"],
-            "RUS-BLR": ["Union State of Russia & Belarus Treaty"],
-            "CHN-PAK": ["Strategic Comprehensive Partnership"],
-            "USA-JPN": ["1960 Mutual Cooperation & Security Treaty"],
-            "USA-KOR": ["1953 Mutual Defense Treaty"],
-            "FRA-DEU": ["Élysée & Aachen Integration Treaties"],
-            "TUR-AZE": ["2021 Shusha Declaration"],
-            "AUS-NZL": ["Closer Economic Relations (CER)"],
-            "USA-AUS": ["ANZUS / AUKUS Security Framework"],
-            "USA-CAN": ["NORAD / USMCA Integrated Defense"],
-            "IND-RUS": ["1971 Treaty of Friendship and Cooperation"],
-            "CHN-RUS": ["Strategic Comprehensive Partnership"],
-            "USA-PHL": ["Mutual Defense Treaty & EDCA"],
-            "JOR-USA": ["Major Non-NATO Ally (MNNA) Status & Defense Pact"],
-            "JOR-PSE": ["Historical Custodianship of Jerusalem Holy Sites"],
-            "EGY-JOR": ["Joint Bilateral Strategic Coordination Council"],
-            "DNK-GRL": ["Danish Realm Constitutional Unity"],
-            "USA-GRL": ["1951 Defense of Greenland Agreement"],
-            "USA-TWN": ["Taiwan Relations Act Framework"],
-            "USA-XKX": ["Strategic Defense Partnership"],
-            "EGY-ISR": ["1979 Camp David Peace Treaty & Border Settlement"],
-            "JOR-ISR": ["1994 Wadi Araba Peace Treaty & Demarcated Border"],
-            "ISR-ARE": ["2020 Abraham Accords Peace Treaty"],
-            "ISR-BHR": ["2020 Abraham Accords Normalization"],
-            "ISR-MAR": ["2020 Normalization & Security Accord"],
-            "PSE-ISR": ["1993/1995 Oslo Peace Accords Framework"],
-            "GBR-IRL": ["1998 Good Friday Peace Agreement"],
-            "SAU-IRN": ["2023 Beijing Peace Accord"]
+            "USA-GBR": ["1958 US-UK Mutual Defence Agreement"], "USA-ISR": ["1981 Strategic Cooperation Agreement"], "RUS-BLR": ["Union State of Russia & Belarus Treaty"],
+            "CHN-PAK": ["Strategic Comprehensive Partnership"], "USA-JPN": ["1960 Mutual Cooperation & Security Treaty"], "USA-KOR": ["1953 Mutual Defense Treaty"],
+            "FRA-DEU": ["Élysée & Aachen Integration Treaties"], "TUR-AZE": ["2021 Shusha Declaration"], "AUS-NZL": ["Closer Economic Relations (CER)"],
+            "USA-AUS": ["ANZUS / AUKUS Security Framework"], "USA-CAN": ["NORAD / USMCA Integrated Defense"], "IND-RUS": ["1971 Treaty of Friendship and Cooperation"],
+            "CHN-RUS": ["Strategic Comprehensive Partnership"], "USA-PHL": ["Mutual Defense Treaty & EDCA"], "JOR-USA": ["Major Non-NATO Ally (MNNA) Status & Defense Pact"],
+            "JOR-PSE": ["Historical Custodianship of Jerusalem Holy Sites"], "EGY-JOR": ["Joint Bilateral Strategic Coordination Council"], "DNK-GRL": ["Danish Realm Constitutional Unity"],
+            "USA-GRL": ["1951 Defense of Greenland Agreement"], "USA-TWN": ["Taiwan Relations Act Framework"], "USA-XKX": ["Strategic Defense Partnership"],
+            "EGY-ISR": ["1979 Camp David Peace Treaty & Border Settlement"], "JOR-ISR": ["1994 Wadi Araba Peace Treaty & Demarcated Border"], "ISR-ARE": ["2020 Abraham Accords Peace Treaty"],
+            "ISR-BHR": ["2020 Abraham Accords Normalization"], "ISR-MAR": ["2020 Normalization & Security Accord"], "PSE-ISR": ["1993/1995 Oslo Peace Accords Framework"],
+            "GBR-IRL": ["1998 Good Friday Peace Agreement"], "SAU-IRN": ["2023 Beijing Peace Accord"]
         };
 
         const allGlobalRelationsMap = new Map();
@@ -843,7 +699,7 @@
             }, [filterSearch]);
 
             return (
-                <div className="absolute top-16 left-3 md:left-5 z-40 font-mono" ref={dropdownRef}>
+                <div className="relative font-mono" ref={dropdownRef}>
                     <button 
                         onClick={() => setIsOpen(!isOpen)}
                         className={`hud-panel px-3 py-1.5 flex items-center gap-2 transition-colors rounded-sm ${activeFilters.length > 0 ? 'border-intel-accent bg-intel-accent/15' : 'border-intel-border hover:bg-intel-border/30'}`}
@@ -921,11 +777,229 @@
             );
         };
 
+        const OSINTPanel = () => {
+             const [isOpen, setIsOpen] = useState(false);
+             const dropdownRef = useRef(null);
+
+             // OSINT State
+             const [countryCode, setCountryCode] = useState('US');
+             const [targets, setTargets] = useState([]);
+             const [targetIndex, setTargetIndex] = useState(0);
+             const [loading, setLoading] = useState(false);
+             const [error, setError] = useState(false);
+             const [dossierOpen, setDossierOpen] = useState(false);
+             
+             // Notes State
+             const [notes, setNotes] = useState(() => localStorage.getItem('geonexus_scratchpad') || '');
+             const [isBurning, setIsBurning] = useState(false);
+
+             useEffect(() => {
+                 const handleClickOutside = (e) => {
+                     if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+                         setIsOpen(false);
+                     }
+                 };
+                 document.addEventListener("mousedown", handleClickOutside);
+                 return () => document.removeEventListener("mousedown", handleClickOutside);
+             }, []);
+
+             // Fetch Interpol Data
+             useEffect(() => {
+                 if (!isOpen) return;
+                 let isMounted = true;
+                 
+                 const fetchData = async () => {
+                     setLoading(true); setError(false);
+                     try {
+                         const res = await fetch(`https://ws-public.interpol.int/notices/v1/red?nationality=${countryCode}&resultPerPage=10`);
+                         const data = await res.json();
+                         if(isMounted) {
+                             if (data._embedded && data._embedded.notices && data._embedded.notices.length > 0) {
+                                 setTargets(data._embedded.notices);
+                                 setTargetIndex(0);
+                             } else {
+                                 setTargets([]);
+                             }
+                         }
+                     } catch(e) {
+                         if(isMounted) setError(true);
+                     } finally {
+                         if(isMounted) setLoading(false);
+                     }
+                 };
+                 fetchData();
+                 return () => { isMounted = false; };
+             }, [countryCode, isOpen]);
+
+             // Interpol Rotation Timer
+             useEffect(() => {
+                 if (!isOpen || targets.length <= 1) return;
+                 const timer = setInterval(() => {
+                     setTargetIndex(prev => (prev + 1) % targets.length);
+                 }, 8000);
+                 return () => clearInterval(timer);
+             }, [targets, isOpen]);
+
+             const handleNotesChange = (e) => {
+                 setNotes(e.target.value);
+                 localStorage.setItem('geonexus_scratchpad', e.target.value);
+             };
+
+             const burnNotes = () => {
+                 if(!notes.trim()) return;
+                 setIsBurning(true);
+                 setTimeout(() => {
+                     setNotes('');
+                     localStorage.removeItem('geonexus_scratchpad');
+                 }, 300);
+                 setTimeout(() => setIsBurning(false), 700);
+             };
+
+             const countryOptions = [
+                { value: 'US', label: 'USA' }, { value: 'AF', label: 'Afghanistan' }, { value: 'AL', label: 'Albania' },
+                { value: 'DZ', label: 'Algeria' }, { value: 'AR', label: 'Argentina' }, { value: 'AU', label: 'Australia' },
+                { value: 'AT', label: 'Austria' }, { value: 'BD', label: 'Bangladesh' }, { value: 'BY', label: 'Belarus' },
+                { value: 'BE', label: 'Belgium' }, { value: 'BR', label: 'Brazil' }, { value: 'BG', label: 'Bulgaria' },
+                { value: 'CA', label: 'Canada' }, { value: 'CL', label: 'Chile' }, { value: 'CN', label: 'China' },
+                { value: 'CO', label: 'Colombia' }, { value: 'CR', label: 'Costa Rica' }, { value: 'HR', label: 'Croatia' },
+                { value: 'CU', label: 'Cuba' }, { value: 'CZ', label: 'Czech Republic' }, { value: 'DK', label: 'Denmark' },
+                { value: 'EG', label: 'Egypt' }, { value: 'SV', label: 'El Salvador' }, { value: 'FI', label: 'Finland' },
+                { value: 'FR', label: 'France' }, { value: 'DE', label: 'Germany' }, { value: 'GR', label: 'Greece' },
+                { value: 'GT', label: 'Guatemala' }, { value: 'HT', label: 'Haiti' }, { value: 'HN', label: 'Honduras' },
+                { value: 'HU', label: 'Hungary' }, { value: 'IN', label: 'India' }, { value: 'ID', label: 'Indonesia' },
+                { value: 'IR', label: 'Iran' }, { value: 'IQ', label: 'Iraq' }, { value: 'IE', label: 'Ireland' },
+                { value: 'IL', label: 'Israel' }, { value: 'IT', label: 'Italy' }, { value: 'JM', label: 'Jamaica' },
+                { value: 'JP', label: 'Japan' }, { value: 'JO', label: 'Jordan' }, { value: 'KZ', label: 'Kazakhstan' },
+                { value: 'KE', label: 'Kenya' }, { value: 'KP', label: 'North Korea' }, { value: 'KR', label: 'South Korea' },
+                { value: 'LB', label: 'Lebanon' }, { value: 'LY', label: 'Libya' }, { value: 'MY', label: 'Malaysia' },
+                { value: 'MX', label: 'Mexico' }, { value: 'MA', label: 'Morocco' }, { value: 'NL', label: 'Netherlands' },
+                { value: 'NZ', label: 'New Zealand' }, { value: 'NG', label: 'Nigeria' }, { value: 'NO', label: 'Norway' },
+                { value: 'PK', label: 'Pakistan' }, { value: 'PS', label: 'Palestine' }, { value: 'PA', label: 'Panama' },
+                { value: 'PE', label: 'Peru' }, { value: 'PH', label: 'Philippines' }, { value: 'PL', label: 'Poland' },
+                { value: 'PT', label: 'Portugal' }, { value: 'RO', label: 'Romania' }, { value: 'RU', label: 'Russia' },
+                { value: 'SA', label: 'Saudi Arabia' }, { value: 'RS', label: 'Serbia' }, { value: 'SG', label: 'Singapore' },
+                { value: 'ZA', label: 'South Africa' }, { value: 'ES', label: 'Spain' }, { value: 'LK', label: 'Sri Lanka' },
+                { value: 'SE', label: 'Sweden' }, { value: 'CH', label: 'Switzerland' }, { value: 'SY', label: 'Syria' },
+                { value: 'TW', label: 'Taiwan' }, { value: 'TH', label: 'Thailand' }, { value: 'TR', label: 'Turkey' },
+                { value: 'UA', label: 'Ukraine' }, { value: 'AE', label: 'UAE' }, { value: 'GB', label: 'UK' },
+                { value: 'VE', label: 'Venezuela' }, { value: 'VN', label: 'Vietnam' }, { value: 'YE', label: 'Yemen' },
+                { value: 'ZW', label: 'Zimbabwe' }
+             ];
+
+             return (
+                 <div className="relative font-mono" ref={dropdownRef}>
+                     <button 
+                         onClick={() => setIsOpen(!isOpen)}
+                         className={`hud-panel px-3 py-1.5 flex items-center gap-2 transition-colors rounded-sm ${isOpen ? 'border-intel-accent bg-intel-accent/15' : 'border-intel-border hover:bg-intel-border/30'}`}
+                     >
+                         <div className="flex flex-col items-start text-left">
+                            <span className="text-[8px] text-intel-text uppercase tracking-widest leading-tight">INTELLIGENCE</span>
+                            <span className={`text-[11px] font-bold uppercase tracking-wider ${isOpen ? 'text-intel-accent' : 'text-intel-highlight'}`}>
+                                OSINT MODULES
+                            </span>
+                         </div>
+                         <IconChevronDown className={`text-intel-highlight transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+                     </button>
+                     
+                     {isOpen && (
+                         <div className="absolute top-full left-0 mt-1.5 w-80 sm:w-96 hud-panel p-3 max-h-[75vh] flex flex-col z-50 rounded-sm shadow-2xl overflow-y-auto space-y-4">
+                             <HUDCorners />
+                             
+                             <div className="border border-intel-hostile/40 bg-intel-hostile/5 p-2 rounded-sm relative group">
+                                 <div className="absolute top-0 right-0 bg-intel-hostile text-black text-[9px] px-1.5 py-0.5 font-bold uppercase">INTERPOL_RED_NOTICES</div>
+                                 <h2 className="text-intel-hostile mb-2 text-[10px] uppercase tracking-widest border-b border-intel-hostile/30 pb-1 flex justify-between items-center pr-32">
+                                     <div className="flex items-center gap-1.5"><IconDatabase /> Warrant DB</div>
+                                     <select value={countryCode} onChange={e => setCountryCode(e.target.value)} className="bg-intel-bg text-intel-hostile border border-intel-hostile/50 text-[9px] outline-none cursor-pointer max-w-[80px]">
+                                         {countryOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                                     </select>
+                                 </h2>
+                                 <div className="cursor-pointer hover:bg-intel-hostile/10 transition-colors p-1 rounded min-h-[70px] flex flex-col justify-center" onClick={() => {if(targets.length > 0) setDossierOpen(true)}}>
+                                     {loading ? (
+                                         <div className="animate-pulse text-intel-text/60 text-[10px] text-center">[ QUERYING INTERPOL (${countryCode})... ]</div>
+                                     ) : error || targets.length === 0 ? (
+                                         <div className="text-intel-hostile/70 text-[10px] text-center">[ NO ACTIVE NOTICES FOUND FOR THIS REGION ]</div>
+                                     ) : (
+                                         <div className="flex gap-3 items-start">
+                                            <div className="relative shrink-0">
+                                                <img src={targets[targetIndex]?._links?.thumbnail?.href || 'https://placehold.co/80x80/060d1a/ff1e46?text=NO+IMAGE'} alt="Target" className="w-16 h-16 object-cover grayscale border border-intel-hostile filter contrast-125 bg-black" />
+                                                <div className="absolute bottom-0 bg-intel-hostile text-black text-[8px] w-full text-center font-bold">WANTED</div>
+                                            </div>
+                                            <div className="flex-grow space-y-0.5 text-[9px] overflow-hidden">
+                                                <p><span className="text-intel-hostile">SUBJECT:</span> <span className="text-white font-bold block truncate">{targets[targetIndex]?.forename || ''} {targets[targetIndex]?.name || 'UNKNOWN'}</span></p>
+                                                <p><span className="text-intel-hostile">DOB:</span> <span className="text-white">{targets[targetIndex]?.date_of_birth || 'UNKNOWN'}</span></p>
+                                                <p className="mt-1"><span className="bg-intel-hostile text-black px-1 rounded-sm text-[8px] font-mono">ID: {targets[targetIndex]?.entity_id}</span></p>
+                                            </div>
+                                         </div>
+                                     )}
+                                 </div>
+                                 <div className="mt-2 text-[8px] text-intel-hostile/70 text-center animate-pulse border-t border-intel-hostile/20 pt-1 tracking-widest">CLICK PROFILE FOR FULL DOSSIER</div>
+                             </div>
+
+                             <div className="border border-intel-text/40 bg-intel-text/5 p-2 rounded-sm relative group">
+                                 <div className="absolute top-0 right-0 bg-intel-text text-black text-[9px] px-1.5 py-0.5 font-bold uppercase">SECURE_MEMO</div>
+                                 <h2 className="text-intel-text mb-2 text-[10px] uppercase tracking-widest border-b border-intel-text/30 pb-1 flex justify-between items-center pr-24">
+                                     <div className="flex items-center gap-1.5"><IconBookOpen /> Scratchpad</div>
+                                     <button onClick={burnNotes} className="bg-intel-hostile hover:bg-white text-black text-[8px] font-bold px-1.5 py-0.5 rounded-sm transition-colors shadow-[0_0_5px_rgba(255,30,70,0.5)]">BURN</button>
+                                 </h2>
+                                 <textarea 
+                                     className={`w-full bg-intel-bg border border-intel-border text-intel-highlight font-mono text-[10px] p-2 outline-none resize-none focus:border-intel-text transition-colors h-24 ${isBurning ? 'burn-effect' : ''}`} 
+                                     placeholder="> Enter local targets, codes, or intel here...&#10;> Data is securely stored locally."
+                                     value={notes}
+                                     onChange={handleNotesChange}
+                                 ></textarea>
+                             </div>
+                         </div>
+                     )}
+
+                     {dossierOpen && targets[targetIndex] && (
+                         <div className="fixed inset-0 bg-black/80 z-[99999] flex items-center justify-center p-4">
+                            <div className="hud-panel border border-intel-hostile w-full max-w-2xl relative shadow-[0_0_30px_rgba(255,30,70,0.2)] font-mono">
+                                <HUDCorners />
+                                <div className="bg-intel-hostile text-black px-4 py-2 font-bold flex justify-between items-center text-xs tracking-widest uppercase">
+                                    <span>// CLASSIFIED DOSSIER // INTERPOL RED NOTICE</span>
+                                    <button onClick={() => setDossierOpen(false)} className="hover:text-white transition-colors">
+                                        <IconX />
+                                    </button>
+                                </div>
+                                <div className="p-4 sm:p-6 text-intel-text flex flex-col sm:flex-row gap-6 items-start">
+                                    <img src={targets[targetIndex]?._links?.thumbnail?.href || 'https://placehold.co/200x200/060d1a/ff1e46?text=NO+IMAGE'} className="w-32 h-32 sm:w-48 sm:h-48 object-cover grayscale border-2 border-intel-hostile shadow-[0_0_15px_rgba(255,30,70,0.4)]" />
+                                    <div className="space-y-3 flex-grow w-full text-xs sm:text-sm">
+                                        <div className="border-b border-intel-border pb-2">
+                                            <span className="text-intel-hostile font-bold w-24 sm:w-32 inline-block">FULL NAME:</span> 
+                                            <span className="text-white text-sm sm:text-lg tracking-wider uppercase">{targets[targetIndex]?.forename || ''} {targets[targetIndex]?.name || 'UNKNOWN'}</span>
+                                        </div>
+                                        <div className="border-b border-intel-border pb-2">
+                                            <span className="text-intel-hostile font-bold w-24 sm:w-32 inline-block">DOB:</span> 
+                                            <span className="text-intel-highlight">{targets[targetIndex]?.date_of_birth || 'REDACTED'}</span>
+                                        </div>
+                                        <div className="border-b border-intel-border pb-2">
+                                            <span className="text-intel-hostile font-bold w-24 sm:w-32 inline-block">WARRANT ID:</span> 
+                                            <span className="text-intel-highlight">{targets[targetIndex]?.entity_id}</span>
+                                        </div>
+                                        <div className="border-b border-intel-border pb-2">
+                                            <span className="text-intel-hostile font-bold w-24 sm:w-32 inline-block">ISSUING AUTH:</span> 
+                                            <span className="text-intel-highlight">INTERPOL GENERAL SECRETARIAT</span>
+                                        </div>
+                                        <div className="mt-4 bg-intel-hostile/10 p-3 sm:p-4 border border-intel-hostile/30 rounded-sm relative overflow-hidden">
+                                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-intel-hostile animate-pulse"></div>
+                                            <p className="text-intel-hostile font-bold mb-2 text-[10px] sm:text-xs tracking-wider">[ WARNING: SUBJECT CONSIDERED HIGH RISK ]</p>
+                                            <p className="text-[9px] sm:text-[10px] text-intel-text leading-relaxed">If you have any information, contact your national police agency or the INTERPOL General Secretariat. Do not approach the subject directly under any circumstances.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                         </div>
+                     )}
+                 </div>
+             );
+        };
+
         const CyberTargetReadout = () => {
             const { hoveredCountryId, selectedCountryId, activeFilters, isMobile } = useGlobalState();
             if (isMobile && (selectedCountryId || activeFilters.length > 0)) return null;
 
-            const baseClasses = "absolute top-28 left-3 md:left-5 w-64 md:w-72 z-30 pointer-events-none transition-opacity duration-150";
+            // Adjusted top spacing for mobile to account for vertically stacked toolbar 
+            const baseClasses = "absolute top-36 md:top-28 left-3 md:left-5 w-64 md:w-72 z-30 pointer-events-none transition-opacity duration-150";
 
             if (!hoveredCountryId) {
                 return (
@@ -1356,7 +1430,6 @@
                 const isoStr = country ? country.iso3 : 'GLOBAL';
                 document.title = `GeoNexus_Dossier_${isoStr}`;
                 window.print();
-                // Restore original title
                 document.title = 'GeoNexus: Global Intelligence Terminal';
             };
 
@@ -1427,13 +1500,9 @@
                                 ))}
                             </div>
                             
-                            {/* LIVE NEWS INTELLIGENCE FEED */}
                             <LiveNewsFeed countryName={country.name} />
-
-                            {/* HISTORICAL CALENDAR DATABANK */}
                             <HistoricalCalendarArchive countryName={country.name} />
 
-                            {/* MUTUAL ACCORDS */}
                             <div className="space-y-2 mt-4">
                                 <div className="text-[9px] font-mono text-intel-accent uppercase tracking-widest border-b border-intel-border pb-1">
                                     MUTUAL ACCORDS & STRATEGIC PACTS ({relations.length})
@@ -1796,7 +1865,11 @@
                     ) : (
                         <>
                             <TopNav />
-                            <GlobalTreatyFilter />
+                            {/* Flex container enables side-by-side on desktop, stacked on mobile */}
+                            <div className="absolute top-16 left-3 md:left-5 z-40 flex flex-col md:flex-row gap-2 items-start pointer-events-none">
+                                <div className="pointer-events-auto z-20"><GlobalTreatyFilter /></div>
+                                <div className="pointer-events-auto z-10"><OSINTPanel /></div>
+                            </div>
                             <CyberTargetReadout />
                             <MapEngine />
                             <IntelligenceSidebar />
